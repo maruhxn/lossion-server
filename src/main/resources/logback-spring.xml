@@ -1,0 +1,40 @@
+<configuration>
+    <property resource="logback-variables.properties"/>
+
+    <timestamp key="ToDay" datePattern="yyyy-MM-dd"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                ${LOG_PATTERN} <!-- 로그_이벤트_발생_시간 [로그_레벨] [로그_이벤트_발생_스레드] [로그_이벤트_발생시킨_주체_이름]-[로그_이벤트_메시지]-->
+            </Pattern>
+        </layout>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter"> <!-- 특정 로그 레벨에서 사용하기 위한 필터 정의 -->
+            <level>error</level> <!-- ERROR 레벨에 대한 필터-->
+            <onMatch>ACCEPT</onMatch> <!-- ERROR라면 진행-->
+            <onMismatch>DENY</onMismatch> <!-- ERROR가 아니라면 거절 -->
+        </filter>
+
+        <file>${LOG_PATH}/${ToDay}/${LOG_FILE_NAME}.log</file> <!-- 로그 파일에 대한 이름 지정 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern> <!-- (rollingPolicy 설정 시 필수) 롤링된 로그 파일의 이름 패턴을 정의. 롤링되면 새로운 파일이 생기기 때문에 _i%를 통해 생성된 파일 이름을 세팅. -->
+                ${LOG_PATH}/%d{yyyy-MM-dd}/${LOG_FILE_NAME}_%i.log
+            </fileNamePattern>
+            <!-- 롤링 정책 적용(size = 하나의 파일에 최대 10MB의 로그 파일 저장, history = 로그 파일의 최대 유지 개수) -->
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder> <!-- RollingFileAppender에서 사용하는 로그 메시지의 출력 형식 지정 -->
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 모든 로그는 root logger의 자손이며, 위 정책들을 사용하기 위해선 root logger를 설정해야 함. -->
+    <root level="INFO"> <!-- 루트 로거의 레벨을 정의. INFO로 설정했기 때문에 INFO 레벨 이상의 로그만 처리(INFO / WARN / ERROR) -->
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
