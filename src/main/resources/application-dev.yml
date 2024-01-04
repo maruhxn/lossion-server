@@ -34,3 +34,6 @@ logging:
   level:
     com.maruhxn.lossion: debug
     org.hibernate.SQL: debug
+
+jwt:
+  secret-key: S3cr3tK3y
