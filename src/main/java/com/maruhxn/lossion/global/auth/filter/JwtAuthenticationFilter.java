@@ -2,7 +2,11 @@ package com.maruhxn.lossion.global.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maruhxn.lossion.domain.auth.dto.LoginReq;
+import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.global.auth.provider.JwtProvider;
+import com.maruhxn.lossion.global.common.dto.BaseResponse;
+import com.maruhxn.lossion.global.common.dto.ErrorResponse;
+import com.maruhxn.lossion.global.error.ErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,14 +15,20 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Set;
 
 public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
@@ -56,45 +66,45 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        System.out.println("성공");
-        System.out.println("authResult = " + authResult);
+        Member loginMember = (Member) authResult.getPrincipal();
+        String accountId = loginMember.getAccountId();
+        String username = loginMember.getUsername();
+        String email = loginMember.getEmail();
+        Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
+        GrantedAuthority authority = authorities.iterator().next();
+
+        String role = authority.getAuthority();
+
+        String token = jwtProvider.createJwt(accountId, email, username, role, 60 * 60 * 10L);
+        response.addHeader("Authorization", "Bearer " + token); // jwt를 헤더에 추가
+
+        BaseResponse responseDto = new BaseResponse("로그인 성공");
+
+        response.setStatus(HttpStatus.OK.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+
+        objectMapper.writeValue(response.getWriter(), responseDto);
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        System.out.println("실패");
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+
+        BaseResponse responseDto = null;
+
+        if (exception instanceof BadCredentialsException) {
+            responseDto = ErrorResponse.of(ErrorCode.INCORRECT_PASSWORD);
+        } else if (exception instanceof UsernameNotFoundException) {
+            responseDto = ErrorResponse.of(ErrorCode.NOT_FOUND_MEMBER);
+        }
+
+        objectMapper.writeValue(response.getWriter(), responseDto);
     }
 
-//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-//        try {
-//            String token = parseBearerToken(request);
-//
-//            if (token == null) {
-//                filterChain.doFilter(request, response);
-//                return;
-//            }
-//
-//            String email = jwtProvider.validate(token);
-//
-//            if (email == null) {
-//                filterChain.doFilter(request, response);
-//                return;
-//            }
-//
-//            AbstractAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, null, AuthorityUtils.NO_AUTHORITIES);
-//            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//
-//            SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-//            securityContext.setAuthentication(authenticationToken);
-//
-//            SecurityContextHolder.setContext(securityContext);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        filterChain.doFilter(request, response);
-//    }
-//
+
 //    // 헤더에서 Bearer Token을 파싱해옴.
 //    private String parseBearerToken(HttpServletRequest request) {
 //        String authorization = request.getHeader("Authorization");
