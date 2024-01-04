@@ -1,12 +1,18 @@
 package com.maruhxn.lossion.global.auth.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maruhxn.lossion.global.auth.filter.JwtAuthenticationFilter;
 import com.maruhxn.lossion.global.auth.handler.JwtAccessDeniedHandler;
 import com.maruhxn.lossion.global.auth.handler.JwtAuthenticationEntryPoint;
+import com.maruhxn.lossion.global.auth.provider.JwtAuthenticationProvider;
+import com.maruhxn.lossion.global.auth.provider.JwtProvider;
+import com.maruhxn.lossion.global.auth.service.JwtUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,7 +35,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationConfiguration authenticationConfiguration;
+    private final JwtProvider jwtProvider;
+    private final ObjectMapper objectMapper;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -49,7 +57,7 @@ public class SecurityConfig {
                                 .requestMatchers("/", "/api/auth/**").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling
                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint())
@@ -59,6 +67,22 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager() throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider, objectMapper);
+        jwtAuthenticationFilter.setAuthenticationManager(authenticationManager());
+        return jwtAuthenticationFilter;
+    }
+
+    @Bean
+    public JwtAuthenticationProvider jwtAuthenticationProvider(JwtUserDetailsService jwtUserDetailsService) {
+        return new JwtAuthenticationProvider(jwtUserDetailsService, passwordEncoder());
+    }
 
     @Bean
     public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
