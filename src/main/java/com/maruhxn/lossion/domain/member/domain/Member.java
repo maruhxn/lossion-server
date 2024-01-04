@@ -1,5 +1,6 @@
 package com.maruhxn.lossion.domain.member.domain;
 
+import com.maruhxn.lossion.domain.auth.dto.SignUpReq;
 import com.maruhxn.lossion.global.common.BaseEntity;
 import com.maruhxn.lossion.global.common.Constants;
 import jakarta.persistence.Column;
@@ -27,7 +28,7 @@ public class Member extends BaseEntity {
     @Column(length = 15, nullable = false, unique = true)
     private String username;
 
-    @Column(length = 20, nullable = false)
+    @Column(nullable = false)
     private String password;
 
     @Column(length = 15, nullable = false)
@@ -60,5 +61,15 @@ public class Member extends BaseEntity {
         this.profileImage = Constants.BASIC_PROFILE_IMAGE_NAME;
         this.role = Role.ROLE_USER;
         this.isVerified = false;
+    }
+
+    public static Member from(SignUpReq req) {
+        return Member.builder()
+                .accountId(req.getAccountId())
+                .email(req.getEmail())
+                .telNumber(req.getTelNumber())
+                .username(req.getUsername())
+                .password(req.getPassword())
+                .build();
     }
 }

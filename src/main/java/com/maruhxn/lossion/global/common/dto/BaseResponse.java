@@ -10,12 +10,14 @@ public class BaseResponse {
     private String code;
     private String message;
 
+    public BaseResponse(String message) {
+        this.code = "OK";
+        this.message = message;
+    }
+
     public BaseResponse(String code, String message) {
         this.code = code;
         this.message = message;
     }
 
-    public static BaseResponse of(String message) {
-        return new BaseResponse("OK", message);
-    }
 }
