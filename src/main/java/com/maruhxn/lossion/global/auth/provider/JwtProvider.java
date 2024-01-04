@@ -1,48 +1,80 @@
 package com.maruhxn.lossion.global.auth.provider;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Component
 public class JwtProvider {
 
-    @Value("${jwt.secret-key}")
-    private String SECRET_KEY;
+    private SecretKey secretKey;
 
-    public String create(String email) {
-        Date expiredDate = Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
-        Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    public JwtProvider(@Value("${jwt.secret-key}") String secret) {
+        this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+    }
+
+    public String createJwt(String accountId, String email, String username, String role, Long expiredMs) {
+
         return Jwts.builder()
-                .signWith(key, SignatureAlgorithm.HS256)
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(expiredDate)
+                .claim("acountId", accountId)
+                .claim("email", email)
+                .claim("username", username)
+                .claim("role", role)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .signWith(secretKey)
                 .compact();
     }
 
-    public String validate(String jwt) {
-        Claims claims = null;
-        Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
-        try {
-            claims = Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(jwt)
-                    .getBody();
-        } catch (Exception e) {
-            return null;
-        }
-
-        return claims.getSubject();
+    public String getAccountId(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey) // 검증 진행
+                .build() //JwtParser
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("accountId", String.class);
     }
+
+    public String getEmail(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey) // 검증 진행
+                .build() //JwtParser
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("email", String.class);
+    }
+
+    public String getUsername(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey) // 검증 진행
+                .build() //JwtParser
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("username", String.class);
+    }
+
+    public String getRole(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("role", String.class);
+    }
+
+    public Boolean isExpired(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getExpiration()
+                .before(new Date());
+    }
+
 }
