@@ -30,6 +30,9 @@ public class Member extends BaseEntity {
     @Column(length = 20, nullable = false)
     private String password;
 
+    @Column(length = 15, nullable = false)
+    private String telNumber;
+
     @Column(nullable = false)
     @ColumnDefault("0")
     private Boolean isVerified;
@@ -42,14 +45,16 @@ public class Member extends BaseEntity {
     private Role role;
 
     @Builder
-    public Member(String accountId, String email, String username, String password) {
+    public Member(String accountId, String email, String telNumber, String username, String password) {
         Assert.hasText(email, "아이디는 필수입니다.");
         Assert.hasText(email, "이메일은 필수입니다.");
+        Assert.hasText(telNumber, "전화번호는 필수입니다.");
         Assert.hasText(email, "유저명은 필수입니다.");
         Assert.hasText(email, "비밀번호는 필수입니다.");
 
         this.accountId = accountId;
         this.email = email;
+        this.telNumber = telNumber;
         this.username = username;
         this.password = password;
         this.profileImage = Constants.BASIC_PROFILE_IMAGE_NAME;
