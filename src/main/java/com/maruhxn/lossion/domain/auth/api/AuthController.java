@@ -2,10 +2,11 @@ package com.maruhxn.lossion.domain.auth.api;
 
 import com.maruhxn.lossion.domain.auth.application.AuthService;
 import com.maruhxn.lossion.domain.auth.dto.SignUpReq;
+import com.maruhxn.lossion.domain.auth.dto.VerifyEmailReq;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.common.dto.BaseResponse;
-import com.maruhxn.lossion.global.common.dto.DataResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +29,20 @@ public class AuthController {
         return new ResponseEntity<>(new BaseResponse("회원가입 성공"), HttpStatus.CREATED);
     }
 
-    @GetMapping("/test")
-    public DataResponse<JwtMemberInfo> test(
-            @AuthenticationPrincipal JwtMemberInfo jwtMemberInfo
+    @GetMapping("/send-verify-email")
+    public ResponseEntity<BaseResponse> sendVerifyEmail(
+            @AuthenticationPrincipal JwtMemberInfo memberInfo
     ) {
-        return DataResponse.of("유저 정보", jwtMemberInfo);
+        authService.sendVerifyEmail(memberInfo);
+        return ResponseEntity.ok(new BaseResponse("인증 메일 발송 성공"));
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<BaseResponse> verifyEmail(
+            @AuthenticationPrincipal JwtMemberInfo memberInfo,
+            @RequestBody @Valid VerifyEmailReq req
+    ) {
+        authService.verifyEmail(memberInfo, req);
+        return ResponseEntity.ok(new BaseResponse("이메일 인증 성공"));
     }
 }
