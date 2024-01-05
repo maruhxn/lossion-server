@@ -1,6 +1,7 @@
 package com.maruhxn.lossion.domain.member.domain;
 
 import com.maruhxn.lossion.domain.auth.dto.SignUpReq;
+import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.common.BaseEntity;
 import com.maruhxn.lossion.global.common.Constants;
 import jakarta.persistence.Column;
@@ -71,5 +72,26 @@ public class Member extends BaseEntity {
                 .username(req.getUsername())
                 .password(req.getPassword())
                 .build();
+    }
+
+    public static Member of(JwtMemberInfo jwtMemberInfo) {
+        Member member = Member.builder()
+                .accountId(jwtMemberInfo.getAccountId())
+                .email(jwtMemberInfo.getEmail())
+                .telNumber(jwtMemberInfo.getTelNumber())
+                .username(jwtMemberInfo.getUsername())
+                .password("fakepassword")
+                .build();
+        member.setRole(jwtMemberInfo.getRole());
+        member.setProfileImage(jwtMemberInfo.getProfileImage());
+        return member;
+    }
+
+    public void setRole(String role) {
+        this.role = Role.valueOf(role);
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

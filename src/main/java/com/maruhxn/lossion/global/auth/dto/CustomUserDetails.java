@@ -1,7 +1,6 @@
-package com.maruhxn.lossion.global.auth;
+package com.maruhxn.lossion.global.auth.dto;
 
 import com.maruhxn.lossion.domain.member.domain.Member;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Getter
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
@@ -25,16 +23,20 @@ public class CustomUserDetails implements UserDetails {
         return authorities;
     }
 
-    public Long getId() {
-        return member.getId();
-    }
-
     public String getAccountId() {
         return member.getAccountId();
     }
 
     public String getEmail() {
         return member.getEmail();
+    }
+
+    public String getTelNumber() {
+        return member.getTelNumber();
+    }
+
+    public String getProfileImage() {
+        return member.getProfileImage();
     }
 
     @Override
@@ -64,6 +66,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return member.getIsVerified();
     }
 }

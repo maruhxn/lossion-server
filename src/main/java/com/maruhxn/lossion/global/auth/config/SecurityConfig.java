@@ -2,6 +2,7 @@ package com.maruhxn.lossion.global.auth.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maruhxn.lossion.global.auth.filter.JwtAuthenticationFilter;
+import com.maruhxn.lossion.global.auth.filter.JwtFilter;
 import com.maruhxn.lossion.global.auth.handler.JwtAccessDeniedHandler;
 import com.maruhxn.lossion.global.auth.handler.JwtAuthenticationEntryPoint;
 import com.maruhxn.lossion.global.auth.provider.JwtAuthenticationProvider;
@@ -55,9 +56,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz ->
                         authz
                                 .requestMatchers("/", "/api/auth/**").permitAll()
+                                .requestMatchers("/api/auth/test").authenticated()
                                 .anyRequest().authenticated()
                 )
                 .addFilterAt(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFilter(), JwtAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling
                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint())
@@ -82,6 +85,11 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationProvider jwtAuthenticationProvider(JwtUserDetailsService jwtUserDetailsService) {
         return new JwtAuthenticationProvider(jwtUserDetailsService, passwordEncoder());
+    }
+
+    @Bean
+    public JwtFilter jwtFilter() {
+        return new JwtFilter(jwtProvider);
     }
 
     @Bean

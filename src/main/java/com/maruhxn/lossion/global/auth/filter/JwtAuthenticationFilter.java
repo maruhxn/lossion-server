@@ -2,7 +2,7 @@ package com.maruhxn.lossion.global.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maruhxn.lossion.domain.auth.dto.LoginReq;
-import com.maruhxn.lossion.domain.member.domain.Member;
+import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.provider.JwtProvider;
 import com.maruhxn.lossion.global.common.dto.BaseResponse;
 import com.maruhxn.lossion.global.common.dto.ErrorResponse;
@@ -22,13 +22,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Set;
 
 public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
@@ -66,16 +64,8 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        Member loginMember = (Member) authResult.getPrincipal();
-        String accountId = loginMember.getAccountId();
-        String username = loginMember.getUsername();
-        String email = loginMember.getEmail();
-        Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
-        GrantedAuthority authority = authorities.iterator().next();
-
-        String role = authority.getAuthority();
-
-        String token = jwtProvider.createJwt(accountId, email, username, role, 60 * 60 * 10L);
+        JwtMemberInfo jwtMemberInfo = (JwtMemberInfo) authResult.getPrincipal();
+        String token = jwtProvider.createJwt(jwtMemberInfo);
         response.addHeader("Authorization", "Bearer " + token); // jwt를 헤더에 추가
 
         BaseResponse responseDto = new BaseResponse("로그인 성공");
@@ -89,6 +79,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
@@ -104,17 +95,4 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
         objectMapper.writeValue(response.getWriter(), responseDto);
     }
 
-
-//    // 헤더에서 Bearer Token을 파싱해옴.
-//    private String parseBearerToken(HttpServletRequest request) {
-//        String authorization = request.getHeader("Authorization");
-//
-//        boolean hasAuthorization = StringUtils.hasText(authorization);
-//        if (!hasAuthorization) return null;
-//
-//        boolean isBearer = authorization.startsWith("Bearer ");
-//        if (!isBearer) return null;
-//
-//        return authorization.substring(7);
-//    }
 }

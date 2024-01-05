@@ -1,6 +1,7 @@
 package com.maruhxn.lossion.global.auth.provider;
 
-import com.maruhxn.lossion.global.auth.CustomUserDetails;
+import com.maruhxn.lossion.global.auth.dto.CustomUserDetails;
+import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.service.JwtUserDetailsService;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +29,10 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException(ErrorCode.INCORRECT_PASSWORD.getMessage());
         }
 
+        JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(userDetails);
+
         return UsernamePasswordAuthenticationToken.authenticated(
-                userDetails.getMember(),
+                jwtMemberInfo,
                 null,
                 userDetails.getAuthorities()
         );
