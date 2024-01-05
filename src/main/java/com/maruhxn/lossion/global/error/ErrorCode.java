@@ -25,6 +25,7 @@ public enum ErrorCode {
     /* NOT FOUND 404 */
     NOT_FOUND_RESOURCE(HttpStatus.NOT_FOUND, "요청하신 자원이 존재하지 않습니다."),
     NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."),
+    NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND, "토큰 정보가 올바르지 않습니다."),
 
     /* UNPROCESSABLE CONTENT 422 */
     EXISTING_RESOURCE(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 리소스입니다."),
@@ -32,6 +33,8 @@ public enum ErrorCode {
     EXISTING_EMAIL(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 이메일입니다."),
     EXISTING_USERNAME(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 유저명입니다."),
     EXISTING_TEL(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 전화번호입니다."),
+    ALREADY_VERIFIED(HttpStatus.UNPROCESSABLE_ENTITY, "이미 인증된 이메일입니다."),
+    TOKEN_EXPIRATION(HttpStatus.UNPROCESSABLE_ENTITY, "이미 만료된 토큰입니다"),
 
     /* INTERNAL SERVER ERROR  500 */
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류입니다."),

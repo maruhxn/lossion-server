@@ -56,7 +56,7 @@ public class SecurityConfig {
                                 .configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz ->
                         authz
-                                .requestMatchers("/", "/api/auth/**").permitAll()
+                                .requestMatchers("/", "/api/auth/sign-up").permitAll()
                                 .requestMatchers("/api/auth/test").authenticated()
                                 .anyRequest().authenticated()
                 )
