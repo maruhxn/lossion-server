@@ -20,6 +20,7 @@ public class JwtMemberInfo {
     private final String username;
     private final String telNumber;
     private final String profileImage;
+    private final Boolean isVerified;
     private final String role;
 
     public static JwtMemberInfo from(CustomUserDetails userDetails) {
@@ -33,6 +34,7 @@ public class JwtMemberInfo {
                 .username(userDetails.getUsername())
                 .telNumber(userDetails.getTelNumber())
                 .profileImage(userDetails.getProfileImage())
+                .isVerified(userDetails.isEnabled())
                 .role(role)
                 .build();
     }
@@ -44,6 +46,7 @@ public class JwtMemberInfo {
                 .username(jwtProvider.getUsername(token))
                 .telNumber(jwtProvider.getTelNumber(token))
                 .profileImage(jwtProvider.getProfileImage(token))
+                .isVerified(jwtProvider.getIsVerified(token))
                 .role(jwtProvider.getRole(token))
                 .build();
     }

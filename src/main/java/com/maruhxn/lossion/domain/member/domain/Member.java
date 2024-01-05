@@ -20,13 +20,13 @@ import org.springframework.util.Assert;
 @DynamicInsert
 public class Member extends BaseEntity {
 
-    @Column(length = 30, nullable = false, unique = true)
+    @Column(length = 10, nullable = false, unique = true)
     private String accountId;
 
     @Column(length = 30, nullable = false, unique = true)
     private String email;
 
-    @Column(length = 15, nullable = false, unique = true)
+    @Column(length = 10, nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
@@ -93,5 +93,9 @@ public class Member extends BaseEntity {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public void verifyEmail() {
+        this.isVerified = true;
     }
 }

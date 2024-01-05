@@ -33,6 +33,7 @@ public class JwtProvider {
                 .claim("username", jwtMemberInfo.getUsername())
                 .claim("telNumber", jwtMemberInfo.getTelNumber())
                 .claim("profileImage", jwtMemberInfo.getProfileImage())
+                .claim("isVerified", jwtMemberInfo.getIsVerified())
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
@@ -91,4 +92,8 @@ public class JwtProvider {
                 .before(new Date());
     }
 
+    public Boolean getIsVerified(String token) {
+        return getPayload(token)
+                .get("isVerified", Boolean.class);
+    }
 }
