@@ -1,9 +1,7 @@
 package com.maruhxn.lossion.global.auth.provider;
 
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +24,7 @@ public class JwtProvider {
     }
 
     public String createJwt(JwtMemberInfo jwtMemberInfo) {
-        Long expiredMs = 15 * 1000L;
+        Long expiredMs = 60 * 60 * 1000L;
         String role = jwtMemberInfo.getRole();
 
         return Jwts.builder()
@@ -43,9 +41,19 @@ public class JwtProvider {
     }
 
     private Claims getPayload(String token) {
-        return jwtParser
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return jwtParser
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (SecurityException e) {
+            throw new JwtException("검증 정보가 올바르지 않습니다.");
+        } catch (MalformedJwtException e) {
+            throw new JwtException("유효하지 않은 토큰입니다.");
+        } catch (ExpiredJwtException e) {
+            throw new JwtException("기한이 만료된 토큰입니다.");
+        } catch (UnsupportedJwtException e) {
+            throw new JwtException("지원되지 않는 토큰입니다.");
+        }
     }
 
     public String getAccountId(String token) {

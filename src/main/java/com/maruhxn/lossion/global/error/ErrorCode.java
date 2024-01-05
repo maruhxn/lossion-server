@@ -17,6 +17,7 @@ public enum ErrorCode {
 
     /* UNAUTHORIZED 401 */
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스입니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
 
     /* FORBIDDEN 403 */
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),

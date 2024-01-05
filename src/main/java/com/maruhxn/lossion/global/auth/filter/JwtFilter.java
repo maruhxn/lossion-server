@@ -7,7 +7,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,34 +23,30 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        try {
-            String authorization = request.getHeader("Authorization");
 
-            if (!StringUtils.hasText(authorization) || !authorization.startsWith("Bearer ")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
+        String authorization = request.getHeader("Authorization");
 
-            // 토큰 추출
-            String token = authorization.split(" ")[1];
-
-            // 토큰에서 정보 추출
-            JwtMemberInfo jwtMemberInfo = JwtMemberInfo.of(jwtProvider, token);
-
-            // authority 추출
-            List<GrantedAuthority> authorities = jwtMemberInfo.extractAuthorities();
-
-            UsernamePasswordAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken.authenticated(
-                    jwtMemberInfo,
-                    null,
-                    authorities
-            );
-
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
-        } catch (Exception e) {
-            throw new BadCredentialsException("유효하지 않은 토큰입니다.");
+        if (!StringUtils.hasText(authorization) || !authorization.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
         }
+
+        // 토큰 추출
+        String token = authorization.split(" ")[1];
+
+        // 토큰에서 정보 추출
+        JwtMemberInfo jwtMemberInfo = JwtMemberInfo.of(jwtProvider, token);
+
+        // authority 추출
+        List<GrantedAuthority> authorities = jwtMemberInfo.extractAuthorities();
+
+        UsernamePasswordAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken.authenticated(
+                jwtMemberInfo,
+                null,
+                authorities
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         filterChain.doFilter(request, response);
     }
