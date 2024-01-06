@@ -5,7 +5,12 @@ import com.maruhxn.lossion.domain.auth.dto.SignUpReq;
 import com.maruhxn.lossion.domain.auth.dto.VerifyEmailReq;
 import com.maruhxn.lossion.domain.auth.dto.VerifyPasswordReq;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
+import com.maruhxn.lossion.global.auth.dto.TokenDto;
+import com.maruhxn.lossion.global.auth.provider.JwtProvider;
+import com.maruhxn.lossion.global.auth.service.JwtService;
 import com.maruhxn.lossion.global.common.dto.BaseResponse;
+import com.maruhxn.lossion.global.common.dto.DataResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
+    private final JwtProvider jwtProvider;
 
     @PostMapping("/sign-up")
     @ResponseStatus(HttpStatus.CREATED)
@@ -27,6 +34,17 @@ public class AuthController {
     ) {
         authService.signUp(req);
         return new ResponseEntity<>(new BaseResponse("회원가입 성공"), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/refresh")
+    public ResponseEntity<DataResponse<TokenDto>> refresh(
+            HttpServletResponse response,
+            @RequestHeader(value = "Refresh", required = true) String bearerRefreshToken
+    ) {
+        System.out.println("bearerRefreshToken = " + bearerRefreshToken);
+        TokenDto tokenDto = jwtService.refresh(bearerRefreshToken);
+        jwtProvider.setHeader(response, tokenDto);
+        return ResponseEntity.ok(DataResponse.of("Token Refresh 성공", tokenDto));
     }
 
     @GetMapping("/send-verify-email")
@@ -53,5 +71,15 @@ public class AuthController {
     ) {
         authService.verifyPassword(memberInfo, req);
         return ResponseEntity.ok(new BaseResponse("비밀번호 인증 성공"));
+    }
+
+    @PatchMapping("/logout")
+    public ResponseEntity<BaseResponse> logout(
+            @RequestHeader(value = "Refresh", required = true) String bearerRefreshToken
+    ) {
+        String refreshToken = jwtProvider.getBearerTokenToString(bearerRefreshToken);
+        jwtService.logout(refreshToken);
+
+        return new ResponseEntity<>(new BaseResponse("로그아웃 성공"), HttpStatus.NO_CONTENT);
     }
 }

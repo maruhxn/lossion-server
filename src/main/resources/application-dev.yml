@@ -37,4 +37,6 @@ logging:
 
 jwt:
   secret-key: S3cr3tK3yasdfasvlhasklrqklwefhlaskdfhlaksdfhlaskrhlkqewrhklfasdvnkansdk
-  expired-ms: 3600000
+  expiration: 86400000 # 1일
+  refresh-token:
+    expiration: 604800000 # 7일

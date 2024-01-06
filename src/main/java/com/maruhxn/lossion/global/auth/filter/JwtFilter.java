@@ -18,6 +18,11 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
+    private static final List<String> EXCLUDE_URL =
+            List.of("/",
+                    "/api/auth/sign-up",
+                    "/api/auth/login",
+                    "/api/auth/refresh");
 
     private final JwtProvider jwtProvider;
 
@@ -26,13 +31,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String authorization = request.getHeader("Authorization");
 
-        if (!StringUtils.hasText(authorization) || !authorization.startsWith("Bearer ")) {
+        // 토큰 추출
+        String token = jwtProvider.getBearerTokenToString(authorization);
+
+        if (!StringUtils.hasText(token) || !jwtProvider.validate(token)) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        // 토큰 추출
-        String token = authorization.split(" ")[1];
 
         // 토큰에서 정보 추출
         JwtMemberInfo jwtMemberInfo = JwtMemberInfo.of(jwtProvider, token);
@@ -53,6 +58,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getServletPath().equals("/api/auth/login");
+        boolean result = EXCLUDE_URL.stream().anyMatch(exclude -> exclude.equalsIgnoreCase(request.getServletPath()));
+
+        return result;
     }
 }

@@ -8,6 +8,7 @@ import com.maruhxn.lossion.global.auth.handler.JwtAccessDeniedHandler;
 import com.maruhxn.lossion.global.auth.handler.JwtAuthenticationEntryPoint;
 import com.maruhxn.lossion.global.auth.provider.JwtAuthenticationProvider;
 import com.maruhxn.lossion.global.auth.provider.JwtProvider;
+import com.maruhxn.lossion.global.auth.service.JwtService;
 import com.maruhxn.lossion.global.auth.service.JwtUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -39,6 +40,7 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtProvider jwtProvider;
+    private final JwtService jwtService;
     private final ObjectMapper objectMapper;
 
     @Bean
@@ -56,7 +58,7 @@ public class SecurityConfig {
                                 .configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz ->
                         authz
-                                .requestMatchers("/", "/api/auth/sign-up").permitAll()
+                                .requestMatchers("/", "/api/auth/sign-up", "/api/auth/refresh").permitAll()
                                 .requestMatchers("/api/auth/test").authenticated()
                                 .anyRequest().authenticated()
                 )
@@ -79,7 +81,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider, objectMapper);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider, objectMapper, jwtService);
         jwtAuthenticationFilter.setAuthenticationManager(authenticationManager());
         return jwtAuthenticationFilter;
     }

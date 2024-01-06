@@ -1,9 +1,12 @@
 package com.maruhxn.lossion.global.auth.provider;
 
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
+import com.maruhxn.lossion.global.auth.dto.TokenDto;
 import io.jsonwebtoken.*;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -13,8 +16,11 @@ import java.util.Date;
 @Component
 public class JwtProvider {
 
-    @Value("${jwt.expired-ms}")
-    private Long expiredMs;
+    @Value("${jwt.expiration}")
+    private Long jwtExpiration;
+
+    @Value("${jwt.refresh-token.expiration}")
+    private Long refreshTokenExpiration;
     private SecretKey secretKey;
     private JwtParser jwtParser;
 
@@ -25,37 +31,46 @@ public class JwtProvider {
                 .build();
     }
 
-    public String createJwt(JwtMemberInfo jwtMemberInfo) {
-        String role = jwtMemberInfo.getRole();
+    public TokenDto createJwt(JwtMemberInfo jwtMemberInfo) {
 
+        String accessToken = generateAccessToken(jwtMemberInfo);
+        String refreshToken = generateRefreshToken(jwtMemberInfo);
+
+        return TokenDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    public String generateRefreshToken(JwtMemberInfo jwtMemberInfo) {
         return Jwts.builder()
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .subject(jwtMemberInfo.getAccountId())
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String generateAccessToken(JwtMemberInfo jwtMemberInfo) {
+        return Jwts.builder()
+                .subject(jwtMemberInfo.getUsername())
                 .claim("accountId", jwtMemberInfo.getAccountId())
                 .claim("email", jwtMemberInfo.getEmail())
                 .claim("username", jwtMemberInfo.getUsername())
                 .claim("telNumber", jwtMemberInfo.getTelNumber())
                 .claim("profileImage", jwtMemberInfo.getProfileImage())
                 .claim("isVerified", jwtMemberInfo.getIsVerified())
-                .claim("role", role)
+                .claim("role", jwtMemberInfo.getRole())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(secretKey)
                 .compact();
     }
 
-    private Claims getPayload(String token) {
-        try {
-            return jwtParser
-                    .parseSignedClaims(token)
-                    .getPayload();
-        } catch (SecurityException e) {
-            throw new JwtException("검증 정보가 올바르지 않습니다.");
-        } catch (MalformedJwtException e) {
-            throw new JwtException("유효하지 않은 토큰입니다.");
-        } catch (ExpiredJwtException e) {
-            throw new JwtException("기한이 만료된 토큰입니다.");
-        } catch (UnsupportedJwtException e) {
-            throw new JwtException("지원되지 않는 토큰입니다.");
-        }
+    public Claims getPayload(String token) {
+        return jwtParser
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     public String getAccountId(String token) {
@@ -87,14 +102,37 @@ public class JwtProvider {
                 .get("role", String.class);
     }
 
-    public Boolean isExpired(String token) {
-        return getPayload(token)
-                .getExpiration()
-                .before(new Date());
+    public Boolean validate(String token) {
+        try {
+            return getPayload(token)
+                    .getExpiration()
+                    .after(new Date());
+        } catch (SecurityException e) {
+            throw new JwtException("검증 정보가 올바르지 않습니다.");
+        } catch (MalformedJwtException e) {
+            throw new JwtException("유효하지 않은 토큰입니다.");
+        } catch (ExpiredJwtException e) {
+            throw new JwtException("기한이 만료된 토큰입니다.");
+        } catch (UnsupportedJwtException e) {
+            throw new JwtException("지원되지 않는 토큰입니다.");
+        }
     }
 
     public Boolean getIsVerified(String token) {
         return getPayload(token)
                 .get("isVerified", Boolean.class);
+    }
+
+
+    public String getBearerTokenToString(String bearerToken) {
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.split(" ")[1];
+        }
+        return null;
+    }
+
+    public void setHeader(HttpServletResponse response, TokenDto tokenDto) {
+        response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
+        response.addHeader("Refresh", "Bearer " + tokenDto.getRefreshToken());
     }
 }

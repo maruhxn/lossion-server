@@ -1,5 +1,6 @@
 package com.maruhxn.lossion.global.auth.dto;
 
+import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.global.auth.provider.JwtProvider;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,6 +49,18 @@ public class JwtMemberInfo {
                 .profileImage(jwtProvider.getProfileImage(token))
                 .isVerified(jwtProvider.getIsVerified(token))
                 .role(jwtProvider.getRole(token))
+                .build();
+    }
+
+    public static JwtMemberInfo from(Member member) {
+        return JwtMemberInfo.builder()
+                .accountId(member.getAccountId())
+                .email(member.getEmail())
+                .username(member.getUsername())
+                .telNumber(member.getTelNumber())
+                .profileImage(member.getProfileImage())
+                .isVerified(member.getIsVerified())
+                .role(member.getRole().name())
                 .build();
     }
 

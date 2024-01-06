@@ -3,8 +3,11 @@ package com.maruhxn.lossion.global.auth.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maruhxn.lossion.domain.auth.dto.LoginReq;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
+import com.maruhxn.lossion.global.auth.dto.TokenDto;
 import com.maruhxn.lossion.global.auth.provider.JwtProvider;
+import com.maruhxn.lossion.global.auth.service.JwtService;
 import com.maruhxn.lossion.global.common.dto.BaseResponse;
+import com.maruhxn.lossion.global.common.dto.DataResponse;
 import com.maruhxn.lossion.global.common.dto.ErrorResponse;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import jakarta.servlet.FilterChain;
@@ -32,11 +35,14 @@ import java.util.Set;
 public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
+    private final JwtService jwtService;
 
-    public JwtAuthenticationFilter(JwtProvider jwtProvider, ObjectMapper objectMapper) {
+
+    public JwtAuthenticationFilter(JwtProvider jwtProvider, ObjectMapper objectMapper, JwtService jwtService) {
         super(new AntPathRequestMatcher("/api/auth/login"));
         this.jwtProvider = jwtProvider;
         this.objectMapper = objectMapper;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -52,7 +58,6 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
             throw new AuthenticationServiceException("유효하지 않은 로그인입니다.");
         }
 
-
         UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(
                 loginReq.getAccountId(),
                 loginReq.getPassword()
@@ -65,10 +70,12 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         JwtMemberInfo jwtMemberInfo = (JwtMemberInfo) authResult.getPrincipal();
-        String token = jwtProvider.createJwt(jwtMemberInfo);
-        response.addHeader("Authorization", "Bearer " + token); // jwt를 헤더에 추가
+        TokenDto tokenDto = jwtProvider.createJwt(jwtMemberInfo);
 
-        BaseResponse responseDto = new BaseResponse("로그인 성공");
+        jwtService.saveRefreshToken(jwtMemberInfo, tokenDto);
+        jwtProvider.setHeader(response, tokenDto);
+
+        DataResponse<TokenDto> responseDto = DataResponse.of("로그인 성공", tokenDto);
 
         response.setStatus(HttpStatus.OK.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
