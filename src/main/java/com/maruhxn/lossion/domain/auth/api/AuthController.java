@@ -3,10 +3,10 @@ package com.maruhxn.lossion.domain.auth.api;
 import com.maruhxn.lossion.domain.auth.application.AuthService;
 import com.maruhxn.lossion.domain.auth.dto.SignUpReq;
 import com.maruhxn.lossion.domain.auth.dto.VerifyEmailReq;
+import com.maruhxn.lossion.domain.auth.dto.VerifyPasswordReq;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.common.dto.BaseResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,5 +44,14 @@ public class AuthController {
     ) {
         authService.verifyEmail(memberInfo, req);
         return ResponseEntity.ok(new BaseResponse("이메일 인증 성공"));
+    }
+
+    @PostMapping("/verify-password")
+    public ResponseEntity<BaseResponse> veirfyPassword(
+            @AuthenticationPrincipal JwtMemberInfo memberInfo,
+            @RequestBody @Valid VerifyPasswordReq req
+    ) {
+        authService.verifyPassword(memberInfo, req);
+        return ResponseEntity.ok(new BaseResponse("비밀번호 인증 성공"));
     }
 }

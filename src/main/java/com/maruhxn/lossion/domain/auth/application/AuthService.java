@@ -4,11 +4,13 @@ import com.maruhxn.lossion.domain.auth.dao.TokenRepository;
 import com.maruhxn.lossion.domain.auth.domain.Token;
 import com.maruhxn.lossion.domain.auth.dto.SignUpReq;
 import com.maruhxn.lossion.domain.auth.dto.VerifyEmailReq;
+import com.maruhxn.lossion.domain.auth.dto.VerifyPasswordReq;
 import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.AlreadyExistsResourceException;
+import com.maruhxn.lossion.global.error.exception.BadRequestException;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
 import com.maruhxn.lossion.global.error.exception.ExpirationException;
 import com.maruhxn.lossion.infra.EmailService;
@@ -93,5 +95,14 @@ public class AuthService {
         findMember.verifyEmail();
 
         tokenRepository.deleteAllByMember_Id(findMember.getId());
+    }
+
+    public void verifyPassword(JwtMemberInfo memberInfo, VerifyPasswordReq req) {
+        Member findMember = memberRepository.findByAccountId(memberInfo.getAccountId())
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_MEMBER));
+
+        if (!passwordEncoder.matches(req.getCurrPassword(), findMember.getPassword())) {
+            throw new BadRequestException(ErrorCode.PASSWORD_CONFIRM_FAIL);
+        }
     }
 }

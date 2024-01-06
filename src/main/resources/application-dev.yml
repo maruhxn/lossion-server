@@ -37,3 +37,4 @@ logging:
 
 jwt:
   secret-key: S3cr3tK3yasdfasvlhasklrqklwefhlaskdfhlaksdfhlaskrhlkqewrhklfasdvnkansdk
+  expired-ms: 3600000

@@ -13,6 +13,8 @@ import java.util.Date;
 @Component
 public class JwtProvider {
 
+    @Value("${jwt.expired-ms}")
+    private Long expiredMs;
     private SecretKey secretKey;
     private JwtParser jwtParser;
 
@@ -24,7 +26,6 @@ public class JwtProvider {
     }
 
     public String createJwt(JwtMemberInfo jwtMemberInfo) {
-        Long expiredMs = 60 * 60 * 1000L;
         String role = jwtMemberInfo.getRole();
 
         return Jwts.builder()
