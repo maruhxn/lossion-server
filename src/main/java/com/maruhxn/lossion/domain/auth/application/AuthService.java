@@ -1,7 +1,7 @@
 package com.maruhxn.lossion.domain.auth.application;
 
 import com.maruhxn.lossion.domain.auth.dao.TokenRepository;
-import com.maruhxn.lossion.domain.auth.domain.Token;
+import com.maruhxn.lossion.domain.auth.domain.AuthToken;
 import com.maruhxn.lossion.domain.auth.dto.SignUpReq;
 import com.maruhxn.lossion.domain.auth.dto.VerifyEmailReq;
 import com.maruhxn.lossion.domain.auth.dto.VerifyPasswordReq;
@@ -68,12 +68,12 @@ public class AuthService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_MEMBER));
         String payload = String.valueOf((int) Math.floor(100000 + Math.random() * 900000));
 
-        Token token = Token.builder()
+        AuthToken authToken = AuthToken.builder()
                 .payload(payload)
                 .member(findMember)
                 .build();
 
-        tokenRepository.save(token);
+        tokenRepository.save(authToken);
 
         emailService.sendEmail(memberInfo.getEmail(), "Authentication Code : " + payload);
     }
@@ -83,10 +83,10 @@ public class AuthService {
         Member findMember = memberRepository.findByAccountId(memberInfo.getAccountId())
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_MEMBER));
 
-        Token findToken = tokenRepository.findByPayloadAndMember_Id(req.getPayload(), findMember.getId())
+        AuthToken findAuthToken = tokenRepository.findByPayloadAndMember_Id(req.getPayload(), findMember.getId())
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_TOKEN));
 
-        if (findToken.invalidate()) {
+        if (findAuthToken.invalidate()) {
             // TODO: 만료된 토큰이 쌓이는 것을 방지하기 위해 바로바로 삭제하고 싶지만, transaction으로 인해 현재 상태에서는 불가능하다. 트랜잭션을 분리할 방법을 생각해보자.
             throw new ExpirationException(ErrorCode.TOKEN_EXPIRATION);
         }

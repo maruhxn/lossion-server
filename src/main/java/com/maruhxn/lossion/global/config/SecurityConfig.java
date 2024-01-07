@@ -1,9 +1,9 @@
-package com.maruhxn.lossion.global.auth.config;
+package com.maruhxn.lossion.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maruhxn.lossion.global.auth.filter.JwtAuthenticationFilter;
 import com.maruhxn.lossion.global.auth.filter.JwtExceptionFilter;
-import com.maruhxn.lossion.global.auth.filter.JwtFilter;
+import com.maruhxn.lossion.global.auth.filter.JwtAuthorizationFilter;
 import com.maruhxn.lossion.global.auth.handler.JwtAccessDeniedHandler;
 import com.maruhxn.lossion.global.auth.handler.JwtAuthenticationEntryPoint;
 import com.maruhxn.lossion.global.auth.provider.JwtAuthenticationProvider;
@@ -64,7 +64,7 @@ public class SecurityConfig {
                 )
                 .addFilterAt(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter(), JwtAuthenticationFilter.class)
-                .addFilterBefore(jwtExceptionFilter(), JwtFilter.class)
+                .addFilterBefore(jwtExceptionFilter(), JwtAuthorizationFilter.class)
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling
                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint())
@@ -92,8 +92,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtFilter jwtFilter() {
-        return new JwtFilter(jwtProvider);
+    public JwtAuthorizationFilter jwtFilter() {
+        return new JwtAuthorizationFilter(jwtProvider);
     }
 
     @Bean

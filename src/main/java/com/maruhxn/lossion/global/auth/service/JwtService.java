@@ -10,6 +10,7 @@ import com.maruhxn.lossion.global.auth.provider.JwtProvider;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
 import com.maruhxn.lossion.global.error.exception.UnauthorizedException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +40,10 @@ public class JwtService {
                 });
     }
 
-    public TokenDto refresh(String bearerRefreshToken) {
+    public TokenDto refresh(
+            String bearerRefreshToken,
+            HttpServletResponse response
+    ) {
         String refreshToken = jwtProvider.getBearerTokenToString(bearerRefreshToken);
 
         if (!jwtProvider.validate(refreshToken)) {
@@ -64,10 +68,13 @@ public class JwtService {
 
         this.saveRefreshToken(jwtMemberInfo, tokenDto);
 
+        jwtProvider.setHeader(response, tokenDto);
+
         return tokenDto;
     }
 
-    public void logout(String refreshToken) {
+    public void logout(String bearerRefreshToken) {
+        String refreshToken = jwtProvider.getBearerTokenToString(bearerRefreshToken);
         String accountId = jwtProvider.getPayload(refreshToken).getSubject();
         refreshTokenRepository.deleteAllByAccountId(accountId);
         // TODO: 블랙리스트 처리하여, 이미 삭제된 accessToken으로는 로그인을 할 수 없게 처리. -> Redis 혹은 DB에 accessToken을 저장해야함.

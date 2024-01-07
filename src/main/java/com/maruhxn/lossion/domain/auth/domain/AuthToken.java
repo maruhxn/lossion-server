@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
-public class Token extends BaseEntity {
+public class AuthToken extends BaseEntity {
     private String payload;
     private LocalDateTime expiredAt;
 
@@ -24,7 +24,7 @@ public class Token extends BaseEntity {
     private Member member;
 
     @Builder
-    public Token(String payload, Member member) {
+    public AuthToken(String payload, Member member) {
 
         Assert.hasText(payload, "payload는 필수입니다.");
         Assert.notNull(member, "유저는 필수입니다.");

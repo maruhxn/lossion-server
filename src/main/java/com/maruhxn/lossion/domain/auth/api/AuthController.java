@@ -6,7 +6,6 @@ import com.maruhxn.lossion.domain.auth.dto.VerifyEmailReq;
 import com.maruhxn.lossion.domain.auth.dto.VerifyPasswordReq;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.dto.TokenDto;
-import com.maruhxn.lossion.global.auth.provider.JwtProvider;
 import com.maruhxn.lossion.global.auth.service.JwtService;
 import com.maruhxn.lossion.global.common.dto.BaseResponse;
 import com.maruhxn.lossion.global.common.dto.DataResponse;
@@ -25,7 +24,6 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtService jwtService;
-    private final JwtProvider jwtProvider;
 
     @PostMapping("/sign-up")
     @ResponseStatus(HttpStatus.CREATED)
@@ -41,9 +39,7 @@ public class AuthController {
             HttpServletResponse response,
             @RequestHeader(value = "Refresh", required = true) String bearerRefreshToken
     ) {
-        System.out.println("bearerRefreshToken = " + bearerRefreshToken);
-        TokenDto tokenDto = jwtService.refresh(bearerRefreshToken);
-        jwtProvider.setHeader(response, tokenDto);
+        TokenDto tokenDto = jwtService.refresh(bearerRefreshToken, response);
         return ResponseEntity.ok(DataResponse.of("Token Refresh 성공", tokenDto));
     }
 
@@ -77,9 +73,7 @@ public class AuthController {
     public ResponseEntity<BaseResponse> logout(
             @RequestHeader(value = "Refresh", required = true) String bearerRefreshToken
     ) {
-        String refreshToken = jwtProvider.getBearerTokenToString(bearerRefreshToken);
-        jwtService.logout(refreshToken);
-
+        jwtService.logout(bearerRefreshToken);
         return new ResponseEntity<>(new BaseResponse("로그아웃 성공"), HttpStatus.NO_CONTENT);
     }
 }

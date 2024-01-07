@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class JwtFilter extends OncePerRequestFilter {
+public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final List<String> EXCLUDE_URL =
             List.of("/",
                     "/api/auth/sign-up",
