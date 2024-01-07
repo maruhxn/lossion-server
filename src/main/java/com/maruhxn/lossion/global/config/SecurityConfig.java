@@ -7,9 +7,9 @@ import com.maruhxn.lossion.global.auth.filter.JwtAuthorizationFilter;
 import com.maruhxn.lossion.global.auth.handler.JwtAccessDeniedHandler;
 import com.maruhxn.lossion.global.auth.handler.JwtAuthenticationEntryPoint;
 import com.maruhxn.lossion.global.auth.provider.JwtAuthenticationProvider;
-import com.maruhxn.lossion.global.auth.provider.JwtProvider;
-import com.maruhxn.lossion.global.auth.service.JwtService;
-import com.maruhxn.lossion.global.auth.service.JwtUserDetailsService;
+import com.maruhxn.lossion.global.auth.application.JwtUtils;
+import com.maruhxn.lossion.global.auth.application.JwtService;
+import com.maruhxn.lossion.global.auth.application.JwtUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -39,7 +39,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final JwtProvider jwtProvider;
+    private final JwtUtils jwtUtils;
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
 
@@ -81,7 +81,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider, objectMapper, jwtService);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtUtils, objectMapper, jwtService);
         jwtAuthenticationFilter.setAuthenticationManager(authenticationManager());
         return jwtAuthenticationFilter;
     }
@@ -93,7 +93,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthorizationFilter jwtFilter() {
-        return new JwtAuthorizationFilter(jwtProvider);
+        return new JwtAuthorizationFilter(jwtUtils);
     }
 
     @Bean

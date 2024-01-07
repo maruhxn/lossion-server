@@ -1,4 +1,4 @@
-package com.maruhxn.lossion.global.auth.service;
+package com.maruhxn.lossion.global.auth.application;
 
 import com.maruhxn.lossion.domain.auth.dao.RefreshTokenRepository;
 import com.maruhxn.lossion.domain.auth.domain.RefreshToken;
@@ -6,7 +6,6 @@ import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.dto.TokenDto;
-import com.maruhxn.lossion.global.auth.provider.JwtProvider;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
 import com.maruhxn.lossion.global.error.exception.UnauthorizedException;
@@ -22,7 +21,7 @@ import java.util.Optional;
 @Transactional
 public class JwtService {
 
-    private final JwtProvider jwtProvider;
+    private final JwtUtils jwtUtils;
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
 
@@ -44,9 +43,9 @@ public class JwtService {
             String bearerRefreshToken,
             HttpServletResponse response
     ) {
-        String refreshToken = jwtProvider.getBearerTokenToString(bearerRefreshToken);
+        String refreshToken = jwtUtils.getBearerTokenToString(bearerRefreshToken);
 
-        if (!jwtProvider.validate(refreshToken)) {
+        if (!jwtUtils.validate(refreshToken)) {
             throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
         }
 
@@ -58,8 +57,8 @@ public class JwtService {
 
         // access token 과 refresh token 모두를 재발급
         JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(findMember);
-        String newAccessToken = jwtProvider.generateAccessToken(jwtMemberInfo);
-        String newRefreshToken = jwtProvider.generateRefreshToken(jwtMemberInfo);
+        String newAccessToken = jwtUtils.generateAccessToken(jwtMemberInfo);
+        String newRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo);
 
         TokenDto tokenDto = TokenDto.builder()
                 .accessToken(newAccessToken)
@@ -68,14 +67,14 @@ public class JwtService {
 
         this.saveRefreshToken(jwtMemberInfo, tokenDto);
 
-        jwtProvider.setHeader(response, tokenDto);
+        jwtUtils.setHeader(response, tokenDto);
 
         return tokenDto;
     }
 
     public void logout(String bearerRefreshToken) {
-        String refreshToken = jwtProvider.getBearerTokenToString(bearerRefreshToken);
-        String accountId = jwtProvider.getPayload(refreshToken).getSubject();
+        String refreshToken = jwtUtils.getBearerTokenToString(bearerRefreshToken);
+        String accountId = jwtUtils.getPayload(refreshToken).getSubject();
         refreshTokenRepository.deleteAllByAccountId(accountId);
         // TODO: 블랙리스트 처리하여, 이미 삭제된 accessToken으로는 로그인을 할 수 없게 처리. -> Redis 혹은 DB에 accessToken을 저장해야함.
     }

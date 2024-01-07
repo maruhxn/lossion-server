@@ -1,4 +1,4 @@
-package com.maruhxn.lossion.global.auth.service;
+package com.maruhxn.lossion.global.auth.application;
 
 import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;

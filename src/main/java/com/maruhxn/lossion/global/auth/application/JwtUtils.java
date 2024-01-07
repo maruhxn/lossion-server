@@ -1,4 +1,4 @@
-package com.maruhxn.lossion.global.auth.provider;
+package com.maruhxn.lossion.global.auth.application;
 
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.dto.TokenDto;
@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
-public class JwtProvider {
+public class JwtUtils {
 
     @Value("${jwt.expiration}")
     private Long jwtExpiration;
@@ -24,7 +24,7 @@ public class JwtProvider {
     private SecretKey secretKey;
     private JwtParser jwtParser;
 
-    public JwtProvider(@Value("${jwt.secret-key}") String secret) {
+    public JwtUtils(@Value("${jwt.secret-key}") String secret) {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
         this.jwtParser = Jwts.parser()
                 .verifyWith(secretKey)

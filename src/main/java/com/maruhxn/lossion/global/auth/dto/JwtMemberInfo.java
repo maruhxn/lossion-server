@@ -1,7 +1,7 @@
 package com.maruhxn.lossion.global.auth.dto;
 
 import com.maruhxn.lossion.domain.member.domain.Member;
-import com.maruhxn.lossion.global.auth.provider.JwtProvider;
+import com.maruhxn.lossion.global.auth.application.JwtUtils;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -40,15 +40,15 @@ public class JwtMemberInfo {
                 .build();
     }
 
-    public static JwtMemberInfo of(JwtProvider jwtProvider, String token) {
+    public static JwtMemberInfo of(JwtUtils jwtUtils, String token) {
         return JwtMemberInfo.builder()
-                .accountId(jwtProvider.getAccountId(token))
-                .email(jwtProvider.getEmail(token))
-                .username(jwtProvider.getUsername(token))
-                .telNumber(jwtProvider.getTelNumber(token))
-                .profileImage(jwtProvider.getProfileImage(token))
-                .isVerified(jwtProvider.getIsVerified(token))
-                .role(jwtProvider.getRole(token))
+                .accountId(jwtUtils.getAccountId(token))
+                .email(jwtUtils.getEmail(token))
+                .username(jwtUtils.getUsername(token))
+                .telNumber(jwtUtils.getTelNumber(token))
+                .profileImage(jwtUtils.getProfileImage(token))
+                .isVerified(jwtUtils.getIsVerified(token))
+                .role(jwtUtils.getRole(token))
                 .build();
     }
 

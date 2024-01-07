@@ -6,7 +6,7 @@ import com.maruhxn.lossion.domain.auth.dto.VerifyEmailReq;
 import com.maruhxn.lossion.domain.auth.dto.VerifyPasswordReq;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.dto.TokenDto;
-import com.maruhxn.lossion.global.auth.service.JwtService;
+import com.maruhxn.lossion.global.auth.application.JwtService;
 import com.maruhxn.lossion.global.common.dto.BaseResponse;
 import com.maruhxn.lossion.global.common.dto.DataResponse;
 import jakarta.servlet.http.HttpServletResponse;

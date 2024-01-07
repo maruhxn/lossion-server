@@ -1,7 +1,7 @@
 package com.maruhxn.lossion.global.auth.filter;
 
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
-import com.maruhxn.lossion.global.auth.provider.JwtProvider;
+import com.maruhxn.lossion.global.auth.application.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     "/api/auth/login",
                     "/api/auth/refresh");
 
-    private final JwtProvider jwtProvider;
+    private final JwtUtils jwtUtils;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -32,15 +32,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String authorization = request.getHeader("Authorization");
 
         // 토큰 추출
-        String token = jwtProvider.getBearerTokenToString(authorization);
+        String token = jwtUtils.getBearerTokenToString(authorization);
 
-        if (!StringUtils.hasText(token) || !jwtProvider.validate(token)) {
+        if (!StringUtils.hasText(token) || !jwtUtils.validate(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // 토큰에서 정보 추출
-        JwtMemberInfo jwtMemberInfo = JwtMemberInfo.of(jwtProvider, token);
+        JwtMemberInfo jwtMemberInfo = JwtMemberInfo.of(jwtUtils, token);
 
         // authority 추출
         List<GrantedAuthority> authorities = jwtMemberInfo.extractAuthorities();
