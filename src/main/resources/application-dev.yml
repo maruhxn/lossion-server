@@ -40,3 +40,8 @@ jwt:
   expiration: 86400000 # 1일
   refresh-token:
     expiration: 604800000 # 7일
+file:
+  upload_dir: C:/Users/asus/spring-study/lossion/upload/
+aes:
+  secret-key: AES_PRIVATE_KEY_THIS_TEST_32BYTE
+  iv: 0987654321654321
