@@ -31,7 +31,7 @@ public class AuthToken extends BaseEntity {
 
         this.payload = payload;
         this.member = member;
-        this.expiredAt = LocalDateTime.now().plusSeconds(10); // 5분 뒤 만료
+        this.expiredAt = LocalDateTime.now().plusMinutes(5); // 5분 뒤 만료
     }
 
     // 편의 메서드 //
