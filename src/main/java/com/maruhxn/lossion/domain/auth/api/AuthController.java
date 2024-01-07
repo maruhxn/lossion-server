@@ -4,9 +4,9 @@ import com.maruhxn.lossion.domain.auth.application.AuthService;
 import com.maruhxn.lossion.domain.auth.dto.SignUpReq;
 import com.maruhxn.lossion.domain.auth.dto.VerifyEmailReq;
 import com.maruhxn.lossion.domain.auth.dto.VerifyPasswordReq;
+import com.maruhxn.lossion.global.auth.application.JwtService;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.dto.TokenDto;
-import com.maruhxn.lossion.global.auth.application.JwtService;
 import com.maruhxn.lossion.global.common.dto.BaseResponse;
 import com.maruhxn.lossion.global.common.dto.DataResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import static com.maruhxn.lossion.global.common.Constants.REFRESH_TOKEN_HEADER;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -37,7 +39,7 @@ public class AuthController {
     @GetMapping("/refresh")
     public ResponseEntity<DataResponse<TokenDto>> refresh(
             HttpServletResponse response,
-            @RequestHeader(value = "Refresh", required = true) String bearerRefreshToken
+            @RequestHeader(value = REFRESH_TOKEN_HEADER, required = true) String bearerRefreshToken
     ) {
         TokenDto tokenDto = jwtService.refresh(bearerRefreshToken, response);
         return ResponseEntity.ok(DataResponse.of("Token Refresh 성공", tokenDto));
@@ -71,7 +73,7 @@ public class AuthController {
 
     @PatchMapping("/logout")
     public ResponseEntity<BaseResponse> logout(
-            @RequestHeader(value = "Refresh", required = true) String bearerRefreshToken
+            @RequestHeader(value = REFRESH_TOKEN_HEADER, required = true) String bearerRefreshToken
     ) {
         jwtService.logout(bearerRefreshToken);
         return new ResponseEntity<>(new BaseResponse("로그아웃 성공"), HttpStatus.NO_CONTENT);

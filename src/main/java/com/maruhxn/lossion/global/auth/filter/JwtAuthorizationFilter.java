@@ -1,7 +1,7 @@
 package com.maruhxn.lossion.global.auth.filter;
 
-import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.application.JwtUtils;
+import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+import static com.maruhxn.lossion.global.common.Constants.ACCESS_TOKEN_HEADER;
+
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final List<String> EXCLUDE_URL =
@@ -29,7 +31,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String authorization = request.getHeader("Authorization");
+        String authorization = request.getHeader(ACCESS_TOKEN_HEADER);
 
         // 토큰 추출
         String token = jwtUtils.getBearerTokenToString(authorization);

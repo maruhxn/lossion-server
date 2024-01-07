@@ -13,6 +13,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+import static com.maruhxn.lossion.global.common.Constants.*;
+
 @Component
 public class JwtUtils {
 
@@ -23,6 +25,13 @@ public class JwtUtils {
     private Long refreshTokenExpiration;
     private SecretKey secretKey;
     private JwtParser jwtParser;
+    public static String ACCOUNT_ID_CLAIM = "accountId";
+    public static String USERNAME_CLAIM = "username";
+    public static String TEL_NUMBER_CLAIM = "telNumber";
+    public static String EMAIL_CLAIM = "email";
+    public static String PROFILE_IMAGE_CLAIM = "profileImage";
+    public static String IS_VERIFIED_CLAIM = "isVerified";
+    public static String ROLE_CLAIM = "role";
 
     public JwtUtils(@Value("${jwt.secret-key}") String secret) {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
@@ -54,13 +63,13 @@ public class JwtUtils {
     public String generateAccessToken(JwtMemberInfo jwtMemberInfo) {
         return Jwts.builder()
                 .subject(jwtMemberInfo.getUsername())
-                .claim("accountId", jwtMemberInfo.getAccountId())
-                .claim("email", jwtMemberInfo.getEmail())
-                .claim("username", jwtMemberInfo.getUsername())
-                .claim("telNumber", jwtMemberInfo.getTelNumber())
-                .claim("profileImage", jwtMemberInfo.getProfileImage())
-                .claim("isVerified", jwtMemberInfo.getIsVerified())
-                .claim("role", jwtMemberInfo.getRole())
+                .claim(ACCOUNT_ID_CLAIM, jwtMemberInfo.getAccountId())
+                .claim(EMAIL_CLAIM, jwtMemberInfo.getEmail())
+                .claim(USERNAME_CLAIM, jwtMemberInfo.getUsername())
+                .claim(TEL_NUMBER_CLAIM, jwtMemberInfo.getTelNumber())
+                .claim(PROFILE_IMAGE_CLAIM, jwtMemberInfo.getProfileImage())
+                .claim(IS_VERIFIED_CLAIM, jwtMemberInfo.getIsVerified())
+                .claim(ROLE_CLAIM, jwtMemberInfo.getRole())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(secretKey)
@@ -74,32 +83,37 @@ public class JwtUtils {
     }
 
     public String getAccountId(String token) {
-        return getPayload(token).get("accountId", String.class);
+        return getPayload(token).get(ACCOUNT_ID_CLAIM, String.class);
     }
 
     public String getEmail(String token) {
         return getPayload(token)
-                .get("email", String.class);
+                .get(EMAIL_CLAIM, String.class);
     }
 
     public String getUsername(String token) {
         return getPayload(token)
-                .get("username", String.class);
+                .get(USERNAME_CLAIM, String.class);
     }
 
     public String getProfileImage(String token) {
         return getPayload(token)
-                .get("profileImage", String.class);
+                .get(PROFILE_IMAGE_CLAIM, String.class);
     }
 
     public String getTelNumber(String token) {
         return getPayload(token)
-                .get("telNumber", String.class);
+                .get(TEL_NUMBER_CLAIM, String.class);
     }
 
     public String getRole(String token) {
         return getPayload(token)
-                .get("role", String.class);
+                .get(ROLE_CLAIM, String.class);
+    }
+
+    public Boolean getIsVerified(String token) {
+        return getPayload(token)
+                .get(IS_VERIFIED_CLAIM, Boolean.class);
     }
 
     public Boolean validate(String token) {
@@ -118,22 +132,17 @@ public class JwtUtils {
         }
     }
 
-    public Boolean getIsVerified(String token) {
-        return getPayload(token)
-                .get("isVerified", Boolean.class);
-    }
-
 
     public String getBearerTokenToString(String bearerToken) {
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.split(" ")[1];
         }
         return null;
     }
 
     public void setHeader(HttpServletResponse response, TokenDto tokenDto) {
-        response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
-        response.addHeader("Refresh", "Bearer " + tokenDto.getRefreshToken());
+        response.addHeader(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken());
+        response.addHeader(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken());
     }
 
 }
