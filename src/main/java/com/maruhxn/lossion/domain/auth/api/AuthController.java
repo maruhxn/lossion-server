@@ -1,9 +1,8 @@
 package com.maruhxn.lossion.domain.auth.api;
 
 import com.maruhxn.lossion.domain.auth.application.AuthService;
-import com.maruhxn.lossion.domain.auth.dto.SignUpReq;
-import com.maruhxn.lossion.domain.auth.dto.VerifyEmailReq;
-import com.maruhxn.lossion.domain.auth.dto.VerifyPasswordReq;
+import com.maruhxn.lossion.domain.auth.dto.*;
+import com.maruhxn.lossion.domain.member.dto.request.UpdateAnonymousPasswordReq;
 import com.maruhxn.lossion.global.auth.application.JwtService;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.dto.TokenDto;
@@ -28,7 +27,6 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/sign-up")
-    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<BaseResponse> signUp(
             @RequestBody @Valid SignUpReq req
     ) {
@@ -49,7 +47,7 @@ public class AuthController {
     public ResponseEntity<BaseResponse> sendVerifyEmail(
             @AuthenticationPrincipal JwtMemberInfo memberInfo
     ) {
-        authService.sendVerifyEmail(memberInfo);
+        authService.sendVerifyEmailWithLogin(memberInfo);
         return ResponseEntity.ok(new BaseResponse("인증 메일 발송 성공"));
     }
 
@@ -63,12 +61,51 @@ public class AuthController {
     }
 
     @PostMapping("/verify-password")
-    public ResponseEntity<BaseResponse> veirfyPassword(
+    public ResponseEntity<BaseResponse> verifyPassword(
             @AuthenticationPrincipal JwtMemberInfo memberInfo,
             @RequestBody @Valid VerifyPasswordReq req
     ) {
         authService.verifyPassword(memberInfo, req);
         return ResponseEntity.ok(new BaseResponse("비밀번호 인증 성공"));
+    }
+
+    @PostMapping("/send-anonymous-verify-email")
+    public ResponseEntity<BaseResponse> sendEmailWithAnonymous(
+            @RequestBody @Valid SendAnonymousEmailReq req
+    ) {
+        authService.sendVerifyEmailWithAnonymous(req);
+        return ResponseEntity.ok(new BaseResponse("인증 메일 발송 성공"));
+    }
+
+    /**
+     * 비밀번호 찾기를 위한 토큰을 얻는 API
+     * 이를 위해서는 입력한 이메일에 대한 인증 토큰이 필요하다.
+     *
+     * @param getTokenReq
+     * @return
+     */
+    @PostMapping("/get-token")
+    public ResponseEntity<DataResponse<String>> findPasswordByAccountIdAndEmail(
+            @RequestBody @Valid GetTokenReq getTokenReq
+    ) {
+        String authToken = authService.findPasswordByAccountIdAndEmail(getTokenReq);
+        return ResponseEntity.ok(DataResponse.of("유저 정보 찾기 성공", authToken));
+    }
+
+    /**
+     * 비밀번호 찾기를 통해 익명으로 비밀번호를 변경하는 API
+     * 쿼리 파라미터로 /get-token에서 발급받은 authToken을 넘겨주어야 한다.
+     *
+     * @param token
+     * @param updateAnonymousPasswordReq
+     */
+    @PatchMapping("/update-anonymous-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateAnonymousPassword(
+            @RequestParam("token") String token,
+            @RequestBody @Valid UpdateAnonymousPasswordReq updateAnonymousPasswordReq
+    ) {
+        authService.updateAnonymousPassword(token, updateAnonymousPasswordReq);
     }
 
     @PatchMapping("/logout")

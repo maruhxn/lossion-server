@@ -5,6 +5,7 @@ import com.maruhxn.lossion.global.auth.application.JwtUtils;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -15,7 +16,9 @@ import java.util.List;
 @Getter
 @Builder
 @RequiredArgsConstructor
+@ToString
 public class JwtMemberInfo {
+    private final Long id;
     private final String accountId;
     private final String email;
     private final String username;
@@ -30,6 +33,7 @@ public class JwtMemberInfo {
         String role = authority.getAuthority();
 
         return JwtMemberInfo.builder()
+                .id(userDetails.getId())
                 .accountId(userDetails.getAccountId())
                 .email(userDetails.getEmail())
                 .username(userDetails.getUsername())
@@ -42,6 +46,7 @@ public class JwtMemberInfo {
 
     public static JwtMemberInfo of(JwtUtils jwtUtils, String token) {
         return JwtMemberInfo.builder()
+                .id(jwtUtils.getId(token))
                 .accountId(jwtUtils.getAccountId(token))
                 .email(jwtUtils.getEmail(token))
                 .username(jwtUtils.getUsername(token))
@@ -54,6 +59,7 @@ public class JwtMemberInfo {
 
     public static JwtMemberInfo from(Member member) {
         return JwtMemberInfo.builder()
+                .id(member.getId())
                 .accountId(member.getAccountId())
                 .email(member.getEmail())
                 .username(member.getUsername())

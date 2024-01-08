@@ -24,7 +24,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             List.of("/",
                     "/api/auth/sign-up",
                     "/api/auth/login",
-                    "/api/auth/refresh");
+                    "/api/auth/refresh",
+                    "/api/auth/send-anonymous-verify-email",
+                    "/api/auth/get-token",
+                    "/api/auth/update-anonymous-password");
 
     private final JwtUtils jwtUtils;
 

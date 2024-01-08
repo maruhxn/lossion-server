@@ -12,6 +12,7 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 @Entity
 @Getter
@@ -48,11 +49,11 @@ public class Member extends BaseEntity {
 
     @Builder
     public Member(String accountId, String email, String telNumber, String username, String password) {
-        Assert.hasText(email, "아이디는 필수입니다.");
+        Assert.hasText(accountId, "아이디는 필수입니다.");
         Assert.hasText(email, "이메일은 필수입니다.");
         Assert.hasText(telNumber, "전화번호는 필수입니다.");
-        Assert.hasText(email, "유저명은 필수입니다.");
-        Assert.hasText(email, "비밀번호는 필수입니다.");
+        Assert.hasText(username, "유저명은 필수입니다.");
+        Assert.hasText(password, "비밀번호는 필수입니다.");
 
         this.accountId = accountId;
         this.email = email;
@@ -82,13 +83,13 @@ public class Member extends BaseEntity {
                 .username(jwtMemberInfo.getUsername())
                 .password("fakepassword")
                 .build();
-        member.setRole(jwtMemberInfo.getRole());
+        member.setRole(Role.valueOf(jwtMemberInfo.getRole()));
         member.setProfileImage(jwtMemberInfo.getProfileImage());
         return member;
     }
 
-    public void setRole(String role) {
-        this.role = Role.valueOf(role);
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public void setProfileImage(String profileImage) {
@@ -97,5 +98,19 @@ public class Member extends BaseEntity {
 
     public void verifyEmail() {
         this.isVerified = true;
+    }
+
+    public void updateProfile(String username, String email, String newProfileImageName) {
+        if (StringUtils.hasText(username)) this.username = username;
+        if (StringUtils.hasText(email)) {
+            this.email = email;
+            this.isVerified = false;
+        }
+        if (StringUtils.hasText(profileImage)) this.profileImage = newProfileImageName;
+    }
+
+    public void updatePassword(String newPassword) {
+        Assert.hasText(newPassword, "비밀번호는 필수입니다.");
+        this.password = newPassword;
     }
 }

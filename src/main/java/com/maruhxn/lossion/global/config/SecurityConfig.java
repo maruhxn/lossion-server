@@ -1,15 +1,15 @@
 package com.maruhxn.lossion.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.maruhxn.lossion.global.auth.application.JwtService;
+import com.maruhxn.lossion.global.auth.application.JwtUserDetailsService;
+import com.maruhxn.lossion.global.auth.application.JwtUtils;
 import com.maruhxn.lossion.global.auth.filter.JwtAuthenticationFilter;
-import com.maruhxn.lossion.global.auth.filter.JwtExceptionFilter;
 import com.maruhxn.lossion.global.auth.filter.JwtAuthorizationFilter;
+import com.maruhxn.lossion.global.auth.filter.JwtExceptionFilter;
 import com.maruhxn.lossion.global.auth.handler.JwtAccessDeniedHandler;
 import com.maruhxn.lossion.global.auth.handler.JwtAuthenticationEntryPoint;
 import com.maruhxn.lossion.global.auth.provider.JwtAuthenticationProvider;
-import com.maruhxn.lossion.global.auth.application.JwtUtils;
-import com.maruhxn.lossion.global.auth.application.JwtService;
-import com.maruhxn.lossion.global.auth.application.JwtUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -58,12 +58,12 @@ public class SecurityConfig {
                                 .configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz ->
                         authz
-                                .requestMatchers("/", "/api/auth/sign-up", "/api/auth/refresh").permitAll()
+                                .requestMatchers("/", "/api/auth/sign-up", "/api/auth/refresh", "/api/auth/send-anonymous-verify-email", "/api/auth/get-token", "/api/auth/update-anonymous-password").permitAll()
                                 .requestMatchers("/api/auth/test").authenticated()
                                 .anyRequest().authenticated()
                 )
                 .addFilterAt(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtFilter(), JwtAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtExceptionFilter(), JwtAuthorizationFilter.class)
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling
@@ -92,7 +92,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthorizationFilter jwtFilter() {
+    public JwtAuthorizationFilter jwtAuthorizationFilter() {
         return new JwtAuthorizationFilter(jwtUtils);
     }
 
