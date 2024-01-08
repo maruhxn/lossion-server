@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     /* BAD REQUEST 400 */
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 접근입니다."),
+    EMPTY_FILE(HttpStatus.BAD_REQUEST, "파일이 비어있습니다."),
     PASSWORD_CONFIRM_FAIL(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     INCORRECT_PASSWORD(HttpStatus.BAD_REQUEST, "이메일 혹은 비밀번호가 올바르지 않습니다."),
     SAME_PASSWORD(HttpStatus.BAD_REQUEST, "이전과 동일한 비밀번호로 변경할 수 없습니다."),
