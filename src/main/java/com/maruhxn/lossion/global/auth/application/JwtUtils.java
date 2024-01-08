@@ -25,6 +25,7 @@ public class JwtUtils {
     private Long refreshTokenExpiration;
     private SecretKey secretKey;
     private JwtParser jwtParser;
+    public static String ID_CLAIM = "id";
     public static String ACCOUNT_ID_CLAIM = "accountId";
     public static String USERNAME_CLAIM = "username";
     public static String TEL_NUMBER_CLAIM = "telNumber";
@@ -63,6 +64,7 @@ public class JwtUtils {
     public String generateAccessToken(JwtMemberInfo jwtMemberInfo) {
         return Jwts.builder()
                 .subject(jwtMemberInfo.getUsername())
+                .claim(ID_CLAIM, jwtMemberInfo.getId())
                 .claim(ACCOUNT_ID_CLAIM, jwtMemberInfo.getAccountId())
                 .claim(EMAIL_CLAIM, jwtMemberInfo.getEmail())
                 .claim(USERNAME_CLAIM, jwtMemberInfo.getUsername())
@@ -80,6 +82,10 @@ public class JwtUtils {
         return jwtParser
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public Long getId(String token) {
+        return getPayload(token).get(ID_CLAIM, Long.class);
     }
 
     public String getAccountId(String token) {
