@@ -48,13 +48,14 @@ public class Member extends BaseEntity {
     private Role role;
 
     @Builder
-    public Member(String accountId, String email, String telNumber, String username, String password) {
+    public Member(Long id, String accountId, String email, String telNumber, String username, String password) {
         Assert.hasText(accountId, "아이디는 필수입니다.");
         Assert.hasText(email, "이메일은 필수입니다.");
         Assert.hasText(telNumber, "전화번호는 필수입니다.");
         Assert.hasText(username, "유저명은 필수입니다.");
         Assert.hasText(password, "비밀번호는 필수입니다.");
 
+        this.id = id;
         this.accountId = accountId;
         this.email = email;
         this.telNumber = telNumber;
@@ -75,8 +76,9 @@ public class Member extends BaseEntity {
                 .build();
     }
 
-    public static Member of(JwtMemberInfo jwtMemberInfo) {
+    public static Member from(JwtMemberInfo jwtMemberInfo) {
         Member member = Member.builder()
+                .id(jwtMemberInfo.getId())
                 .accountId(jwtMemberInfo.getAccountId())
                 .email(jwtMemberInfo.getEmail())
                 .telNumber(jwtMemberInfo.getTelNumber())
