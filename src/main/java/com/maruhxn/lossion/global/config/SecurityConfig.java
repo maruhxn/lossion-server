@@ -58,7 +58,14 @@ public class SecurityConfig {
                                 .configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz ->
                         authz
-                                .requestMatchers("/", "/api/auth/sign-up", "/api/auth/refresh", "/api/auth/send-anonymous-verify-email", "/api/auth/get-token", "/api/auth/update-anonymous-password").permitAll()
+                                .requestMatchers(
+                                        "/",
+                                        "/api/auth/sign-up",
+                                        "/api/auth/refresh",
+                                        "/api/auth/send-anonymous-verify-email",
+                                        "/api/auth/get-token",
+                                        "/api/auth/update-anonymous-password",
+                                        "/api/categories").permitAll()
                                 .requestMatchers("/api/auth/test").authenticated()
                                 .anyRequest().authenticated()
                 )
