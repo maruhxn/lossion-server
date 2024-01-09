@@ -1,5 +1,6 @@
 package com.maruhxn.lossion.infra;
 
+import com.maruhxn.lossion.domain.topic.domain.TopicImage;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +14,7 @@ public interface FileService {
 
     void deleteFile(String storeFileName);
 
-    void storeOneFile(MultipartFile file);
+    TopicImage storeOneFile(MultipartFile file);
 
-    void storeFiles(List<MultipartFile> files);
+    List<TopicImage> storeFiles(List<MultipartFile> files);
 }
