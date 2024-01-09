@@ -1,5 +1,6 @@
 package com.maruhxn.lossion.domain.topic.dao;
 
+import com.maruhxn.lossion.domain.topic.domain.QCategory;
 import com.maruhxn.lossion.domain.topic.dto.request.TopicSearchCond;
 import com.maruhxn.lossion.domain.topic.dto.response.QTopicItem;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicItem;
@@ -17,6 +18,7 @@ import java.util.List;
 import static com.maruhxn.lossion.domain.comment.domain.QComment.comment;
 import static com.maruhxn.lossion.domain.favorite.domain.QTopicFavorite.topicFavorite;
 import static com.maruhxn.lossion.domain.member.domain.QMember.member;
+import static com.maruhxn.lossion.domain.topic.domain.QCategory.category;
 import static com.maruhxn.lossion.domain.topic.domain.QTopic.topic;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -29,7 +31,7 @@ public class TopicQueryRepository {
         List<TopicItem> topicItems = query
                 .select(new QTopicItem(
                         topic.id,
-                        topic.category,
+                        category,
                         topic.title,
                         topic.viewCount,
                         topic.author,
@@ -40,14 +42,15 @@ public class TopicQueryRepository {
                         topic.isClosed
                 ))
                 .from(topic)
+                .leftJoin(topic.category, category)
                 .leftJoin(topic.author, member)
                 .leftJoin(topic.comments, comment)
                 .leftJoin(topic.favorites, topicFavorite)
                 .where(containTitleKeyword(cond.getTitle()),
                         containContentKeyword(cond.getDescription()),
                         authorLike(cond.getAuthor()))
-                .groupBy(topic.id)
-                .orderBy(topic.createdAt.desc())
+                .groupBy(topic.id, category, topic.title, topic.viewCount, topic.author, topic.createdAt, topic.closedAt, topic.isClosed)
+                .orderBy(topic.createdAt.desc(), topic.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
