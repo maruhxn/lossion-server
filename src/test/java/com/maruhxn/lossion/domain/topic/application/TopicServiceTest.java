@@ -10,18 +10,21 @@ import com.maruhxn.lossion.domain.topic.domain.Topic;
 import com.maruhxn.lossion.domain.topic.domain.Vote;
 import com.maruhxn.lossion.domain.topic.domain.VoteType;
 import com.maruhxn.lossion.domain.topic.dto.request.VoteRequest;
+import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
+import com.maruhxn.lossion.global.common.dto.PageItem;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.BadRequestException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.tuple;
 
 @SpringBootTest
 @Transactional
@@ -228,5 +231,54 @@ class TopicServiceTest {
         assertThatThrownBy(() -> topicService.vote(savedTopic.getId(), savedMember.getId(), request))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.ALREADY_CLOSED.getMessage());
+    }
+
+    @DisplayName("유저 정보와 PageRequest를 전달하면, 해당 유저가 작성한 주제를 페이징하여 제공한다.")
+    @Test
+    void getMyTopics() {
+        // Given
+        Member member = Member.builder()
+                .accountId("tester")
+                .username("tester")
+                .email("test@test.com")
+                .password("test")
+                .telNumber("01012345678")
+                .build();
+        memberRepository.save(member);
+
+        Category category = Category.builder()
+                .name("test")
+                .build();
+        categoryRepository.save(category);
+
+        LocalDateTime closedAt = LocalDateTime.of(2024, 1, 11, 12, 0);
+        Topic topic = Topic.builder()
+                .title("test")
+                .description("test")
+                .closedAt(closedAt)
+                .now(closedAt.minusDays(1))
+                .firstChoice("first")
+                .secondChoice("second")
+                .author(member)
+                .category(category)
+                .build();
+
+        topicRepository.save(topic);
+
+        JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(member);
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        // When
+        PageItem myTopics = topicService.getMyTopics(jwtMemberInfo, pageRequest);
+
+        // Then
+        assertThat(myTopics)
+                .extracting("results", "isFirst", "isLast", "isEmpty", "totalPage", "totalElements")
+                .contains(myTopics.getResults(), true, true, false, 1, 1);
+        assertThat(myTopics.getResults()).hasSize(1)
+                .extracting("topicId", "title", "viewCount", "commentCount", "favoriteCount", "voteCount", "closedAt", "isClosed")
+                .containsExactlyInAnyOrder(
+                        tuple(topic.getId(), "test", 0L, 0L, 0L, 0L, closedAt, false)
+                );
     }
 }
