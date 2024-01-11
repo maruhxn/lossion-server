@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import java.nio.charset.StandardCharsets;
 
 import static com.maruhxn.lossion.domain.topic.domain.VoteType.FIRST;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -62,4 +63,22 @@ class TopicControllerTest extends TestSupport {
                 .andExpect(jsonPath("$.errors").isArray());
     }
 
+    @Test
+    @CustomWithUserDetails
+    @DisplayName("내가 작성한 주제 리스트 조회에 성공할 경우 200 응답과 함께 내가 작성한 주제 리스트의 페이징 정보를 반환한다.")
+    void getMyTopics() throws Exception {
+        mvc.perform(
+                        get("/api/topics/my")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("OK"))
+                .andExpect(jsonPath("$.message").value("내가 작성한 주제 리스트 조회 성공"))
+                .andExpect(jsonPath("$.data.isFirst").value(true))
+                .andExpect(jsonPath("$.data.isLast").value(true))
+                .andExpect(jsonPath("$.data.isEmpty").value(false))
+                .andExpect(jsonPath("$.data.totalPage").value(1))
+                .andExpect(jsonPath("$.data.totalElements").value(1))
+                .andExpect(jsonPath("$.data.results.size()").value(1));
+
+    }
 }
