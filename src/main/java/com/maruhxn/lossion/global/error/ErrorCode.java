@@ -13,6 +13,7 @@ public enum ErrorCode {
     PASSWORD_CONFIRM_FAIL(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     INCORRECT_PASSWORD(HttpStatus.BAD_REQUEST, "이메일 혹은 비밀번호가 올바르지 않습니다."),
     SAME_PASSWORD(HttpStatus.BAD_REQUEST, "이전과 동일한 비밀번호로 변경할 수 없습니다."),
+    ALREADY_CLOSED(HttpStatus.BAD_REQUEST, "이미 종료된 투표입니다."),
     SPRING_BAD_REQUEST(HttpStatus.BAD_REQUEST, "스프링 BAD REQUEST"),
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "올바르지 않은 입력입니다."),
 

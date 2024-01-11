@@ -1,21 +1,22 @@
 package com.maruhxn.lossion.domain.topic.application;
 
+import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;
-import com.maruhxn.lossion.domain.topic.dao.CategoryRepository;
-import com.maruhxn.lossion.domain.topic.dao.TopicImageRepository;
-import com.maruhxn.lossion.domain.topic.dao.TopicQueryRepository;
-import com.maruhxn.lossion.domain.topic.dao.TopicRepository;
+import com.maruhxn.lossion.domain.topic.dao.*;
 import com.maruhxn.lossion.domain.topic.domain.Category;
 import com.maruhxn.lossion.domain.topic.domain.Topic;
 import com.maruhxn.lossion.domain.topic.domain.TopicImage;
+import com.maruhxn.lossion.domain.topic.domain.Vote;
 import com.maruhxn.lossion.domain.topic.dto.request.CreateTopicReq;
 import com.maruhxn.lossion.domain.topic.dto.request.TopicSearchCond;
 import com.maruhxn.lossion.domain.topic.dto.request.UpdateTopicReq;
+import com.maruhxn.lossion.domain.topic.dto.request.VoteRequest;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicDetailItem;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicItem;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.common.dto.PageItem;
 import com.maruhxn.lossion.global.error.ErrorCode;
+import com.maruhxn.lossion.global.error.exception.BadRequestException;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
 import com.maruhxn.lossion.infra.FileService;
 import jakarta.validation.Valid;
@@ -29,16 +30,19 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class TopicService {
 
+    private final MemberRepository memberRepository;
     private final TopicRepository topicRepository;
     private final CategoryRepository categoryRepository;
     private final TopicImageRepository topicImageRepository;
     private final TopicQueryRepository topicQueryRepository;
+    private final VoteRepository voteRepository;
 
     private final FileService fileService;
 
@@ -121,5 +125,34 @@ public class TopicService {
     public void closeTopic(Long topicId) {
         Topic findTopic = findTopicByIdOrThrow(topicId);
         findTopic.updateCloseStatus(LocalDateTime.now());
+    }
+
+    @Transactional
+    public Vote vote(Long topicId, Long memberId, VoteRequest req) {
+
+        Topic findTopic = findTopicByIdOrThrow(topicId);
+        validateVoteTime(findTopic.getClosedAt(), req.getVoteAt());
+
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_MEMBER));
+
+        Optional<Vote> optionalVote = voteRepository.findByTopicIdAndVoter_Id(topicId, findMember.getId());
+        boolean isNewVote = optionalVote.isEmpty();
+
+        if (isNewVote) {
+            Vote vote = Vote.of(findMember, findTopic, req);
+            return voteRepository.save(vote);
+        } else {
+            Vote findVote = optionalVote.get();
+            findVote.updateVoteType(req);
+            return findVote;
+        }
+    }
+
+    private static void validateVoteTime(LocalDateTime closedAt, LocalDateTime voteAt) {
+
+        if (voteAt.isAfter(closedAt)) {
+            throw new BadRequestException(ErrorCode.ALREADY_CLOSED);
+        }
     }
 }

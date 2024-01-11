@@ -4,6 +4,7 @@ import com.maruhxn.lossion.domain.topic.application.TopicService;
 import com.maruhxn.lossion.domain.topic.dto.request.CreateTopicReq;
 import com.maruhxn.lossion.domain.topic.dto.request.TopicSearchCond;
 import com.maruhxn.lossion.domain.topic.dto.request.UpdateTopicReq;
+import com.maruhxn.lossion.domain.topic.dto.request.VoteRequest;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicDetailItem;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicItem;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
@@ -85,4 +86,13 @@ public class TopicController {
         topicService.deleteOneTopicImage(imageId);
     }
 
+    @PatchMapping("/{topicId}/vote")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void vote(
+            @PathVariable Long topicId,
+            @AuthenticationPrincipal JwtMemberInfo jwtMemberInfo,
+            @RequestBody @Valid VoteRequest req
+    ) {
+        topicService.vote(topicId, jwtMemberInfo.getId(), req);
+    }
 }

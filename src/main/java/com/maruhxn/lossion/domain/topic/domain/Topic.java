@@ -65,7 +65,7 @@ public class Topic extends BaseEntity {
     private List<TopicFavorite> favorites = new ArrayList<>();
 
     @Builder
-    public Topic(String title, String description, String firstChoice, String secondChoice, LocalDateTime closedAt, Member author, Category category) {
+    public Topic(String title, String description, String firstChoice, String secondChoice, LocalDateTime closedAt, LocalDateTime now, Member author, Category category) {
         Assert.hasText(title, "제목은 필수입니다.");
         Assert.hasText(description, "내용은 필수입니다.");
         Assert.hasText(firstChoice, "1번 선택지는 필수입니다.");
@@ -74,7 +74,6 @@ public class Topic extends BaseEntity {
         Assert.notNull(author, "유저 정보는 필수입니다.");
         Assert.notNull(category, "카테고리 정보는 필수입니다.");
 
-        LocalDateTime now = LocalDateTime.now();
         if (closedAt.isEqual(now) || closedAt.isBefore(now)) {
             throw new IllegalArgumentException("토론 종료 시각은 현재 시각 이후로 설정해야 합니다.");
         }
@@ -95,6 +94,7 @@ public class Topic extends BaseEntity {
                 .title(req.getTitle())
                 .description(req.getDescription())
                 .closedAt(req.getClosedAt())
+                .now(LocalDateTime.now())
                 .firstChoice(req.getFirstChoice())
                 .secondChoice(req.getSecondChoice())
                 .author(author)
