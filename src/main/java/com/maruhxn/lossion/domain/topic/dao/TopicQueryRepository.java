@@ -1,7 +1,8 @@
 package com.maruhxn.lossion.domain.topic.dao;
 
-import com.maruhxn.lossion.domain.topic.domain.QCategory;
 import com.maruhxn.lossion.domain.topic.dto.request.TopicSearchCond;
+import com.maruhxn.lossion.domain.topic.dto.response.MyTopicItem;
+import com.maruhxn.lossion.domain.topic.dto.response.QMyTopicItem;
 import com.maruhxn.lossion.domain.topic.dto.response.QTopicItem;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicItem;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -20,6 +21,7 @@ import static com.maruhxn.lossion.domain.favorite.domain.QTopicFavorite.topicFav
 import static com.maruhxn.lossion.domain.member.domain.QMember.member;
 import static com.maruhxn.lossion.domain.topic.domain.QCategory.category;
 import static com.maruhxn.lossion.domain.topic.domain.QTopic.topic;
+import static com.maruhxn.lossion.domain.topic.domain.QVote.vote;
 import static org.springframework.util.StringUtils.hasText;
 
 @Repository
@@ -34,6 +36,7 @@ public class TopicQueryRepository {
                         category,
                         topic.title,
                         topic.viewCount,
+                        vote.count(),
                         topic.author,
                         comment.count(),
                         topicFavorite.count(),
@@ -43,6 +46,7 @@ public class TopicQueryRepository {
                 ))
                 .from(topic)
                 .leftJoin(topic.category, category)
+                .leftJoin(vote).on(vote.topic.id.eq(topic.id))
                 .leftJoin(topic.author, member)
                 .leftJoin(topic.comments, comment)
                 .leftJoin(topic.favorites, topicFavorite)
@@ -63,6 +67,41 @@ public class TopicQueryRepository {
                         authorLike(cond.getAuthor()));
 
         return PageableExecutionUtils.getPage(topicItems, pageable, countQuery::fetchOne);
+    }
+
+    public Page<MyTopicItem> findMyTopics(Long memberId, Pageable pageable) {
+        List<MyTopicItem> myTopicItems = query
+                .select(new QMyTopicItem(
+                        topic.id,
+                        category,
+                        topic.title,
+                        topic.viewCount,
+                        comment.count(),
+                        topicFavorite.count(),
+                        vote.count(),
+                        topic.createdAt,
+                        topic.updatedAt,
+                        topic.closedAt,
+                        topic.isClosed
+                ))
+                .from(topic)
+                .leftJoin(topic.category, category)
+                .leftJoin(vote).on(vote.topic.id.eq(topic.id))
+                .leftJoin(topic.comments, comment)
+                .leftJoin(topic.favorites, topicFavorite)
+                .where(topic.author.id.eq(memberId))
+                .groupBy(topic.id, category, topic.title, topic.viewCount, topic.createdAt, topic.closedAt, topic.isClosed)
+                .orderBy(topic.createdAt.desc(), topic.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = query
+                .select(topic.count())
+                .from(topic)
+                .where(topic.author.id.eq(memberId));
+
+        return PageableExecutionUtils.getPage(myTopicItems, pageable, countQuery::fetchOne);
     }
 
     private BooleanExpression containTitleKeyword(String title) {

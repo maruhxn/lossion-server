@@ -20,7 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(topicAuthorCheckInterceptor())
                 .order(1)
-                .addPathPatterns("/api/topics/{topicId}/**");
+                .addPathPatterns("/api/topics/{topicId}, /api/topics/{topicId}/images/{imageId}");
     }
 
     @Bean

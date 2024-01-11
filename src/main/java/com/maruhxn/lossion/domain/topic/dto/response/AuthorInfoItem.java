@@ -1,13 +1,11 @@
 package com.maruhxn.lossion.domain.topic.dto.response;
 
 import com.maruhxn.lossion.domain.member.domain.Member;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode
 public class AuthorInfoItem {
     private Long authorId;
     private String username;

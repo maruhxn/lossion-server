@@ -24,9 +24,7 @@ public class TopicDetailItem {
     private Long viewCount;
     private Long commentCount;
     private Long favoriteCount;
-    private Long voteCount;
-    private Long firstChoiceCount;
-    private Long secondChoiceCount;
+    private VoteCountInfo voteCountInfo;
     private Boolean isClosed;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -34,7 +32,7 @@ public class TopicDetailItem {
     private List<TopicImageItem> images;
 
     @Builder
-    public TopicDetailItem(Long topicId, CategoryItem categoryItem, String title, String description, String firstChoice, String secondChoice, AuthorInfoItem author, Long viewCount, Long commentCount, Long favoriteCount, Long voteCount, Long firstChoiceCount, Long secondChoiceCount, Boolean isClosed, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime closedAt, List<TopicImageItem> images) {
+    public TopicDetailItem(Long topicId, CategoryItem categoryItem, String title, String description, String firstChoice, String secondChoice, AuthorInfoItem author, Long viewCount, Long commentCount, Long favoriteCount, VoteCountInfo voteCountInfo, Boolean isClosed, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime closedAt, List<TopicImageItem> images) {
         this.topicId = topicId;
         this.categoryItem = categoryItem;
         this.title = title;
@@ -45,9 +43,7 @@ public class TopicDetailItem {
         this.viewCount = viewCount;
         this.commentCount = commentCount;
         this.favoriteCount = favoriteCount;
-        this.voteCount = voteCount;
-        this.firstChoiceCount = firstChoiceCount;
-        this.secondChoiceCount = secondChoiceCount;
+        this.voteCountInfo = voteCountInfo;
         this.isClosed = isClosed;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -69,9 +65,7 @@ public class TopicDetailItem {
                 .commentCount(0L) // TODO
                 .viewCount(topic.getViewCount())
                 .favoriteCount(0L) // TODO
-                .voteCount(0L) // TODO
-                .firstChoiceCount(50L)
-                .secondChoiceCount(50L)
+                .voteCountInfo(VoteCountInfo.from(topic.getVotes()))
                 .images(topic.getImages().stream()
                         .map(TopicImageItem::from)
                         .toList())

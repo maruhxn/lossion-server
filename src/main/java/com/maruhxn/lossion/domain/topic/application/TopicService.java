@@ -11,6 +11,7 @@ import com.maruhxn.lossion.domain.topic.dto.request.CreateTopicReq;
 import com.maruhxn.lossion.domain.topic.dto.request.TopicSearchCond;
 import com.maruhxn.lossion.domain.topic.dto.request.UpdateTopicReq;
 import com.maruhxn.lossion.domain.topic.dto.request.VoteRequest;
+import com.maruhxn.lossion.domain.topic.dto.response.MyTopicItem;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicDetailItem;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicItem;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
@@ -77,7 +78,7 @@ public class TopicService {
 
     @Transactional
     public TopicDetailItem getTopicDetail(Long topicId) {
-        Topic findTopic = topicRepository.findTopicWithMemberAndImagesAndCategoryById(topicId)
+        Topic findTopic = topicRepository.findTopicWithMemberAndImagesAndCategoryAndVotesById(topicId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_TOPIC));
         findTopic.addViewCount();
         return TopicDetailItem.from(findTopic);
@@ -150,9 +151,13 @@ public class TopicService {
     }
 
     private static void validateVoteTime(LocalDateTime closedAt, LocalDateTime voteAt) {
-
         if (voteAt.isAfter(closedAt)) {
             throw new BadRequestException(ErrorCode.ALREADY_CLOSED);
         }
+    }
+
+    public PageItem getMyTopics(JwtMemberInfo jwtMemberInfo, Pageable pageable) {
+        Page<MyTopicItem> result = topicQueryRepository.findMyTopics(jwtMemberInfo.getId(), pageable);
+        return PageItem.from(result);
     }
 }

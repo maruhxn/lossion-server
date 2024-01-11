@@ -51,4 +51,8 @@ public class Vote extends BaseEntity {
             this.voteType = req.getVoteType();
         }
     }
+
+    public void setTopic(Topic topic) {
+        this.topic = topic;
+    }
 }

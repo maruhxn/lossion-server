@@ -5,6 +5,7 @@ import com.maruhxn.lossion.domain.topic.dto.request.CreateTopicReq;
 import com.maruhxn.lossion.domain.topic.dto.request.TopicSearchCond;
 import com.maruhxn.lossion.domain.topic.dto.request.UpdateTopicReq;
 import com.maruhxn.lossion.domain.topic.dto.request.VoteRequest;
+import com.maruhxn.lossion.domain.topic.dto.response.MyTopicItem;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicDetailItem;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicItem;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
@@ -94,5 +95,15 @@ public class TopicController {
             @RequestBody @Valid VoteRequest req
     ) {
         topicService.vote(topicId, jwtMemberInfo.getId(), req);
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<DataResponse<PageItem<MyTopicItem>>> getMyTopics(
+            @AuthenticationPrincipal JwtMemberInfo jwtMemberInfo,
+            Pageable pageable
+    ) {
+
+        PageItem result = topicService.getMyTopics(jwtMemberInfo, pageable);
+        return ResponseEntity.ok(DataResponse.of("내가 작성한 주제 리스트 조회 성공", result));
     }
 }

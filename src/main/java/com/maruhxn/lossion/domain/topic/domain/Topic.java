@@ -64,6 +64,9 @@ public class Topic extends BaseEntity {
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
     private List<TopicFavorite> favorites = new ArrayList<>();
 
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
+    private List<Vote> votes = new ArrayList<>();
+
     @Builder
     public Topic(String title, String description, String firstChoice, String secondChoice, LocalDateTime closedAt, LocalDateTime now, Member author, Category category) {
         Assert.hasText(title, "제목은 필수입니다.");
@@ -119,6 +122,11 @@ public class Topic extends BaseEntity {
         comments.add(comment);
         comments.addAll(comment.getReplies());
         comment.setTopic(this);
+    }
+
+    public void addVote(Vote vote) {
+        vote.setTopic(this);
+        votes.add(vote);
     }
 
     public void addViewCount() {
