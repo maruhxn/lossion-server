@@ -35,9 +35,8 @@ public class MemberController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProfile(
             @PathVariable("memberId") Long memberId,
-            @ModelAttribute UpdateMemberProfileReq updateMemberProfileReq
+            @ModelAttribute @Valid UpdateMemberProfileReq updateMemberProfileReq
     ) {
-        log.info("프로필 수정 = {}, {}, {}", updateMemberProfileReq.getUsername(), updateMemberProfileReq.getEmail(), updateMemberProfileReq.getProfileImage());
         memberService.updateProfile(memberId, updateMemberProfileReq);
     }
 

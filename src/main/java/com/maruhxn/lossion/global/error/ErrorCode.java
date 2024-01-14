@@ -13,6 +13,7 @@ public enum ErrorCode {
     PASSWORD_CONFIRM_FAIL(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     INCORRECT_PASSWORD(HttpStatus.BAD_REQUEST, "이메일 혹은 비밀번호가 올바르지 않습니다."),
     SAME_PASSWORD(HttpStatus.BAD_REQUEST, "이전과 동일한 비밀번호로 변경할 수 없습니다."),
+    ALREADY_CLOSED(HttpStatus.BAD_REQUEST, "이미 종료된 투표입니다."),
     SPRING_BAD_REQUEST(HttpStatus.BAD_REQUEST, "스프링 BAD REQUEST"),
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "올바르지 않은 입력입니다."),
 
@@ -28,6 +29,9 @@ public enum ErrorCode {
     NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다."),
     NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND, "토큰 정보가 올바르지 않습니다."),
     NOT_FOUND_REFRESH_TOKEN(HttpStatus.NOT_FOUND, "Refresh Token 정보가 존재하지 않습니다."),
+    NOT_FOUND_CATEGORY(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."),
+    NOT_FOUND_TOPIC(HttpStatus.NOT_FOUND, "주제 정보가 존재하지 않습니다."),
+    NOT_FOUND_TOPIC_IMAGE(HttpStatus.NOT_FOUND, "이미지 정보가 존재하지 않습니다."),
 
     /* UNPROCESSABLE CONTENT 422 */
     EXISTING_RESOURCE(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 리소스입니다."),
@@ -35,6 +39,7 @@ public enum ErrorCode {
     EXISTING_EMAIL(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 이메일입니다."),
     EXISTING_USERNAME(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 유저명입니다."),
     EXISTING_TEL(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 전화번호입니다."),
+    EXISTING_CATEGORY(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 카테고리입니다."),
     ALREADY_VERIFIED(HttpStatus.UNPROCESSABLE_ENTITY, "이미 인증된 이메일입니다."),
     TOKEN_EXPIRATION(HttpStatus.UNPROCESSABLE_ENTITY, "이미 만료된 토큰입니다"),
 

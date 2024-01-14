@@ -33,6 +33,10 @@ public class SeedLoader {
         log.info("더미 데이터 생성 시작");
         batchInsertMember();
         log.info("Member 생성 완료");
+        batchInsertCategory();
+        log.info("Category 생성 완료");
+        batchInsertTopic();
+        log.info("Topic 생성 완료");
         long afterTime = System.currentTimeMillis();
         long diffTime = afterTime - beforeTime;
         log.info("실행 시간(ms) = {}", diffTime);
@@ -75,6 +79,52 @@ public class SeedLoader {
                 ps.setString(6, Constants.BASIC_PROFILE_IMAGE_NAME);
                 ps.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
                 ps.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
+            }
+
+            @Override
+            public int getBatchSize() {
+                return TOTAL_SIZE;
+            }
+        });
+    }
+
+    private void batchInsertCategory() {
+        String sql = "INSERT INTO category" +
+                " (name, created_at, updated_at)" +
+                " VALUES (?, ?, ?)";
+
+        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                ps.setString(1, String.format("test%d", i + 1));
+                ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+                ps.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            }
+
+            @Override
+            public int getBatchSize() {
+                return TOTAL_SIZE;
+            }
+        });
+    }
+
+    private void batchInsertTopic() {
+        String sql = "INSERT INTO topic" +
+                " (title, description, first_choice, second_choice, closed_at, author_id, category_id, created_at, updated_at)" +
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                ps.setString(1, String.format("test%d", i + 1));
+                ps.setString(2, "test입니다.");
+                ps.setString(3, "first choice");
+                ps.setString(4, "second choice");
+                ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+                ps.setLong(6, (long) (Math.random() * TOTAL_SIZE + 1));
+                ps.setLong(7, (long) (Math.random() * TOTAL_SIZE + 1));
+                ps.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
+                ps.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
             }
 
             @Override

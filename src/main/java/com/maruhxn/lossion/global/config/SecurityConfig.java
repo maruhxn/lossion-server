@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -58,7 +59,17 @@ public class SecurityConfig {
                                 .configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz ->
                         authz
-                                .requestMatchers("/", "/api/auth/sign-up", "/api/auth/refresh", "/api/auth/send-anonymous-verify-email", "/api/auth/get-token", "/api/auth/update-anonymous-password").permitAll()
+                                .requestMatchers(
+                                        "/",
+                                        "/api/auth/sign-up",
+                                        "/api/auth/refresh",
+                                        "/api/auth/send-anonymous-verify-email",
+                                        "/api/auth/get-token",
+                                        "/api/auth/update-anonymous-password",
+                                        "/api/categories"
+                                ).permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/topics", "/api/topics/{topicId}").permitAll()
                                 .requestMatchers("/api/auth/test").authenticated()
                                 .anyRequest().authenticated()
                 )
