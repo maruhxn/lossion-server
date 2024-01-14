@@ -2,10 +2,11 @@ package com.maruhxn.lossion.global.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maruhxn.lossion.domain.auth.dto.LoginReq;
+import com.maruhxn.lossion.global.auth.application.JwtService;
+import com.maruhxn.lossion.global.auth.application.JwtUtils;
+import com.maruhxn.lossion.global.auth.dto.CustomUserDetails;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.dto.TokenDto;
-import com.maruhxn.lossion.global.auth.application.JwtUtils;
-import com.maruhxn.lossion.global.auth.application.JwtService;
 import com.maruhxn.lossion.global.common.dto.BaseResponse;
 import com.maruhxn.lossion.global.common.dto.DataResponse;
 import com.maruhxn.lossion.global.common.dto.ErrorResponse;
@@ -69,7 +70,9 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        JwtMemberInfo jwtMemberInfo = (JwtMemberInfo) authResult.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
+
+        JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(userDetails);
         TokenDto tokenDto = jwtUtils.createJwt(jwtMemberInfo);
 
         jwtService.saveRefreshToken(jwtMemberInfo, tokenDto);

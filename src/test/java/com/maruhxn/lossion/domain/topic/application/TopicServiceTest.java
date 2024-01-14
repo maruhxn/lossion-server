@@ -10,7 +10,6 @@ import com.maruhxn.lossion.domain.topic.domain.Topic;
 import com.maruhxn.lossion.domain.topic.domain.Vote;
 import com.maruhxn.lossion.domain.topic.domain.VoteType;
 import com.maruhxn.lossion.domain.topic.dto.request.VoteRequest;
-import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.common.dto.PageItem;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.BadRequestException;
@@ -24,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assertions.tuple;
 
 @SpringBootTest
 @Transactional
@@ -265,11 +263,10 @@ class TopicServiceTest {
 
         topicRepository.save(topic);
 
-        JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(member);
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When
-        PageItem myTopics = topicService.getMyTopics(jwtMemberInfo, pageRequest);
+        PageItem myTopics = topicService.getMyTopics(member.getId(), pageRequest);
 
         // Then
         assertThat(myTopics)

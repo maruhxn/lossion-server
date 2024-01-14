@@ -17,7 +17,7 @@ import java.util.List;
 public class Comment extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
+    private String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
@@ -35,13 +35,13 @@ public class Comment extends BaseEntity {
     private List<Comment> replies = new ArrayList<>();
 
     @Builder
-    public Comment(String content, Member author, Topic topic) {
+    public Comment(String text, Member author, Topic topic) {
 
-        Assert.hasText(content, "내용은 필수입니다.");
+        Assert.hasText(text, "내용은 필수입니다.");
         Assert.notNull(author, "작성자 정보는 필수입니다.");
         Assert.notNull(topic, "주제 정보는 필수입니다.");
 
-        this.content = content;
+        this.text = text;
         this.author = author;
         this.topic = topic;
     }

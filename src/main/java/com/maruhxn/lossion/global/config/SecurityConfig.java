@@ -43,6 +43,7 @@ public class SecurityConfig {
     private final JwtUtils jwtUtils;
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
+    private final JwtUserDetailsService jwtUserDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -98,13 +99,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationProvider jwtAuthenticationProvider(JwtUserDetailsService jwtUserDetailsService) {
+    public JwtAuthenticationProvider jwtAuthenticationProvider() {
         return new JwtAuthenticationProvider(jwtUserDetailsService, passwordEncoder());
     }
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtils);
+        return new JwtAuthorizationFilter(jwtUtils, jwtUserDetailsService);
     }
 
     @Bean
