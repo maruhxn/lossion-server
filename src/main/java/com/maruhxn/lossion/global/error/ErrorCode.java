@@ -32,6 +32,7 @@ public enum ErrorCode {
     NOT_FOUND_CATEGORY(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."),
     NOT_FOUND_TOPIC(HttpStatus.NOT_FOUND, "주제 정보가 존재하지 않습니다."),
     NOT_FOUND_TOPIC_IMAGE(HttpStatus.NOT_FOUND, "이미지 정보가 존재하지 않습니다."),
+    NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "댓글 정보가 존재하지 않습니다."),
 
     /* UNPROCESSABLE CONTENT 422 */
     EXISTING_RESOURCE(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 리소스입니다."),
