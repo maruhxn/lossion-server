@@ -1,7 +1,7 @@
 package com.maruhxn.lossion.global.interceptor;
 
-import com.maruhxn.lossion.domain.topic.dao.TopicRepository;
-import com.maruhxn.lossion.domain.topic.domain.Topic;
+import com.maruhxn.lossion.domain.comment.dao.CommentRepository;
+import com.maruhxn.lossion.domain.comment.domain.Comment;
 import com.maruhxn.lossion.global.auth.dto.CustomUserDetails;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.BadRequestException;
@@ -21,9 +21,9 @@ import java.util.Map;
 import static com.maruhxn.lossion.domain.member.domain.Role.ROLE_ADMIN;
 
 @RequiredArgsConstructor
-public class TopicAuthorCheckInterceptor implements HandlerInterceptor {
+public class CommentAuthorCheckInterceptor implements HandlerInterceptor {
 
-    private final TopicRepository topicRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -38,12 +38,12 @@ public class TopicAuthorCheckInterceptor implements HandlerInterceptor {
             Map<String, String> pathVariables = (Map<String, String>) request.getAttribute(
                     HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
-            Long postId = Long.valueOf(String.valueOf(pathVariables.get("topicId")));
-            Topic findTopic = topicRepository.findById(postId).orElseThrow(
-                    () -> new EntityNotFoundException(ErrorCode.NOT_FOUND_TOPIC));
+            Long commentId = Long.valueOf(String.valueOf(pathVariables.get("commentId")));
+            Comment findComment = commentRepository.findById(commentId).orElseThrow(
+                    () -> new EntityNotFoundException(ErrorCode.NOT_FOUND_COMMENT));
 
             if (!loginMember.getAuthorities().contains(ROLE_ADMIN)
-                    && !loginMember.getId().equals(findTopic.getAuthor().getId())) {
+                    && !loginMember.getId().equals(findComment.getAuthor().getId())) {
                 throw new ForbiddenException(ErrorCode.FORBIDDEN);
             }
 

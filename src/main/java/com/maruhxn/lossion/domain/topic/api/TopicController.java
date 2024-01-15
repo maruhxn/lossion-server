@@ -8,7 +8,7 @@ import com.maruhxn.lossion.domain.topic.dto.request.VoteRequest;
 import com.maruhxn.lossion.domain.topic.dto.response.MyTopicItem;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicDetailItem;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicItem;
-import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
+import com.maruhxn.lossion.global.auth.dto.CustomUserDetails;
 import com.maruhxn.lossion.global.common.dto.BaseResponse;
 import com.maruhxn.lossion.global.common.dto.DataResponse;
 import com.maruhxn.lossion.global.common.dto.PageItem;
@@ -41,10 +41,10 @@ public class TopicController {
 
     @PostMapping
     public ResponseEntity<BaseResponse> createTopic(
-            @AuthenticationPrincipal JwtMemberInfo jwtMemberInfo,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @ModelAttribute @Valid CreateTopicReq req
     ) {
-        topicService.createTopic(jwtMemberInfo, req);
+        topicService.createTopic(userDetails.getMember(), req);
         return new ResponseEntity<>(new BaseResponse("주제 생성 성공"), HttpStatus.CREATED);
     }
 
@@ -91,19 +91,19 @@ public class TopicController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void vote(
             @PathVariable Long topicId,
-            @AuthenticationPrincipal JwtMemberInfo jwtMemberInfo,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid VoteRequest req
     ) {
-        topicService.vote(topicId, jwtMemberInfo.getId(), req);
+        topicService.vote(topicId, userDetails.getId(), req);
     }
 
     @GetMapping("/my")
     public ResponseEntity<DataResponse<PageItem<MyTopicItem>>> getMyTopics(
-            @AuthenticationPrincipal JwtMemberInfo jwtMemberInfo,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             Pageable pageable
     ) {
 
-        PageItem result = topicService.getMyTopics(jwtMemberInfo, pageable);
+        PageItem result = topicService.getMyTopics(userDetails.getId(), pageable);
         return ResponseEntity.ok(DataResponse.of("내가 작성한 주제 리스트 조회 성공", result));
     }
 }

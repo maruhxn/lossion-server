@@ -14,7 +14,6 @@ import com.maruhxn.lossion.domain.topic.dto.request.VoteRequest;
 import com.maruhxn.lossion.domain.topic.dto.response.MyTopicItem;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicDetailItem;
 import com.maruhxn.lossion.domain.topic.dto.response.TopicItem;
-import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.common.dto.PageItem;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.BadRequestException;
@@ -53,8 +52,7 @@ public class TopicService {
     }
 
     @Transactional
-    public void createTopic(JwtMemberInfo jwtMemberInfo, CreateTopicReq req) {
-        Member author = Member.from(jwtMemberInfo); // 영속성 관리 안 되는데 괜찮나?
+    public void createTopic(Member author, CreateTopicReq req) {
         Category findCategory = findCategoryByIdOrThrow(req.getCategoryId());
 
         List<TopicImage> topicImages = storeTopicImageList(req.getImages());
@@ -156,8 +154,8 @@ public class TopicService {
         }
     }
 
-    public PageItem getMyTopics(JwtMemberInfo jwtMemberInfo, Pageable pageable) {
-        Page<MyTopicItem> result = topicQueryRepository.findMyTopics(jwtMemberInfo.getId(), pageable);
+    public PageItem getMyTopics(Long memberId, Pageable pageable) {
+        Page<MyTopicItem> result = topicQueryRepository.findMyTopics(memberId, pageable);
         return PageItem.from(result);
     }
 }

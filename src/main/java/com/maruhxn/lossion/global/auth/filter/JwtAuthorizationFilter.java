@@ -1,5 +1,6 @@
 package com.maruhxn.lossion.global.auth.filter;
 
+import com.maruhxn.lossion.global.auth.application.JwtUserDetailsService;
 import com.maruhxn.lossion.global.auth.application.JwtUtils;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import jakarta.servlet.FilterChain;
@@ -8,8 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -30,6 +31,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     "/api/auth/update-anonymous-password");
 
     private final JwtUtils jwtUtils;
+    private final JwtUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -46,14 +48,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         // 토큰에서 정보 추출
         JwtMemberInfo jwtMemberInfo = JwtMemberInfo.of(jwtUtils, token);
-
-        // authority 추출
-        List<GrantedAuthority> authorities = jwtMemberInfo.extractAuthorities();
+        UserDetails userDetails = userDetailsService.loadUserByUsername(jwtMemberInfo.getAccountId());
 
         UsernamePasswordAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken.authenticated(
-                jwtMemberInfo,
+                userDetails,
                 null,
-                authorities
+                userDetails.getAuthorities()
         );
 
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);

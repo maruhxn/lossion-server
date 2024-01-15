@@ -6,7 +6,6 @@ import com.maruhxn.lossion.domain.auth.dto.*;
 import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.domain.member.dto.request.UpdateAnonymousPasswordReq;
-import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.AlreadyExistsResourceException;
 import com.maruhxn.lossion.global.error.exception.BadRequestException;
@@ -70,11 +69,9 @@ public class AuthService {
         }
     }
 
-    public void sendVerifyEmailWithLogin(JwtMemberInfo memberInfo) {
-        if (memberInfo.getIsVerified()) throw new AlreadyExistsResourceException(ErrorCode.ALREADY_VERIFIED);
-        Member findMember = memberRepository.findByAccountId(memberInfo.getAccountId())
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_MEMBER));
-        sendMail(findMember);
+    public void sendVerifyEmailWithLogin(Member member) {
+        if (member.getIsVerified()) throw new AlreadyExistsResourceException(ErrorCode.ALREADY_VERIFIED);
+        sendMail(member);
     }
 
     public void sendVerifyEmailWithAnonymous(SendAnonymousEmailReq req) {
@@ -98,27 +95,22 @@ public class AuthService {
         emailService.sendEmail(findMember.getEmail(), "Authentication Code : " + payload);
     }
 
-    public void verifyEmail(JwtMemberInfo memberInfo, VerifyEmailReq req) {
-        if (memberInfo.getIsVerified()) throw new AlreadyExistsResourceException(ErrorCode.ALREADY_VERIFIED);
-        Member findMember = memberRepository.findByAccountId(memberInfo.getAccountId())
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_MEMBER));
+    public void verifyEmail(Member member, VerifyEmailReq req) {
+        if (member.getIsVerified()) throw new AlreadyExistsResourceException(ErrorCode.ALREADY_VERIFIED);
 
-        AuthToken findAuthToken = authTokenRepository.findByPayloadAndMember_Id(req.getPayload(), findMember.getId())
+        AuthToken findAuthToken = authTokenRepository.findByPayloadAndMember_Id(req.getPayload(), member.getId())
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_TOKEN));
 
         validateAuthToken(findAuthToken);
 
         // 인증 완료
-        findMember.verifyEmail();
+        member.verifyEmail();
 
-        authTokenRepository.deleteAllByMember_Id(findMember.getId());
+        authTokenRepository.deleteAllByMember_Id(member.getId());
     }
 
-    public void verifyPassword(JwtMemberInfo memberInfo, VerifyPasswordReq req) {
-        Member findMember = memberRepository.findByAccountId(memberInfo.getAccountId())
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_MEMBER));
-
-        if (!passwordEncoder.matches(req.getCurrPassword(), findMember.getPassword())) {
+    public void verifyPassword(Member member, VerifyPasswordReq req) {
+        if (!passwordEncoder.matches(req.getCurrPassword(), member.getPassword())) {
             throw new BadRequestException(ErrorCode.PASSWORD_CONFIRM_FAIL);
         }
     }

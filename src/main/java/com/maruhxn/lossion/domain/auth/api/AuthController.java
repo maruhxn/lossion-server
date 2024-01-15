@@ -4,7 +4,7 @@ import com.maruhxn.lossion.domain.auth.application.AuthService;
 import com.maruhxn.lossion.domain.auth.dto.*;
 import com.maruhxn.lossion.domain.member.dto.request.UpdateAnonymousPasswordReq;
 import com.maruhxn.lossion.global.auth.application.JwtService;
-import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
+import com.maruhxn.lossion.global.auth.dto.CustomUserDetails;
 import com.maruhxn.lossion.global.auth.dto.TokenDto;
 import com.maruhxn.lossion.global.common.dto.BaseResponse;
 import com.maruhxn.lossion.global.common.dto.DataResponse;
@@ -45,27 +45,27 @@ public class AuthController {
 
     @GetMapping("/send-verify-email")
     public ResponseEntity<BaseResponse> sendVerifyEmail(
-            @AuthenticationPrincipal JwtMemberInfo memberInfo
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        authService.sendVerifyEmailWithLogin(memberInfo);
+        authService.sendVerifyEmailWithLogin(userDetails.getMember());
         return ResponseEntity.ok(new BaseResponse("인증 메일 발송 성공"));
     }
 
     @PostMapping("/verify-email")
     public ResponseEntity<BaseResponse> verifyEmail(
-            @AuthenticationPrincipal JwtMemberInfo memberInfo,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid VerifyEmailReq req
     ) {
-        authService.verifyEmail(memberInfo, req);
+        authService.verifyEmail(userDetails.getMember(), req);
         return ResponseEntity.ok(new BaseResponse("이메일 인증 성공"));
     }
 
     @PostMapping("/verify-password")
     public ResponseEntity<BaseResponse> verifyPassword(
-            @AuthenticationPrincipal JwtMemberInfo memberInfo,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid VerifyPasswordReq req
     ) {
-        authService.verifyPassword(memberInfo, req);
+        authService.verifyPassword(userDetails.getMember(), req);
         return ResponseEntity.ok(new BaseResponse("비밀번호 인증 성공"));
     }
 
