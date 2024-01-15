@@ -1,5 +1,6 @@
 package com.maruhxn.lossion.domain.comment.domain;
 
+import com.maruhxn.lossion.domain.comment.dto.request.CreateCommentReq;
 import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.domain.topic.domain.Topic;
 import com.maruhxn.lossion.global.common.BaseEntity;
@@ -13,7 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(exclude = {"author", "topic", "parent", "replies"})
+@ToString(exclude = {"author", "topic", "replyTo", "replies"})
 public class Comment extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -28,14 +29,16 @@ public class Comment extends BaseEntity {
     private Topic topic;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id", referencedColumnName = "id")
-    private Comment parent;
+    @JoinColumn(name = "reply_to_id", referencedColumnName = "id")
+    private Comment replyTo;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "replyTo", cascade = CascadeType.ALL)
     private List<Comment> replies = new ArrayList<>();
 
+    private String groupId;
+
     @Builder
-    public Comment(String text, Member author, Topic topic) {
+    public Comment(String text, Member author, Topic topic, String groupId) {
 
         Assert.hasText(text, "내용은 필수입니다.");
         Assert.notNull(author, "작성자 정보는 필수입니다.");
@@ -44,16 +47,31 @@ public class Comment extends BaseEntity {
         this.text = text;
         this.author = author;
         this.topic = topic;
+        this.groupId = groupId;
+    }
+
+    public static Comment of(Member author, Topic topic, CreateCommentReq req, String groupId) {
+        return Comment.builder()
+                .text(req.getText())
+                .topic(topic)
+                .author(author)
+                .groupId(groupId)
+                .build();
     }
 
     // 연관관계 메서드 //
     public void addReply(Comment reply) {
         replies.add(reply);
-        reply.parent = this;
+        reply.groupId = this.groupId;
+        reply.replyTo = this;
     }
 
     // 편의 메서드 //
     public void setTopic(Topic topic) {
         this.topic = topic;
+    }
+
+    public void updateText(String text) {
+        this.text = text;
     }
 }
