@@ -35,8 +35,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> dataIntegrityViolation(DataIntegrityViolationException e) {
         log.error(e.getMessage(), e);
         return ResponseEntity
-                .status(ErrorCode.EXISTING_RESOURCE.getHttpStatus())
-                .body(ErrorResponse.of(ErrorCode.EXISTING_RESOURCE));
+                .status(ErrorCode.DATA_ACCESS_ERROR.getHttpStatus())
+                .body(ErrorResponse.of(ErrorCode.DATA_ACCESS_ERROR));
     }
 
     @ExceptionHandler
