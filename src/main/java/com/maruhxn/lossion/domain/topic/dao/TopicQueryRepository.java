@@ -36,24 +36,24 @@ public class TopicQueryRepository {
                         category,
                         topic.title,
                         topic.viewCount,
-                        vote.count(),
+                        vote.countDistinct(),
                         topic.author,
-                        comment.count(),
-                        topicFavorite.count(),
+                        comment.countDistinct(),
+                        topicFavorite.countDistinct(),
                         topic.createdAt,
                         topic.closedAt,
                         topic.isClosed
                 ))
                 .from(topic)
                 .leftJoin(topic.category, category)
-                .leftJoin(vote).on(vote.topic.id.eq(topic.id))
+                .leftJoin(topic.votes, vote)
                 .leftJoin(topic.author, member)
                 .leftJoin(topic.comments, comment)
                 .leftJoin(topic.favorites, topicFavorite)
                 .where(containTitleKeyword(cond.getTitle()),
                         containContentKeyword(cond.getDescription()),
                         authorLike(cond.getAuthor()))
-                .groupBy(topic.id, category, topic.title, topic.viewCount, topic.author, topic.createdAt, topic.closedAt, topic.isClosed)
+                .groupBy(topic.id)
                 .orderBy(topic.createdAt.desc(), topic.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -62,6 +62,9 @@ public class TopicQueryRepository {
         JPAQuery<Long> countQuery = query
                 .select(topic.count())
                 .from(topic)
+                .leftJoin(topic.votes, vote)
+                .leftJoin(topic.comments, comment)
+                .leftJoin(topic.favorites, topicFavorite)
                 .where(containTitleKeyword(cond.getTitle()),
                         containContentKeyword(cond.getDescription()),
                         authorLike(cond.getAuthor()));
@@ -76,9 +79,9 @@ public class TopicQueryRepository {
                         category,
                         topic.title,
                         topic.viewCount,
-                        comment.count(),
-                        topicFavorite.count(),
-                        vote.count(),
+                        comment.countDistinct(),
+                        topicFavorite.countDistinct(),
+                        vote.countDistinct(),
                         topic.createdAt,
                         topic.updatedAt,
                         topic.closedAt,
@@ -86,11 +89,11 @@ public class TopicQueryRepository {
                 ))
                 .from(topic)
                 .leftJoin(topic.category, category)
-                .leftJoin(vote).on(vote.topic.id.eq(topic.id))
+                .leftJoin(topic.votes, vote)
                 .leftJoin(topic.comments, comment)
                 .leftJoin(topic.favorites, topicFavorite)
                 .where(topic.author.id.eq(memberId))
-                .groupBy(topic.id, category, topic.title, topic.viewCount, topic.createdAt, topic.closedAt, topic.isClosed)
+                .groupBy(topic.id)
                 .orderBy(topic.createdAt.desc(), topic.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -99,6 +102,9 @@ public class TopicQueryRepository {
         JPAQuery<Long> countQuery = query
                 .select(topic.count())
                 .from(topic)
+                .leftJoin(topic.votes, vote)
+                .leftJoin(topic.comments, comment)
+                .leftJoin(topic.favorites, topicFavorite)
                 .where(topic.author.id.eq(memberId));
 
         return PageableExecutionUtils.getPage(myTopicItems, pageable, countQuery::fetchOne);

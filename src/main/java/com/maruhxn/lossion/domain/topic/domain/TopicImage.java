@@ -8,7 +8,6 @@ import org.springframework.util.Assert;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(exclude = {"topic"})
 public class TopicImage extends BaseEntity {
 
     @Column(nullable = false)

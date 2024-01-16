@@ -62,9 +62,9 @@ public class TopicDetailItem {
                 .description(topic.getDescription())
                 .firstChoice(topic.getFirstChoice())
                 .secondChoice(topic.getSecondChoice())
-                .commentCount(0L) // TODO
+                .commentCount((long) topic.getComments().size())
                 .viewCount(topic.getViewCount())
-                .favoriteCount(0L) // TODO
+                .favoriteCount((long) topic.getFavorites().size())
                 .voteCountInfo(VoteCountInfo.from(topic.getVotes()))
                 .images(topic.getImages().stream()
                         .map(TopicImageItem::from)

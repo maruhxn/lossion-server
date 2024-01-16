@@ -1,7 +1,7 @@
 package com.maruhxn.lossion.domain.favorite.domain;
 
+import com.maruhxn.lossion.domain.comment.domain.Comment;
 import com.maruhxn.lossion.domain.member.domain.Member;
-import com.maruhxn.lossion.domain.topic.domain.Topic;
 import com.maruhxn.lossion.global.common.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,15 +21,15 @@ public class CommentFavorite extends BaseEntity {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "topic_id", referencedColumnName = "id")
-    private Topic topic;
+    @JoinColumn(name = "comment_id", referencedColumnName = "id")
+    private Comment comment;
 
     @Builder
-    public CommentFavorite(Member member, Topic topic) {
+    public CommentFavorite(Member member, Comment comment) {
         Assert.notNull(member, "유저 정보는 필수입니다.");
-        Assert.notNull(topic, "주제 정보는 필수입니다.");
+        Assert.notNull(comment, "댓글 정보는 필수입니다.");
 
         this.member = member;
-        this.topic = topic;
+        this.comment = comment;
     }
 }

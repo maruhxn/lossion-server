@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
@@ -81,7 +82,7 @@ class CommentServiceTest extends IntegrationTestSupport {
                 .build();
 
         // When / Then
-        assertThatThrownBy(() -> commentService.createComment(member, topic.getId(), req,groupId ))
+        assertThatThrownBy(() -> commentService.createComment(member, topic.getId(), req, groupId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("내용은 필수입니다.");
     }
@@ -244,6 +245,58 @@ class CommentServiceTest extends IntegrationTestSupport {
         Category category = createCategory();
         Topic topic = createTopic(member, category);
         Comment comment = createComment(topic, member);
+
+        commentRepository.save(comment);
+        // When
+        commentService.deleteComment(topic.getId(), comment.getId());
+
+        // Then
+        List<Comment> comments = commentRepository.findAll();
+        assertThat(comments).isEmpty();
+    }
+
+    @DisplayName("댓글을 삭제하면, 해당 댓글의 답글까지 모두 삭제된다.")
+    @Test
+    void deleteCommentWithCascadeAll1() {
+        // Given
+        Member member = createMember();
+        Category category = createCategory();
+        Topic topic = createTopic(member, category);
+        Comment comment = createComment(topic, member);
+
+        Comment reply1 = createReply(topic, member);
+        Comment reply2 = createReply(topic, member);
+        Comment reply3 = createReply(topic, member);
+
+        comment.addReply(reply1);
+        reply1.addReply(reply2);
+        comment.addReply(reply3);
+
+        commentRepository.save(comment);
+        // When
+        commentService.deleteComment(topic.getId(), reply1.getId());
+
+        // Then
+        assertThatThrownBy(() -> commentRepository.findById(reply2.getId()).get())
+                .isInstanceOf(NoSuchElementException.class);
+    }
+
+    @DisplayName("댓글을 삭제하면, 해당 댓글의 답글까지 모두 삭제된다.")
+    @Test
+    void deleteCommentWithCascadeAll2() {
+        // Given
+        Member member = createMember();
+        Category category = createCategory();
+        Topic topic = createTopic(member, category);
+        Comment comment = createComment(topic, member);
+
+        Comment reply1 = createReply(topic, member);
+        Comment reply2 = createReply(topic, member);
+        Comment reply3 = createReply(topic, member);
+
+        comment.addReply(reply1);
+        reply1.addReply(reply2);
+        comment.addReply(reply3);
 
         commentRepository.save(comment);
         // When
