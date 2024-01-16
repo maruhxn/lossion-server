@@ -76,7 +76,7 @@ public class TopicService {
 
     @Transactional
     public TopicDetailItem getTopicDetail(Long topicId) {
-        Topic findTopic = topicRepository.findTopicWithMemberAndImagesAndCategoryAndVotesById(topicId)
+        Topic findTopic = topicRepository.findTopicWithMemberAndCategoryAndVotesById(topicId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_TOPIC));
         findTopic.addViewCount();
         return TopicDetailItem.from(findTopic);
