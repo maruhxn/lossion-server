@@ -2,6 +2,7 @@ package com.maruhxn.lossion.domain.topic.dto.response;
 
 import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.domain.topic.domain.Category;
+import com.maruhxn.lossion.domain.topic.domain.Topic;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -39,5 +40,21 @@ public class TopicItem {
         this.createdAt = createdAt;
         this.closedAt = closedAt;
         this.isClosed = isClosed;
+    }
+
+    public static TopicItem from(Topic topic) {
+        return TopicItem.builder()
+                .topicId(topic.getId())
+                .category(topic.getCategory())
+                .title(topic.getTitle())
+                .viewCount(topic.getViewCount())
+                .voteCount((long) topic.getVotes().size())
+                .author(topic.getAuthor())
+                .commentCount((long) topic.getComments().size())
+                .favoriteCount((long) topic.getFavorites().size())
+                .createdAt(topic.getCreatedAt())
+                .closedAt(topic.getClosedAt())
+                .isClosed(topic.getIsClosed())
+                .build();
     }
 }
