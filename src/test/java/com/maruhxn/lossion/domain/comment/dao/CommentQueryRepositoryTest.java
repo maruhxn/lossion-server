@@ -2,6 +2,8 @@ package com.maruhxn.lossion.domain.comment.dao;
 
 import com.maruhxn.lossion.domain.comment.domain.Comment;
 import com.maruhxn.lossion.domain.comment.dto.response.CommentItem;
+import com.maruhxn.lossion.domain.favorite.dao.CommentFavoriteRepository;
+import com.maruhxn.lossion.domain.favorite.domain.CommentFavorite;
 import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.domain.topic.dao.CategoryRepository;
@@ -39,6 +41,9 @@ class CommentQueryRepositoryTest extends IntegrationTestSupport {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Autowired
+    private CommentFavoriteRepository commentFavoriteRepository;
+
     @DisplayName("부모 레벨의 댓글을 생성 시간 순으로 페이징 조회한다.")
     @Test
     void findTopLevelComments() {
@@ -65,6 +70,13 @@ class CommentQueryRepositoryTest extends IntegrationTestSupport {
 
         commentRepository.saveAll(topLevelComments);
 
+        CommentFavorite commentFavorite = CommentFavorite.builder()
+                .comment(comment1)
+                .member(member)
+                .build();
+
+        commentFavoriteRepository.save(commentFavorite);
+
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When
@@ -73,13 +85,13 @@ class CommentQueryRepositoryTest extends IntegrationTestSupport {
 
         // Then
         assertThat(topLevelCommentsPageItem).hasSize(5)
-                .extracting("id", "replyTo", "groupId")
+                .extracting("id", "favoriteCount", "replyTo", "groupId")
                 .containsExactlyInAnyOrder(
-                        tuple(comment5.getId(), null, comment5.getGroupId()),
-                        tuple(comment4.getId(), null, comment4.getGroupId()),
-                        tuple(comment3.getId(), null, comment3.getGroupId()),
-                        tuple(comment2.getId(), null, comment2.getGroupId()),
-                        tuple(comment1.getId(), null, comment1.getGroupId())
+                        tuple(comment5.getId(), 0L, null, comment5.getGroupId()),
+                        tuple(comment4.getId(), 0L, null, comment4.getGroupId()),
+                        tuple(comment3.getId(), 0L, null, comment3.getGroupId()),
+                        tuple(comment2.getId(), 0L, null, comment2.getGroupId()),
+                        tuple(comment1.getId(), 1L, null, comment1.getGroupId())
                 );
 
     }
@@ -104,17 +116,23 @@ class CommentQueryRepositoryTest extends IntegrationTestSupport {
 
         commentRepository.save(comment);
 
+        CommentFavorite reply1Favorite = CommentFavorite.builder()
+                .comment(reply1)
+                .member(member)
+                .build();
+
+        commentFavoriteRepository.save(reply1Favorite);
         // When
         List<CommentItem> replies = commentQueryRepository
                 .findRepliesByGroupId(topic.getId(), comment.getGroupId());
 
         // Then
         assertThat(replies).hasSize(3)
-                .extracting("id", "replyTo", "groupId")
+                .extracting("id", "favoriteCount", "replyTo", "groupId")
                 .containsExactlyInAnyOrder(
-                        tuple(reply1.getId(), CommentItem.from(comment), comment.getGroupId()),
-                        tuple(reply2.getId(), CommentItem.from(reply1), comment.getGroupId()),
-                        tuple(reply3.getId(), CommentItem.from(comment), comment.getGroupId())
+                        tuple(reply1.getId(), 1L, CommentItem.from(comment), comment.getGroupId()),
+                        tuple(reply2.getId(), 0L, CommentItem.from(reply1), comment.getGroupId()),
+                        tuple(reply3.getId(), 0L, CommentItem.from(comment), comment.getGroupId())
                 );
 
     }

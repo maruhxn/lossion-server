@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maruhxn.lossion.domain.comment.api.CommentController;
 import com.maruhxn.lossion.domain.comment.application.CommentService;
 import com.maruhxn.lossion.domain.comment.dao.CommentRepository;
+import com.maruhxn.lossion.domain.favorite.api.FavoriteController;
+import com.maruhxn.lossion.domain.favorite.application.FavoriteService;
 import com.maruhxn.lossion.domain.topic.dao.TopicRepository;
 import com.maruhxn.lossion.global.config.SecurityConfig;
 import com.maruhxn.lossion.global.config.WebConfig;
@@ -19,7 +21,8 @@ import org.springframework.test.web.servlet.MockMvc;
 @ActiveProfiles("test")
 @WebMvcTest(
         controllers = {
-                CommentController.class
+                CommentController.class,
+                FavoriteController.class
         },
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),
@@ -36,6 +39,9 @@ public abstract class ControllerTestSupport {
 
     @MockBean
     protected CommentService commentService;
+
+    @MockBean
+    protected FavoriteService favoriteService;
 
     @MockBean
     protected TopicRepository topicRepository;
