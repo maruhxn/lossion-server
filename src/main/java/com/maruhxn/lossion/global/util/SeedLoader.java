@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 public class SeedLoader {
     private final JdbcTemplate jdbcTemplate;
     private final PasswordEncoder passwordEncoder;
-    private int TOTAL_SIZE = 10;
+    private final int TOTAL_SIZE = 10;
 
     @Transactional
     @EventListener(ApplicationReadyEvent.class)

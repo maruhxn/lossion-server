@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.maruhxn.lossion.domain.comment.domain.QComment.comment;
+import static com.maruhxn.lossion.domain.favorite.domain.QCommentFavorite.commentFavorite;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,14 +29,16 @@ public class CommentQueryRepository {
                         comment.text,
                         comment.author,
                         comment.groupId,
+                        commentFavorite.countDistinct(),
                         comment.replyTo,
                         comment.createdAt,
                         comment.updatedAt
                 ))
                 .from(comment)
                 .leftJoin(comment.replyTo)
+                .leftJoin(comment.favorites, commentFavorite)
                 .where(comment.topic.id.eq(topicId).and(comment.replyTo.isNull()))
-                .groupBy(comment.id, comment.replyTo)
+                .groupBy(comment.id)
                 .orderBy(comment.createdAt.desc(), comment.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -45,6 +48,7 @@ public class CommentQueryRepository {
         JPAQuery<Long> countQuery = query
                 .select(comment.count())
                 .from(comment)
+                .leftJoin(comment.replyTo)
                 .where(comment.topic.id.eq(topicId).and(comment.replyTo.isNull()));
 
         return PageableExecutionUtils.getPage(commentItems, pageable, countQuery::fetchOne);
@@ -57,13 +61,16 @@ public class CommentQueryRepository {
                         comment.text,
                         comment.author,
                         comment.groupId,
+                        commentFavorite.countDistinct(),
                         comment.replyTo,
                         comment.createdAt,
                         comment.updatedAt
                 ))
                 .from(comment)
                 .leftJoin(comment.replyTo)
+                .leftJoin(comment.favorites, commentFavorite)
                 .where(comment.topic.id.eq(topicId).and(comment.groupId.eq(groupId)).and(comment.replyTo.isNotNull()))
+                .groupBy(comment.id)
                 .orderBy(comment.createdAt.desc())
                 .fetch();
     }
