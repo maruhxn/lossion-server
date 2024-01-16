@@ -1,11 +1,15 @@
 package com.maruhxn.lossion.domain.comment.domain;
 
 import com.maruhxn.lossion.domain.comment.dto.request.CreateCommentReq;
+import com.maruhxn.lossion.domain.favorite.domain.CommentFavorite;
 import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.domain.topic.domain.Topic;
 import com.maruhxn.lossion.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -14,7 +18,6 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(exclude = {"author", "topic", "replyTo", "replies"})
 public class Comment extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -34,6 +37,9 @@ public class Comment extends BaseEntity {
 
     @OneToMany(mappedBy = "replyTo", cascade = CascadeType.ALL)
     private List<Comment> replies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
+    private List<CommentFavorite> favorites = new ArrayList<>();
 
     private String groupId;
 

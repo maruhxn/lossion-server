@@ -13,7 +13,6 @@ import org.springframework.util.Assert;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
 public class Vote extends BaseEntity {
 
     private VoteType voteType;
@@ -45,7 +44,7 @@ public class Vote extends BaseEntity {
     }
 
     public void updateVoteType(VoteRequest req) {
-        if (this.getVoteType().equals(req.getVoteType())) {
+        if (this.getVoteType() != null && this.getVoteType().equals(req.getVoteType())) {
             this.voteType = null;
         } else {
             this.voteType = req.getVoteType();

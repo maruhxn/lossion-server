@@ -16,7 +16,6 @@ import org.springframework.util.Assert;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
 public class TopicFavorite extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,6 +32,10 @@ public class TopicFavorite extends BaseEntity {
         Assert.notNull(topic, "주제 정보는 필수입니다.");
 
         this.member = member;
+        this.topic = topic;
+    }
+
+    public void setTopic(Topic topic) {
         this.topic = topic;
     }
 }

@@ -16,7 +16,6 @@ import org.springframework.util.StringUtils;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
 @DynamicInsert
 public class Member extends BaseEntity {
 

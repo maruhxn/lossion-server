@@ -20,7 +20,6 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(exclude = {"author", "comments"})
 @DynamicInsert
 public class Topic extends BaseEntity {
 
@@ -167,5 +166,10 @@ public class Topic extends BaseEntity {
 
     public void changeCategory(Category category) {
         this.category = category;
+    }
+
+    public void addFavorite(TopicFavorite topicFavorite) {
+        this.favorites.add(topicFavorite);
+        topicFavorite.setTopic(this);
     }
 }
