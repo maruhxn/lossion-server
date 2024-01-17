@@ -7,6 +7,7 @@ import com.maruhxn.lossion.domain.comment.dao.CommentRepository;
 import com.maruhxn.lossion.domain.favorite.api.FavoriteController;
 import com.maruhxn.lossion.domain.favorite.application.FavoriteService;
 import com.maruhxn.lossion.domain.topic.api.CategoryController;
+import com.maruhxn.lossion.domain.topic.api.TopicController;
 import com.maruhxn.lossion.domain.topic.application.CategoryService;
 import com.maruhxn.lossion.domain.topic.application.TopicService;
 import com.maruhxn.lossion.domain.topic.dao.TopicRepository;
@@ -26,7 +27,8 @@ import org.springframework.test.web.servlet.MockMvc;
         controllers = {
                 CommentController.class,
                 FavoriteController.class,
-                CategoryController.class
+                CategoryController.class,
+                TopicController.class
         },
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),

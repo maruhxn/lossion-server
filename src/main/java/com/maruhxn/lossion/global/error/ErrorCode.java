@@ -16,6 +16,7 @@ public enum ErrorCode {
     ALREADY_CLOSED(HttpStatus.BAD_REQUEST, "이미 종료된 투표입니다."),
     SPRING_BAD_REQUEST(HttpStatus.BAD_REQUEST, "스프링 BAD REQUEST"),
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "올바르지 않은 입력입니다."),
+    PATH_VAR_ERROR(HttpStatus.BAD_REQUEST, "올바르지 않은 URI입니다."),
 
     /* UNAUTHORIZED 401 */
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스입니다."),

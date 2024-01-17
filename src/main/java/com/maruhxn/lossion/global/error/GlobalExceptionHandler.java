@@ -9,6 +9,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 @Slf4j
@@ -45,6 +46,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ErrorCode.VALIDATION_ERROR.getHttpStatus())
                 .body(ErrorResponse.validationError(e.getBindingResult()));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Object> pathVariableValidationFail(MethodArgumentTypeMismatchException e) {
+
+        return ResponseEntity
+                .status(ErrorCode.PATH_VAR_ERROR.getHttpStatus())
+                .body(ErrorResponse.of(ErrorCode.PATH_VAR_ERROR));
     }
 
     @ExceptionHandler

@@ -38,7 +38,7 @@ public class TopicController {
     ) {
 
         PageItem result = topicService.getTopics(cond, pageable);
-        return ResponseEntity.ok(DataResponse.of("주제 리스트 성공", result));
+        return ResponseEntity.ok(DataResponse.of("주제 리스트 조회 성공", result));
     }
 
     @PostMapping
@@ -53,7 +53,7 @@ public class TopicController {
     @GetMapping("/{topicId}")
     public ResponseEntity<DataResponse<TopicDetailItem>> getTopicDetail(@PathVariable Long topicId) {
         TopicDetailItem result = topicService.getTopicDetail(topicId);
-        return ResponseEntity.ok(DataResponse.of("게시글 조회 성공", result));
+        return ResponseEntity.ok(DataResponse.of("주제 조회 성공", result));
     }
 
     @PatchMapping("/{topicId}")
