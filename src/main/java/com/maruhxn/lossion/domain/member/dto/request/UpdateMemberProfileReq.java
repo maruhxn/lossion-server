@@ -2,6 +2,7 @@ package com.maruhxn.lossion.domain.member.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,7 @@ public class UpdateMemberProfileReq {
 
     private MultipartFile profileImage;
 
+    @Builder
     public UpdateMemberProfileReq(String username, String email, MultipartFile profileImage) {
         this.username = username;
         this.email = email;

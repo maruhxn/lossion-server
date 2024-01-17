@@ -6,6 +6,8 @@ import com.maruhxn.lossion.domain.comment.application.CommentService;
 import com.maruhxn.lossion.domain.comment.dao.CommentRepository;
 import com.maruhxn.lossion.domain.favorite.api.FavoriteController;
 import com.maruhxn.lossion.domain.favorite.application.FavoriteService;
+import com.maruhxn.lossion.domain.member.api.MemberController;
+import com.maruhxn.lossion.domain.member.application.MemberService;
 import com.maruhxn.lossion.domain.topic.api.CategoryController;
 import com.maruhxn.lossion.domain.topic.api.TopicController;
 import com.maruhxn.lossion.domain.topic.application.CategoryService;
@@ -28,7 +30,8 @@ import org.springframework.test.web.servlet.MockMvc;
                 CommentController.class,
                 FavoriteController.class,
                 CategoryController.class,
-                TopicController.class
+                TopicController.class,
+                MemberController.class
         },
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),
@@ -54,6 +57,9 @@ public abstract class ControllerTestSupport {
 
     @MockBean
     protected TopicService topicService;
+
+    @MockBean
+    protected MemberService memberService;
 
     @MockBean
     protected TopicRepository topicRepository;
