@@ -7,7 +7,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.util.Assert;
@@ -88,7 +91,7 @@ public class Member extends BaseEntity {
             this.email = email;
             this.isVerified = false;
         }
-        if (StringUtils.hasText(profileImage)) this.profileImage = newProfileImageName;
+        if (StringUtils.hasText(newProfileImageName)) this.profileImage = newProfileImageName;
     }
 
     public void updatePassword(String newPassword) {
