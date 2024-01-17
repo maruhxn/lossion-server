@@ -8,7 +8,7 @@ import com.maruhxn.lossion.domain.member.dto.response.ProfileItem;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.BadRequestException;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
-import com.maruhxn.lossion.infra.FileServiceImpl;
+import com.maruhxn.lossion.infra.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import static com.maruhxn.lossion.global.common.Constants.BASIC_PROFILE_IMAGE_NA
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final FileServiceImpl fileService;
+    private final FileService fileService;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
@@ -51,23 +51,30 @@ public class MemberService {
     public void updatePassword(Long memberId, UpdatePasswordReq updatePasswordReq) {
         Member findMember = findMemberOrElseThrowById(memberId);
 
-        if (!updatePasswordReq.getNewPassword().equals(updatePasswordReq.getConfirmNewPassword())) {
+        if (updatePasswordReq.getNewPassword().equals(updatePasswordReq.getCurrPassword()))
+            throw new BadRequestException(ErrorCode.SAME_PASSWORD);
+
+        if (confirmNewPassword(updatePasswordReq)) {
             throw new BadRequestException(ErrorCode.PASSWORD_CONFIRM_FAIL);
         }
 
-        if (passwordEncoder.matches(
-                updatePasswordReq.getNewPassword(),
-                findMember.getPassword()))
-            throw new BadRequestException(ErrorCode.SAME_PASSWORD);
-
-        if (!passwordEncoder.matches(
-                updatePasswordReq.getCurrPassword(),
-                findMember.getPassword()))
+        if (checkPasswordMatching(updatePasswordReq, findMember)) {
             throw new BadRequestException(ErrorCode.INCORRECT_PASSWORD);
+        }
 
         findMember.updatePassword(
                 passwordEncoder.encode(updatePasswordReq.getNewPassword())
         );
+    }
+
+    private boolean checkPasswordMatching(UpdatePasswordReq updatePasswordReq, Member findMember) {
+        return !passwordEncoder.matches(
+                updatePasswordReq.getCurrPassword(),
+                findMember.getPassword());
+    }
+
+    private static boolean confirmNewPassword(UpdatePasswordReq updatePasswordReq) {
+        return !updatePasswordReq.getNewPassword().equals(updatePasswordReq.getConfirmNewPassword());
     }
 
     public void membershipWithdrawal(Long memberId) {
