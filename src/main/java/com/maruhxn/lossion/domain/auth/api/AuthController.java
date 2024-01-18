@@ -71,7 +71,7 @@ public class AuthController {
         return ResponseEntity.ok(new BaseResponse("비밀번호 인증 성공"));
     }
 
-    @PostMapping("/send-anonymous-verify-email")
+    @PostMapping("/anonymous/send-verify-email")
     public ResponseEntity<BaseResponse> sendEmailWithAnonymous(
             @RequestBody @Valid SendAnonymousEmailReq req
     ) {
@@ -86,35 +86,35 @@ public class AuthController {
      * @param getTokenReq
      * @return
      */
-    @PostMapping("/get-token")
+    @PostMapping("/anonymous/get-token")
     public ResponseEntity<DataResponse<String>> getAuthKeyToFindPassword(
             @RequestBody @Valid GetTokenReq getTokenReq
     ) {
         String authToken = authService.getAuthKeyToFindPassword(getTokenReq, LocalDateTime.now());
-        return ResponseEntity.ok(DataResponse.of("유저 정보 찾기 성공", authToken));
+        return ResponseEntity.ok(DataResponse.of("유저 정보 조회 성공", authToken));
     }
 
     /**
      * 비밀번호 찾기를 통해 익명으로 비밀번호를 변경하는 API
      * 쿼리 파라미터로 /get-token에서 발급받은 authToken을 넘겨주어야 한다.
      *
-     * @param token
+     * @param authKey
      * @param updateAnonymousPasswordReq
      */
-    @PatchMapping("/update-anonymous-password")
+    @PatchMapping("/anonymous/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateAnonymousPassword(
-            @RequestParam("token") String token,
+            @RequestParam(value = "authKey", required = true) String authKey,
             @RequestBody @Valid UpdateAnonymousPasswordReq updateAnonymousPasswordReq
     ) {
-        authService.updateAnonymousPassword(token, updateAnonymousPasswordReq);
+        authService.updateAnonymousPassword(authKey, updateAnonymousPasswordReq);
     }
 
     @PatchMapping("/logout")
-    public ResponseEntity<BaseResponse> logout(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(
             @RequestHeader(value = REFRESH_TOKEN_HEADER, required = true) String bearerRefreshToken
     ) {
         jwtService.logout(bearerRefreshToken);
-        return new ResponseEntity<>(new BaseResponse("로그아웃 성공"), HttpStatus.NO_CONTENT);
     }
 }

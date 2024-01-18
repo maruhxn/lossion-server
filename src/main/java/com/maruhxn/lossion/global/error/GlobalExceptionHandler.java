@@ -8,6 +8,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -56,12 +58,19 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.validationError(e.getBindingResult()));
     }
 
-    @ExceptionHandler
-    public ResponseEntity<Object> pathVariableValidationFail(MethodArgumentTypeMismatchException e) {
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, MissingServletRequestParameterException.class})
+    public ResponseEntity<Object> pathVariableValidationFail(Exception e) {
 
         return ResponseEntity
                 .status(ErrorCode.PATH_VAR_ERROR.getHttpStatus())
                 .body(ErrorResponse.of(ErrorCode.PATH_VAR_ERROR));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Object> emptyRefreshToken(MissingRequestHeaderException e) {
+        return ResponseEntity
+                .status(ErrorCode.EMPTY_REFRESH_TOKEN.getHttpStatus())
+                .body(ErrorResponse.of(ErrorCode.EMPTY_REFRESH_TOKEN));
     }
 
     @ExceptionHandler
