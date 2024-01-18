@@ -1,33 +1,35 @@
 package com.maruhxn.lossion.domain.member.application;
 
+import com.maruhxn.lossion.domain.auth.dao.RefreshTokenRepository;
+import com.maruhxn.lossion.domain.auth.domain.RefreshToken;
 import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.domain.member.dto.request.UpdateMemberProfileReq;
 import com.maruhxn.lossion.domain.member.dto.request.UpdatePasswordReq;
 import com.maruhxn.lossion.domain.member.dto.response.ProfileItem;
+import com.maruhxn.lossion.global.auth.application.JwtUtils;
+import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.BadRequestException;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
-import com.maruhxn.lossion.infra.FileService;
 import com.maruhxn.lossion.util.IntegrationTestSupport;
 import jakarta.persistence.EntityManager;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
 @DisplayName("[서비스] - MemberService")
@@ -39,14 +41,17 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Autowired
     private MemberRepository memberRepository;
 
-    @MockBean
-    private FileService fileService;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private EntityManager em;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
     @DisplayName("회원 프로필을 조회할 수 있다.")
     @Test
@@ -282,13 +287,24 @@ class MemberServiceTest extends IntegrationTestSupport {
     void membershipWithdrawal() {
         // Given
         Member member = createMember("tester", "tester", "test@test,com", "01000000000");
+        JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(member);
+
+        String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo);
+        RefreshToken refreshToken = RefreshToken.builder()
+                .email(member.getEmail())
+                .accountId(member.getAccountId())
+                .refreshToken(rawRefreshToken)
+                .build();
+        refreshTokenRepository.save(refreshToken);
 
         // When
         memberService.membershipWithdrawal(member.getId());
 
         // Then
         Optional<Member> optionalMember = memberRepository.findById(member.getId());
+        List<RefreshToken> refreshTokens = refreshTokenRepository.findAll();
         assertThat(optionalMember.isEmpty()).isTrue();
+        assertThat(refreshTokens).isEmpty();
     }
 
     @DisplayName("회원 탈퇴 시 존재하지 않는 회원의 아이디를 전달하면 에러를 발생한다..")

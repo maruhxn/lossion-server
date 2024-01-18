@@ -1,5 +1,6 @@
 package com.maruhxn.lossion.domain.member.application;
 
+import com.maruhxn.lossion.domain.auth.dao.RefreshTokenRepository;
 import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.domain.member.dto.request.UpdateMemberProfileReq;
@@ -27,6 +28,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final FileService fileService;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional(readOnly = true)
     public ProfileItem getProfile(Long memberId) {
@@ -81,6 +83,7 @@ public class MemberService {
         Member findMember = findMemberOrElseThrowById(memberId);
         deleteProfileImageOfFindMember(findMember);
         memberRepository.delete(findMember);
+        refreshTokenRepository.deleteAllByAccountId(findMember.getAccountId());
     }
 
     private Member findMemberOrElseThrowById(Long memberId) {
