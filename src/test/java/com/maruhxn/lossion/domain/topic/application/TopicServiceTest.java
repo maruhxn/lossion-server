@@ -29,6 +29,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @DisplayName("[서비스] - TopicService")
 class TopicServiceTest extends IntegrationTestSupport {
@@ -412,6 +414,14 @@ class TopicServiceTest extends IntegrationTestSupport {
                 new FileInputStream(filePath)
         );
 
+        TopicImage topicImage = TopicImage.builder()
+                .originalName("originalFilename")
+                .storedName("storeFileName")
+                .build();
+
+        given(fileService.storeFiles(any(List.class)))
+                .willReturn(List.of(topicImage));
+
         UpdateTopicReq req = UpdateTopicReq.builder()
                 .title("title!!")
                 .images(List.of(image1))
@@ -541,17 +551,11 @@ class TopicServiceTest extends IntegrationTestSupport {
         Category category = createCategory();
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 16, 10, 0);
         Topic topic = createTopic("title", "test", closedAt, member, category);
-        TopicImage topicImage = TopicImage.builder()
-                .originalName("originalName")
-                .storedName("storedName")
-                .build();
 
-        topicImageRepository.save(topicImage);
-        topic.addTopicImage(topicImage);
         topicRepository.save(topic);
 
         // When / Then
-        assertThatThrownBy(() -> topicService.deleteOneTopicImage(2L))
+        assertThatThrownBy(() -> topicService.deleteOneTopicImage(1L))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage(ErrorCode.NOT_FOUND_TOPIC_IMAGE.getMessage());
 

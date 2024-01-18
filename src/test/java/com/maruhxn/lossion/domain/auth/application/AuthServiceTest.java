@@ -46,9 +46,6 @@ class AuthServiceTest extends IntegrationTestSupport {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @MockBean
-    private EmailService emailService;
-
     @Test
     @DisplayName("회원 가입")
     void signUp() {
