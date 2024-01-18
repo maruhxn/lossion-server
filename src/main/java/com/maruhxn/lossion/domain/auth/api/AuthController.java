@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 import static com.maruhxn.lossion.global.common.Constants.REFRESH_TOKEN_HEADER;
 
 @RestController
@@ -47,7 +49,7 @@ public class AuthController {
     public ResponseEntity<BaseResponse> sendVerifyEmail(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        authService.sendVerifyEmailWithLogin(userDetails.getMember());
+        authService.sendVerifyEmailWithLogin(userDetails.getMember(), LocalDateTime.now());
         return ResponseEntity.ok(new BaseResponse("인증 메일 발송 성공"));
     }
 
@@ -56,7 +58,7 @@ public class AuthController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid VerifyEmailReq req
     ) {
-        authService.verifyEmail(userDetails.getMember(), req);
+        authService.verifyEmail(userDetails.getMember(), req, LocalDateTime.now());
         return ResponseEntity.ok(new BaseResponse("이메일 인증 성공"));
     }
 
@@ -69,11 +71,11 @@ public class AuthController {
         return ResponseEntity.ok(new BaseResponse("비밀번호 인증 성공"));
     }
 
-    @PostMapping("/send-anonymous-verify-email")
+    @PostMapping("/anonymous/send-verify-email")
     public ResponseEntity<BaseResponse> sendEmailWithAnonymous(
             @RequestBody @Valid SendAnonymousEmailReq req
     ) {
-        authService.sendVerifyEmailWithAnonymous(req);
+        authService.sendVerifyEmailWithAnonymous(req, LocalDateTime.now());
         return ResponseEntity.ok(new BaseResponse("인증 메일 발송 성공"));
     }
 
@@ -84,35 +86,35 @@ public class AuthController {
      * @param getTokenReq
      * @return
      */
-    @PostMapping("/get-token")
-    public ResponseEntity<DataResponse<String>> findPasswordByAccountIdAndEmail(
+    @PostMapping("/anonymous/get-token")
+    public ResponseEntity<DataResponse<String>> getAuthKeyToFindPassword(
             @RequestBody @Valid GetTokenReq getTokenReq
     ) {
-        String authToken = authService.findPasswordByAccountIdAndEmail(getTokenReq);
-        return ResponseEntity.ok(DataResponse.of("유저 정보 찾기 성공", authToken));
+        String authToken = authService.getAuthKeyToFindPassword(getTokenReq, LocalDateTime.now());
+        return ResponseEntity.ok(DataResponse.of("유저 정보 조회 성공", authToken));
     }
 
     /**
      * 비밀번호 찾기를 통해 익명으로 비밀번호를 변경하는 API
      * 쿼리 파라미터로 /get-token에서 발급받은 authToken을 넘겨주어야 한다.
      *
-     * @param token
+     * @param authKey
      * @param updateAnonymousPasswordReq
      */
-    @PatchMapping("/update-anonymous-password")
+    @PatchMapping("/anonymous/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateAnonymousPassword(
-            @RequestParam("token") String token,
+            @RequestParam(value = "authKey", required = true) String authKey,
             @RequestBody @Valid UpdateAnonymousPasswordReq updateAnonymousPasswordReq
     ) {
-        authService.updateAnonymousPassword(token, updateAnonymousPasswordReq);
+        authService.updateAnonymousPassword(authKey, updateAnonymousPasswordReq);
     }
 
     @PatchMapping("/logout")
-    public ResponseEntity<BaseResponse> logout(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(
             @RequestHeader(value = REFRESH_TOKEN_HEADER, required = true) String bearerRefreshToken
     ) {
         jwtService.logout(bearerRefreshToken);
-        return new ResponseEntity<>(new BaseResponse("로그아웃 성공"), HttpStatus.NO_CONTENT);
     }
 }

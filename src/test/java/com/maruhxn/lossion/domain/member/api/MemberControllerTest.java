@@ -1,112 +1,199 @@
 package com.maruhxn.lossion.domain.member.api;
 
 import com.maruhxn.lossion.domain.member.dto.request.UpdatePasswordReq;
+import com.maruhxn.lossion.domain.member.dto.response.ProfileItem;
+import com.maruhxn.lossion.global.error.ErrorCode;
+import com.maruhxn.lossion.util.ControllerTestSupport;
 import com.maruhxn.lossion.util.CustomWithUserDetails;
-import com.maruhxn.lossion.util.TestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.mock.web.MockPart;
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
-import static com.maruhxn.lossion.global.common.Constants.BASIC_PROFILE_IMAGE_NAME;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("컨트롤러 - MemberController")
-class MemberControllerTest extends TestSupport {
+@DisplayName("[컨트롤러] - MemberController")
+class MemberControllerTest extends ControllerTestSupport {
 
     final String MEMBER_API_PATH = "/api/members/{memberId}";
 
     @Test
     @CustomWithUserDetails
-    @DisplayName("Member 프로필 조회 테스트")
+    @DisplayName("Member 프로필 조회")
     void shouldGetProfileWhenIsOwner() throws Exception {
-        mvc.perform(
-                        get(MEMBER_API_PATH, member.getId())
+        given(memberService.getProfile(anyLong()))
+                .willReturn(ProfileItem.builder().build());
+
+        mockMvc.perform(
+                        get(MEMBER_API_PATH, 1)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("OK"))
                 .andExpect(jsonPath("$.message").value("프로필 조회 성공"))
-                .andExpect(jsonPath("$.data.accountId").value("tester"))
-                .andExpect(jsonPath("$.data.username").value("tester"))
-                .andExpect(jsonPath("$.data.email").value("test@test.com"))
-                .andExpect(jsonPath("$.data.telNumber").value("01012345678"))
-                .andExpect(jsonPath("$.data.profileImage").value(BASIC_PROFILE_IMAGE_NAME));
+                .andExpect(jsonPath("$.data").isNotEmpty());
     }
 
     @Test
     @CustomWithUserDetails
-    @DisplayName("Member 프로필 업데이트 테스트")
-    void shouldUpdateProfileWhenIsOwner() throws Exception {
-        MockMultipartHttpServletRequestBuilder builder = getMockMultipartHttpServletRequestBuilder();
-//        ConstraintDescriptions simpleRequestConstraints = new ConstraintDescriptions(UpdateMemberProfileReq.class);
-        final String originalFileName = BASIC_PROFILE_IMAGE_NAME; //파일명
-        String filePath = "src/test/resources/static/img/" + originalFileName;
-        FileSystemResource resource = new FileSystemResource(filePath);
-        InputStream inputStream = resource.getInputStream();
-        MockMultipartFile image1 = new MockMultipartFile("profileImage", originalFileName, "image/jpeg", inputStream);
+    @DisplayName("Member 프로필 수정")
+    void updateProfile() throws Exception {
+        MockMultipartFile image1 = getMockMultipartFile();
 
-        mvc.perform(
-                        builder
-                                .part(new MockPart("username", "tester!".getBytes()))
+        mockMvc.perform(
+                        multipart(HttpMethod.PATCH, MEMBER_API_PATH, 1)
                                 .file(image1)
+                                .param("username", "username")
+                                .param("email", "test@test.com")
+                                .with(csrf())
                 )
                 .andExpect(status().isNoContent());
-    }
 
-
-    /**
-     * multipart 테스트에서는 patch http method를 사용할 수 없기에 따로 builder를 통해 생성
-     *
-     * @return
-     */
-    private MockMultipartHttpServletRequestBuilder getMockMultipartHttpServletRequestBuilder() {
-        MockMultipartHttpServletRequestBuilder builder = RestDocumentationRequestBuilders.
-                multipart(MEMBER_API_PATH, member.getId());
-
-        builder.with(new RequestPostProcessor() {
-            @Override
-            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-                request.setMethod(HttpMethod.PATCH.name());
-                return request;
-            }
-        });
-        return builder;
     }
 
     @Test
     @CustomWithUserDetails
-    @DisplayName("Member 비밀번호 변경 테스트")
-    void shouldUpdatePasswordWhenIsOwner() throws Exception {
+    @DisplayName("Member 프로필 수정 시 1글자 이름은 400 에러를 반환한다.")
+    void updateProfileWithShortLengthUsername() throws Exception {
+        mockMvc.perform(
+                        multipart(HttpMethod.PATCH, MEMBER_API_PATH, 1)
+                                .param("username", "1")
+                                .with(csrf())
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
+                .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
+                .andExpect(jsonPath("errors").isArray())
+                .andExpect(jsonPath("errors[0].reason").value("유저명은 2 ~ 10 글자입니다."));
+
+    }
+
+    @Test
+    @CustomWithUserDetails
+    @DisplayName("Member 프로필 수정 시 10글자 초과의 이름은 400 에러를 반환한다.")
+    void updateProfileWithOverLengthUsername() throws Exception {
+        mockMvc.perform(
+                        multipart(HttpMethod.PATCH, MEMBER_API_PATH, 1)
+                                .param("username", "overLength!")
+                                .with(csrf())
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
+                .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
+                .andExpect(jsonPath("errors").isArray())
+                .andExpect(jsonPath("errors[0].reason").value("유저명은 2 ~ 10 글자입니다."));
+
+    }
+
+    @Test
+    @CustomWithUserDetails
+    @DisplayName("Member 프로필 수정 시 이메일 형식에 맞지 않는 경우, 400 에러를 반환한다.")
+    void updateProfileWithInvalidEmail() throws Exception {
+        mockMvc.perform(
+                        multipart(HttpMethod.PATCH, MEMBER_API_PATH, 1)
+                                .param("email", "email")
+                                .with(csrf())
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
+                .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
+                .andExpect(jsonPath("errors").isArray())
+                .andExpect(jsonPath("errors[0].reason").value("이메일 형식에 맞추어 입력해주세요."));
+
+    }
+
+
+//    /**
+//     * multipart 테스트에서는 patch http method를 사용할 수 없기에 따로 builder를 통해 생성
+//     *
+//     * @return
+//     */
+//    private MockMultipartHttpServletRequestBuilder getMockMultipartHttpServletRequestBuilder() {
+//        MockMultipartHttpServletRequestBuilder builder = RestDocumentationRequestBuilders.
+//                multipart(MEMBER_API_PATH, 1);
+//
+//        builder.with(new RequestPostProcessor() {
+//            @Override
+//            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+//                request.setMethod(HttpMethod.PATCH.name());
+//                return request;
+//            }
+//        });
+//        return builder;
+//    }
+
+    @Test
+    @CustomWithUserDetails
+    @DisplayName("Member 비밀번호 변경")
+    void updatePassword() throws Exception {
         UpdatePasswordReq dto = UpdatePasswordReq.builder()
                 .currPassword("test")
                 .newPassword("updatedTest")
                 .confirmNewPassword("updatedTest")
                 .build();
 
-        mvc.perform(
-                patch(MEMBER_API_PATH + "/update-password", member.getId())
+        mockMvc.perform(
+                patch(MEMBER_API_PATH + "/update-password", 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .with(csrf())
         ).andExpect(status().isNoContent());
     }
 
     @Test
     @CustomWithUserDetails
-    @DisplayName("Member 회원 탈퇴 테스트")
-    void shouldWithdrawWhenIsOwner() throws Exception {
-        mvc.perform(
-                delete(MEMBER_API_PATH, member.getId())
+    @DisplayName("Member 비밀번호 변경 시 비밀번호 길이가 20글자를 초과할 경우, 400 에러를 반환한다.")
+    void updatePasswordWithOverLength() throws Exception {
+        UpdatePasswordReq dto = UpdatePasswordReq.builder()
+                .currPassword("test")
+                .newPassword("updatedTestButOver!!!!")
+                .confirmNewPassword("updatedTest")
+                .build();
+
+        mockMvc.perform(
+                        patch(MEMBER_API_PATH + "/update-password", 1)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .with(csrf())
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
+                .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
+                .andExpect(jsonPath("errors").isArray())
+                .andExpect(jsonPath("errors[0].reason").value("비밀번호는 2 ~ 20 글자입니다."));
+    }
+
+    @Test
+    @CustomWithUserDetails
+    @DisplayName("Member 회원 탈퇴")
+    void withdraw() throws Exception {
+        mockMvc.perform(
+                delete(MEMBER_API_PATH, 1)
+                        .with(csrf())
         ).andExpect(status().isNoContent());
+    }
+
+    private MockMultipartFile getMockMultipartFile() throws IOException {
+        final String fileName = "defaultProfileImage"; // 파일명
+        final String contentType = "jfif"; // 파일타입
+        final String filePath = "src/test/resources/static/img/" + fileName + "." + contentType; //파일경로
+
+        return new MockMultipartFile(
+                "images", //name
+                fileName + "." + contentType, //originalFilename
+                contentType,
+                new FileInputStream(filePath)
+        );
     }
 }

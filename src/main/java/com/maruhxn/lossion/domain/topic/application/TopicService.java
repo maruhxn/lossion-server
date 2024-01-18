@@ -52,14 +52,14 @@ public class TopicService {
     }
 
     @Transactional
-    public void createTopic(Member author, CreateTopicReq req) {
+    public Topic createTopic(Member author, CreateTopicReq req, LocalDateTime now) {
         Category findCategory = findCategoryByIdOrThrow(req.getCategoryId());
 
         List<TopicImage> topicImages = storeTopicImageList(req.getImages());
 
-        Topic topic = Topic.of(author, findCategory, topicImages, req);
+        Topic topic = Topic.of(author, findCategory, topicImages, req, now);
 
-        topicRepository.save(topic);
+        return topicRepository.save(topic);
     }
 
     private Category findCategoryByIdOrThrow(Long categoryId) {
@@ -121,9 +121,9 @@ public class TopicService {
     }
 
     @Transactional
-    public void closeTopic(Long topicId) {
+    public void updateCloseStatus(Long topicId, LocalDateTime now) {
         Topic findTopic = findTopicByIdOrThrow(topicId);
-        findTopic.updateCloseStatus(LocalDateTime.now());
+        findTopic.updateCloseStatus(now);
     }
 
     @Transactional

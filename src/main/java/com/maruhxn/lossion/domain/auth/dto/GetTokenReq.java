@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,4 +21,11 @@ public class GetTokenReq {
 
     @NotEmpty(message = "토큰을 입력해주세요.")
     private String payload;
+
+    @Builder
+    public GetTokenReq(String accountId, String email, String payload) {
+        this.accountId = accountId;
+        this.email = email;
+        this.payload = payload;
+    }
 }

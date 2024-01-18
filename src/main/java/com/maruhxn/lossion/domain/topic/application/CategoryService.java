@@ -29,14 +29,14 @@ public class CategoryService {
                 .toList();
     }
 
-    public void createCategory(CreateCategoryReq req) {
-        uniqueCheck(req);
+    public Category createCategory(CreateCategoryReq req) {
+        uniqueCheck(req.getName());
         Category category = Category.from(req);
-        categoryRepository.save(category);
+        return categoryRepository.save(category);
     }
 
-    private void uniqueCheck(CreateCategoryReq req) {
-        Boolean isExist = categoryRepository.existsByName(req.getName());
+    private void uniqueCheck(String name) {
+        Boolean isExist = categoryRepository.existsByName(name);
         if (isExist) {
             throw new AlreadyExistsResourceException(ErrorCode.EXISTING_CATEGORY);
         }

@@ -11,4 +11,8 @@ public class VerifyEmailReq {
 
     @NotEmpty(message = "토큰을 입력해주세요.")
     private String payload;
+
+    public VerifyEmailReq(String payload) {
+        this.payload = payload;
+    }
 }

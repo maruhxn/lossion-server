@@ -48,6 +48,7 @@ public class AesUtil {
             cipher.init(Cipher.ENCRYPT_MODE, getKey(), getIv());
             encrypted = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
+            e.printStackTrace();
             throw new InternalServerException(ErrorCode.INTERNAL_ERROR);
         }
         return new String(Base64.getEncoder().encode(encrypted));

@@ -11,11 +11,13 @@ public enum ErrorCode {
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 접근입니다."),
     EMPTY_FILE(HttpStatus.BAD_REQUEST, "파일이 비어있습니다."),
     PASSWORD_CONFIRM_FAIL(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
-    INCORRECT_PASSWORD(HttpStatus.BAD_REQUEST, "이메일 혹은 비밀번호가 올바르지 않습니다."),
+    INCORRECT_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 올바르지 않습니다."),
     SAME_PASSWORD(HttpStatus.BAD_REQUEST, "이전과 동일한 비밀번호로 변경할 수 없습니다."),
     ALREADY_CLOSED(HttpStatus.BAD_REQUEST, "이미 종료된 투표입니다."),
     SPRING_BAD_REQUEST(HttpStatus.BAD_REQUEST, "스프링 BAD REQUEST"),
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "올바르지 않은 입력입니다."),
+    PATH_VAR_ERROR(HttpStatus.BAD_REQUEST, "올바르지 않은 URI입니다."),
+    EMPTY_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "refresh token이 필요합니다."),
 
     /* UNAUTHORIZED 401 */
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스입니다."),

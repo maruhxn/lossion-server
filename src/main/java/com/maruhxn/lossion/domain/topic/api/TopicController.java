@@ -21,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @RequestMapping("/api/topics")
 @RestController
@@ -36,7 +38,7 @@ public class TopicController {
     ) {
 
         PageItem result = topicService.getTopics(cond, pageable);
-        return ResponseEntity.ok(DataResponse.of("주제 리스트 성공", result));
+        return ResponseEntity.ok(DataResponse.of("주제 리스트 조회 성공", result));
     }
 
     @PostMapping
@@ -44,14 +46,14 @@ public class TopicController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @ModelAttribute @Valid CreateTopicReq req
     ) {
-        topicService.createTopic(userDetails.getMember(), req);
+        topicService.createTopic(userDetails.getMember(), req, LocalDateTime.now());
         return new ResponseEntity<>(new BaseResponse("주제 생성 성공"), HttpStatus.CREATED);
     }
 
     @GetMapping("/{topicId}")
     public ResponseEntity<DataResponse<TopicDetailItem>> getTopicDetail(@PathVariable Long topicId) {
         TopicDetailItem result = topicService.getTopicDetail(topicId);
-        return ResponseEntity.ok(DataResponse.of("게시글 조회 성공", result));
+        return ResponseEntity.ok(DataResponse.of("주제 조회 성공", result));
     }
 
     @PatchMapping("/{topicId}")
@@ -68,7 +70,7 @@ public class TopicController {
     public void closeTopic(
             @PathVariable Long topicId
     ) {
-        topicService.closeTopic(topicId);
+        topicService.updateCloseStatus(topicId, LocalDateTime.now());
     }
 
     @DeleteMapping("/{topicId}")

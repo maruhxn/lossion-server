@@ -7,7 +7,10 @@ import com.maruhxn.lossion.domain.topic.dto.request.CreateTopicReq;
 import com.maruhxn.lossion.domain.topic.dto.request.UpdateTopicReq;
 import com.maruhxn.lossion.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.util.Assert;
@@ -76,6 +79,10 @@ public class Topic extends BaseEntity {
         Assert.notNull(author, "유저 정보는 필수입니다.");
         Assert.notNull(category, "카테고리 정보는 필수입니다.");
 
+        if (title.length() < 2) {
+            throw new IllegalArgumentException("제목은 2글자 이상이어야 합니다.");
+        }
+
         if (closedAt.isEqual(now) || closedAt.isBefore(now)) {
             throw new IllegalArgumentException("토론 종료 시각은 현재 시각 이후로 설정해야 합니다.");
         }
@@ -91,12 +98,12 @@ public class Topic extends BaseEntity {
         this.viewCount = 0L;
     }
 
-    public static Topic of(Member author, Category category, List<TopicImage> images, CreateTopicReq req) {
+    public static Topic of(Member author, Category category, List<TopicImage> images, CreateTopicReq req, LocalDateTime now) {
         Topic topic = Topic.builder()
                 .title(req.getTitle())
                 .description(req.getDescription())
                 .closedAt(req.getClosedAt())
-                .now(LocalDateTime.now())
+                .now(now)
                 .firstChoice(req.getFirstChoice())
                 .secondChoice(req.getSecondChoice())
                 .author(author)

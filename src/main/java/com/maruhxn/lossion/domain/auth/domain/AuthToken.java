@@ -24,18 +24,18 @@ public class AuthToken extends BaseEntity {
     private Member member;
 
     @Builder
-    public AuthToken(String payload, Member member) {
+    public AuthToken(String payload, LocalDateTime expiredAt, Member member) {
 
         Assert.hasText(payload, "payload는 필수입니다.");
         Assert.notNull(member, "유저는 필수입니다.");
 
         this.payload = payload;
         this.member = member;
-        this.expiredAt = LocalDateTime.now().plusMinutes(5); // 5분 뒤 만료
+        this.expiredAt = expiredAt; // 5분 뒤 만료
     }
 
     // 편의 메서드 //
-    public Boolean invalidate() {
-        return this.getExpiredAt().isBefore(LocalDateTime.now());
+    public Boolean invalidate(LocalDateTime now) {
+        return this.getExpiredAt().isBefore(now);
     }
 }
