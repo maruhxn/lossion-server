@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -69,24 +71,25 @@ public class AuthService {
         }
     }
 
-    public void sendVerifyEmailWithLogin(Member member) {
+    public void sendVerifyEmailWithLogin(Member member, LocalDateTime now) {
         if (member.getIsVerified()) throw new AlreadyExistsResourceException(ErrorCode.ALREADY_VERIFIED);
-        sendMail(member);
+        sendMail(member, now);
     }
 
-    public void sendVerifyEmailWithAnonymous(SendAnonymousEmailReq req) {
+    public void sendVerifyEmailWithAnonymous(SendAnonymousEmailReq req, LocalDateTime now) {
         Member findMember = memberRepository.findByAccountIdAndEmail(
                 req.getAccountId(),
                 req.getEmail()
         ).orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_MEMBER));
-        sendMail(findMember);
+        sendMail(findMember, now);
     }
 
-    private void sendMail(Member findMember) {
+    private void sendMail(Member findMember, LocalDateTime now) {
         String payload = String.valueOf((int) Math.floor(100000 + Math.random() * 900000));
 
         AuthToken authToken = AuthToken.builder()
                 .payload(payload)
+                .expiredAt(now.plusMinutes(5))
                 .member(findMember)
                 .build();
 
@@ -95,13 +98,13 @@ public class AuthService {
         emailService.sendEmail(findMember.getEmail(), "Authentication Code : " + payload);
     }
 
-    public void verifyEmail(Member member, VerifyEmailReq req) {
+    public void verifyEmail(Member member, VerifyEmailReq req, LocalDateTime now) {
         if (member.getIsVerified()) throw new AlreadyExistsResourceException(ErrorCode.ALREADY_VERIFIED);
 
         AuthToken findAuthToken = authTokenRepository.findByPayloadAndMember_Id(req.getPayload(), member.getId())
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_TOKEN));
 
-        validateAuthToken(findAuthToken);
+        validateAuthToken(findAuthToken, now);
 
         // 인증 완료
         member.verifyEmail();
@@ -115,7 +118,7 @@ public class AuthService {
         }
     }
 
-    public String findPasswordByAccountIdAndEmail(GetTokenReq req) {
+    public String getAuthKeyToFindPassword(GetTokenReq req, LocalDateTime now) {
 
         Member findMember = memberRepository.findByAccountIdAndEmail(
                 req.getAccountId(),
@@ -125,14 +128,14 @@ public class AuthService {
         AuthToken findAuthToken = authTokenRepository.findByPayloadAndMember_Id(req.getPayload(), findMember.getId())
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_TOKEN));
 
-        validateAuthToken(findAuthToken);
+        validateAuthToken(findAuthToken, now);
 
         return AesUtil.encrypt(findAuthToken.getPayload());
     }
 
-    public void updateAnonymousPassword(String token, UpdateAnonymousPasswordReq req) {
+    public void updateAnonymousPassword(String authKey, UpdateAnonymousPasswordReq req) {
 
-        String payload = AesUtil.decrypt(token);
+        String payload = AesUtil.decrypt(authKey);
 
         AuthToken findAuthToken = authTokenRepository.findByPayload(payload)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_TOKEN));
@@ -144,12 +147,12 @@ public class AuthService {
         String hashedPwd = passwordEncoder.encode(req.getNewPassword());
         findMember.updatePassword(hashedPwd);
 
-        authTokenRepository.delete(findAuthToken);
+        authTokenRepository.deleteAllByMember_Id(findMember.getId());
 
     }
 
-    private static void validateAuthToken(AuthToken findAuthToken) {
-        if (findAuthToken.invalidate()) {
+    private static void validateAuthToken(AuthToken findAuthToken, LocalDateTime now) {
+        if (findAuthToken.invalidate(now)) {
             // TODO: 만료된 토큰이 쌓이는 것을 방지하기 위해 바로바로 삭제하고 싶지만, transaction으로 인해 현재 상태에서는 불가능하다. 트랜잭션을 분리할 방법을 생각해보자.
             throw new ExpirationException(ErrorCode.TOKEN_EXPIRATION);
         }

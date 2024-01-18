@@ -3,6 +3,7 @@ package com.maruhxn.lossion.global.error;
 import com.maruhxn.lossion.global.common.dto.ErrorResponse;
 import com.maruhxn.lossion.global.error.exception.GlobalException;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -36,8 +37,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> dataIntegrityViolation(DataIntegrityViolationException e) {
         log.error(e.getMessage(), e);
         return ResponseEntity
-                .status(ErrorCode.DATA_ACCESS_ERROR.getHttpStatus())
-                .body(ErrorResponse.of(ErrorCode.DATA_ACCESS_ERROR));
+                .status(ErrorCode.EXISTING_RESOURCE.getHttpStatus())
+                .body(ErrorResponse.of(ErrorCode.EXISTING_RESOURCE));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Object> constraintViolation(ConstraintViolationException e) {
+        return ResponseEntity
+                .status(ErrorCode.EXISTING_RESOURCE.getHttpStatus())
+                .body(ErrorResponse.of(ErrorCode.EXISTING_RESOURCE));
     }
 
     @ExceptionHandler

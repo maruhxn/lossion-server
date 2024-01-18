@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,6 +36,16 @@ public class SignUpReq {
     @NotEmpty(message = "비밀번호 확인값을 입력해주세요.")
     @Size(min = 2, max = 20, message = "비밀번호 확인값은 2 ~ 20 글자입니다.")
     private String confirmPassword;
+
+    @Builder
+    public SignUpReq(String accountId, String email, String telNumber, String username, String password, String confirmPassword) {
+        this.accountId = accountId;
+        this.email = email;
+        this.telNumber = telNumber;
+        this.username = username;
+        this.password = password;
+        this.confirmPassword = confirmPassword;
+    }
 
     // 편의 메서드
     public void changeRawPwdToHashedPwd(String hashedPwd) {

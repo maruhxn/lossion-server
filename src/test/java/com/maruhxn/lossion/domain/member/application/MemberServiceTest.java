@@ -15,8 +15,10 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,6 +26,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 
 @DisplayName("[서비스] - MemberService")
 class MemberServiceTest extends IntegrationTestSupport {
@@ -34,7 +39,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Autowired
     private MemberRepository memberRepository;
 
-    @Autowired
+    @MockBean
     private FileService fileService;
 
     @Autowired
@@ -47,7 +52,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void getProfile() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com");
+        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
 
         // When
         ProfileItem profile = memberService.getProfile(member.getId());
@@ -55,7 +60,7 @@ class MemberServiceTest extends IntegrationTestSupport {
         // Then
         assertThat(profile)
                 .extracting("accountId", "email", "username", "telNumber", "isVerified", "profileImage")
-                .contains("tester", "tester", "test@test.com", "01012345678", false, "defaultProfileImage.jfif");
+                .contains("tester", "tester", "test@test.com", "01000000000", false, "defaultProfileImage.jfif");
 
     }
 
@@ -73,7 +78,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updateProfileWithUsername() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com");
+        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
         UpdateMemberProfileReq req = UpdateMemberProfileReq.builder()
                 .username("tester!")
                 .build();
@@ -90,8 +95,8 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updateProfileWithExistingUsername() {
         // Given
-        Member member1 = createMember("tester1", "tester1", "test1@test.com");
-        createMember("tester2", "tester2", "test2@test.com");
+        Member member1 = createMember("tester1", "tester1", "test1@test.com", "01000000000");
+        createMember("tester2", "tester2", "test2@test.com", "01000000001");
 
         UpdateMemberProfileReq req = UpdateMemberProfileReq.builder()
                 .username("tester2")
@@ -108,7 +113,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updateProfileWithEmail() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com");
+        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
         UpdateMemberProfileReq req = UpdateMemberProfileReq.builder()
                 .username("tester!")
                 .build();
@@ -125,8 +130,8 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updateProfileWithExistingEmail() {
         // Given
-        Member member1 = createMember("tester1", "tester1", "test1@test.com");
-        createMember("tester2", "tester2", "test2@test.com");
+        Member member1 = createMember("tester1", "tester1", "test1@test.com", "01000000000");
+        createMember("tester2", "tester2", "test2@test.com", "01000000001");
 
         UpdateMemberProfileReq req = UpdateMemberProfileReq.builder()
                 .email("test2@test.com")
@@ -143,17 +148,17 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updateProfileWithProfileImage() throws IOException {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com");
+        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
         MockMultipartFile newProfileImage = getMockMultipartFile();
         UpdateMemberProfileReq req = UpdateMemberProfileReq.builder()
                 .profileImage(newProfileImage)
                 .build();
-
+        given(fileService.saveAndExtractUpdatedProfileImage(any(MultipartFile.class)))
+                .willReturn("newProfileImageName");
         // When
         memberService.updateProfile(member.getId(), req);
 
         // Then
-        System.out.println("newProfileImage = " + member.getProfileImage());
         assertThat(member.getProfileImage()).isNotEqualTo("defaultProfileImage.jfif");
 
     }
@@ -187,7 +192,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updatePassword() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com");
+        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
         UpdatePasswordReq req = UpdatePasswordReq.builder()
                 .currPassword("test")
                 .newPassword("test!!")
@@ -206,7 +211,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updatePasswordWithIncorrectPassword() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com");
+        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
         UpdatePasswordReq req = UpdatePasswordReq.builder()
                 .currPassword("hack")
                 .newPassword("test!!")
@@ -224,7 +229,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updatePasswordWhenConfirmFail() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com");
+        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
         UpdatePasswordReq req = UpdatePasswordReq.builder()
                 .currPassword("test")
                 .newPassword("test!")
@@ -242,7 +247,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updatePasswordWithSamePassword() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com");
+        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
         UpdatePasswordReq req = UpdatePasswordReq.builder()
                 .currPassword("test")
                 .newPassword("test")
@@ -276,7 +281,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void membershipWithdrawal() {
         // Given
-        Member member = createMember("tester", "tester", "test@test,com");
+        Member member = createMember("tester", "tester", "test@test,com", "01000000000");
 
         // When
         memberService.membershipWithdrawal(member.getId());
@@ -294,13 +299,13 @@ class MemberServiceTest extends IntegrationTestSupport {
                 .hasMessage(ErrorCode.NOT_FOUND_MEMBER.getMessage());
     }
 
-    private Member createMember(String accountId, String username, String email) {
+    private Member createMember(String accountId, String username, String email, String telNumber) {
         Member member = Member.builder()
                 .accountId(accountId)
                 .username(username)
                 .email(email)
                 .password(passwordEncoder.encode("test"))
-                .telNumber("01012345678")
+                .telNumber(telNumber)
                 .build();
 
         return memberRepository.save(member);

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,4 +18,10 @@ public class SendAnonymousEmailReq {
     @Email(message = "이메일 형식에 맞추어 입력해주세요.")
     @NotEmpty(message = "이메일을 입력해주세요.")
     private String email;
+
+    @Builder
+    public SendAnonymousEmailReq(String accountId, String email) {
+        this.accountId = accountId;
+        this.email = email;
+    }
 }

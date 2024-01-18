@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 import static com.maruhxn.lossion.global.common.Constants.REFRESH_TOKEN_HEADER;
 
 @RestController
@@ -47,7 +49,7 @@ public class AuthController {
     public ResponseEntity<BaseResponse> sendVerifyEmail(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        authService.sendVerifyEmailWithLogin(userDetails.getMember());
+        authService.sendVerifyEmailWithLogin(userDetails.getMember(), LocalDateTime.now());
         return ResponseEntity.ok(new BaseResponse("인증 메일 발송 성공"));
     }
 
@@ -56,7 +58,7 @@ public class AuthController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid VerifyEmailReq req
     ) {
-        authService.verifyEmail(userDetails.getMember(), req);
+        authService.verifyEmail(userDetails.getMember(), req, LocalDateTime.now());
         return ResponseEntity.ok(new BaseResponse("이메일 인증 성공"));
     }
 
@@ -73,7 +75,7 @@ public class AuthController {
     public ResponseEntity<BaseResponse> sendEmailWithAnonymous(
             @RequestBody @Valid SendAnonymousEmailReq req
     ) {
-        authService.sendVerifyEmailWithAnonymous(req);
+        authService.sendVerifyEmailWithAnonymous(req, LocalDateTime.now());
         return ResponseEntity.ok(new BaseResponse("인증 메일 발송 성공"));
     }
 
@@ -85,10 +87,10 @@ public class AuthController {
      * @return
      */
     @PostMapping("/get-token")
-    public ResponseEntity<DataResponse<String>> findPasswordByAccountIdAndEmail(
+    public ResponseEntity<DataResponse<String>> getAuthKeyToFindPassword(
             @RequestBody @Valid GetTokenReq getTokenReq
     ) {
-        String authToken = authService.findPasswordByAccountIdAndEmail(getTokenReq);
+        String authToken = authService.getAuthKeyToFindPassword(getTokenReq, LocalDateTime.now());
         return ResponseEntity.ok(DataResponse.of("유저 정보 찾기 성공", authToken));
     }
 

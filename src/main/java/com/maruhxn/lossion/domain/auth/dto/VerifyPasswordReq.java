@@ -11,4 +11,8 @@ public class VerifyPasswordReq {
 
     @NotEmpty(message = "현재 비밀번호를 입력해주세요")
     private String currPassword;
+
+    public VerifyPasswordReq(String currPassword) {
+        this.currPassword = currPassword;
+    }
 }

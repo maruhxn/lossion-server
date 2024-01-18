@@ -98,8 +98,8 @@ class FavoriteServiceTest extends IntegrationTestSupport {
         favoriteService.commentFavorite(comment.getId(), member);
 
         // Then
-        CommentFavorite commentFavorite = commentFavoriteRepository.findByComment_IdAndMember_Id(topic.getId(), member.getId()).get();
-        assertThat(commentFavorite).isNotNull();
+        Optional<CommentFavorite> optionalCommentFavorite = commentFavoriteRepository.findByComment_IdAndMember_Id(comment.getId(), member.getId());
+        assertThat(optionalCommentFavorite.isPresent()).isTrue();
     }
 
     @DisplayName("댓글 좋아요 - 좋아요를 취소하면 엔티티가 삭제된다.")
