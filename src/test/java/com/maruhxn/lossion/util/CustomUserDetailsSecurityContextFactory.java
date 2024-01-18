@@ -1,5 +1,6 @@
 package com.maruhxn.lossion.util;
 
+import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.global.auth.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -12,19 +13,13 @@ import org.springframework.security.test.context.support.WithSecurityContextFact
 @RequiredArgsConstructor
 public class CustomUserDetailsSecurityContextFactory implements WithSecurityContextFactory<CustomWithUserDetails> {
 
+    private final MemberRepository memberRepository;
+
     @Override
     public SecurityContext createSecurityContext(CustomWithUserDetails withUserDetails) {
         String accountId = withUserDetails.accountId();
-        String password = withUserDetails.password();
 
-        Member findMember = Member.builder()
-                .id(1L)
-                .accountId(accountId)
-                .password(password)
-                .username("tester")
-                .telNumber("01000000000")
-                .email("test@test.com")
-                .build();
+        Member findMember = memberRepository.findByAccountId(accountId).get();
 
         CustomUserDetails userDetails = new CustomUserDetails(findMember);
 
