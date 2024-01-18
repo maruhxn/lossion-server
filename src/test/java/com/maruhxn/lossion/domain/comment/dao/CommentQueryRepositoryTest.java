@@ -24,6 +24,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
+@DisplayName("[레포지토리] - CommentQueryRepository")
 class CommentQueryRepositoryTest extends IntegrationTestSupport {
 
     @Autowired

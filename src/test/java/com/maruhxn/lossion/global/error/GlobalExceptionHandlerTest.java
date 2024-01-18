@@ -1,33 +1,22 @@
 package com.maruhxn.lossion.global.error;
 
 import com.maruhxn.lossion.global.common.dto.ErrorResponse;
-import com.maruhxn.lossion.global.error.exception.ForbiddenException;
 import com.maruhxn.lossion.global.error.exception.GlobalException;
 import com.maruhxn.lossion.global.error.exception.InternalServerException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.BindingResultUtils;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("핸들러 - GlobalExceptionHandler")
+@DisplayName("[핸들러] - GlobalExceptionHandler")
 class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler sut;
