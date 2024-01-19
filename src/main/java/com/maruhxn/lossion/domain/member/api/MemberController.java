@@ -40,7 +40,7 @@ public class MemberController {
         memberService.updateProfile(memberId, updateMemberProfileReq);
     }
 
-    @PatchMapping("/update-password")
+    @PatchMapping("/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updatePassword(
             @PathVariable("memberId") Long memberId,
