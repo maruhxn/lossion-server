@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maruhxn.lossion.config.RestDocsTestConfiguration;
 import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;
+import com.maruhxn.lossion.global.auth.application.JwtService;
+import com.maruhxn.lossion.global.auth.application.JwtUtils;
+import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
+import com.maruhxn.lossion.global.auth.dto.TokenDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,12 +50,20 @@ public abstract class RestDocsSupport {
     protected RestDocumentationResultHandler restDocs;
 
     @Autowired
+    private JwtUtils jwtUtils;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
     protected MemberRepository memberRepository;
 
     @Autowired
     protected PasswordEncoder passwordEncoder;
 
     protected Member member;
+    protected TokenDto tokenDto;
+
 
     @BeforeEach
     void setUp(
@@ -76,6 +88,10 @@ public abstract class RestDocsSupport {
                 .build();
 
         memberRepository.save(member);
+
+        JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(member);
+        tokenDto = jwtUtils.createJwt(jwtMemberInfo);
+        jwtService.saveRefreshToken(jwtMemberInfo, tokenDto);
     }
 
     public ResponseFieldsSnippet commonResponseFields(String dataName) {

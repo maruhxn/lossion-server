@@ -1,6 +1,5 @@
 package com.maruhxn.lossion.config;
 
-import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.util.CustomUserDetailsSecurityContextFactory;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +20,8 @@ public class RestDocsTestConfiguration {
     }
 
     @Bean
-    public CustomUserDetailsSecurityContextFactory userDetailsSecurityContextFactory(MemberRepository memberRepository) {
-        return new CustomUserDetailsSecurityContextFactory(memberRepository);
+    public CustomUserDetailsSecurityContextFactory userDetailsSecurityContextFactory() {
+        return new CustomUserDetailsSecurityContextFactory();
     }
 
 }
