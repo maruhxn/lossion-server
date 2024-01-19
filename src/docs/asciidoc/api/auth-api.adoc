@@ -4,49 +4,49 @@
 [[Auth-회원가입]]
 === 회원가입
 
-operation::auth_controller_docs_test/sign-up[snippets='curl-request,http-request,http-response,response-fields']
+operation::auth_api_docs_test/sign-up[snippets='curl-request,http-request,http-response,response-fields']
 
 [[Auth-로그인]]
 === 로그인
 
-operation::auth_controller_docs_test/sign-in[snippets='curl-request,http-request,request-fields,http-response,response-fields']
+operation::auth_api_docs_test/sign-in[snippets='curl-request,http-request,request-fields,http-response,response-fields']
 
 [[Auth-인증_토큰_재발급]]
 === 인증토큰 재발급
 
-operation::auth_controller_docs_test/refresh[snippets='curl-request,request-headers,http-request,http-response,response-fields']
+operation::auth_api_docs_test/refresh[snippets='curl-request,request-headers,http-request,http-response,response-fields']
 
 [[Auth-인증메일_요청]]
 === 인증메일 요청
 
-operation::auth_controller_docs_test/send-verify-email[snippets='curl-request,request-headers,http-request,http-response,response-fields']
+operation::auth_api_docs_test/send-verify-email[snippets='curl-request,request-headers,http-request,http-response,response-fields']
 
 [[Auth-이메일_인증]]
 === 이메일 인증
 
-operation::auth_controller_docs_test/verify-email[snippets='curl-request,request-headers,http-request,request-fields,http-response,response-fields']
+operation::auth_api_docs_test/verify-email[snippets='curl-request,request-headers,http-request,request-fields,http-response,response-fields']
 
 [[Auth-비밀번호_인증]]
 === 비밀번호 인증
 
-operation::auth_controller_docs_test/verify-password[snippets='curl-request,request-headers,http-request,request-fields,http-response,response-fields']
+operation::auth_api_docs_test/verify-password[snippets='curl-request,request-headers,http-request,request-fields,http-response,response-fields']
 
 [[Auth-익명_인증메일_요청]]
 === [익명] 인증메일 요청
 
-operation::auth_controller_docs_test/send-email-with-anonymous[snippets='curl-request,http-request,request-fields,http-response,response-fields']
+operation::auth_api_docs_test/send-email-with-anonymous[snippets='curl-request,http-request,request-fields,http-response,response-fields']
 
 [[Auth-익명_비밀번호_찾기_인증키_발급]]
 === [익명] 비밀번호 찾기 - 인증키 발급
 
-operation::auth_controller_docs_test/get-auth-key-to-find-password[snippets='curl-request,http-request,request-fields,http-response,response-fields']
+operation::auth_api_docs_test/get-auth-key-to-find-password[snippets='curl-request,http-request,request-fields,http-response,response-fields']
 
 [[Auth-익명_비밀번호_변경]]
 === [익명] 비밀번호 변경
 
-operation::auth_controller_docs_test/get-auth-key-to-find-password[snippets='curl-request,http-request,request-fields,http-response,response-fields']
+operation::auth_api_docs_test/update-anonymous-password[snippets='curl-request,query-parameters,http-request,request-fields,http-response']
 
 [[Auth-로그아웃]]
 === 로그아웃
 
-operation::auth_controller_docs_test/logout[snippets='curl-request,request-headers,http-request,http-response']
+operation::auth_api_docs_test/logout[snippets='curl-request,request-headers,http-request,http-response']
