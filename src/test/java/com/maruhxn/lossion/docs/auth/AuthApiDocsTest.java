@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.constraints.ConstraintDescriptions;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -47,7 +48,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .password("test")
                 .confirmPassword("test")
                 .build();
-
+        simpleRequestConstraints = new ConstraintDescriptions(SignUpReq.class);
         // When / Then
         mockMvc.perform(
                         post("/api/auth/sign-up")
@@ -61,12 +62,18 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .andDo(
                         restDocs.document(
                                 requestFields(
-                                        fieldWithPath("accountId").type(STRING).description("사용자 계정 ID"),
-                                        fieldWithPath("email").type(STRING).description("이메일"),
-                                        fieldWithPath("username").type(STRING).description("유저명"),
-                                        fieldWithPath("telNumber").type(STRING).description("전화번호"),
-                                        fieldWithPath("password").type(STRING).description("비밀번호"),
+                                        fieldWithPath("accountId").type(STRING).description("사용자 계정 ID")
+                                                .attributes(withPath("accountId")),
+                                        fieldWithPath("email").type(STRING).description("이메일")
+                                                .attributes(withPath("email")),
+                                        fieldWithPath("username").type(STRING).description("유저명")
+                                                .attributes(withPath("username")),
+                                        fieldWithPath("telNumber").type(STRING).description("전화번호")
+                                                .attributes(withPath("telNumber")),
+                                        fieldWithPath("password").type(STRING).description("비밀번호")
+                                                .attributes(withPath("password")),
                                         fieldWithPath("confirmPassword").type(STRING).description("비밀번호 확인")
+                                                .attributes(withPath("confirmPassword"))
                                 ),
                                 commonResponseFields(null)
                         )
@@ -132,7 +139,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .accountId("tester")
                 .password("test")
                 .build();
-
+        simpleRequestConstraints = new ConstraintDescriptions(LoginReq.class);
         // When / Then
         mockMvc.perform(
                         post("/api/auth/login")
@@ -146,8 +153,10 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .andDo(
                         restDocs.document(
                                 requestFields(
-                                        fieldWithPath("accountId").type(STRING).description("사용자 계정 ID"),
+                                        fieldWithPath("accountId").type(STRING).description("사용자 계정 ID")
+                                                .attributes(withPath("accountId")),
                                         fieldWithPath("password").type(STRING).description("비밀번호")
+                                                .attributes(withPath("password"))
                                 ),
                                 commonResponseFields("TokenDto")
                                         .andWithPrefix("data.",
@@ -162,7 +171,6 @@ public class AuthApiDocsTest extends RestDocsSupport {
     @DisplayName("Access Token의 refresh 성공 시 200을 반환한다.")
     @Test
     void refresh() throws Exception {
-        // When / Then
         mockMvc.perform(
                         get("/api/auth/refresh")
                                 .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
@@ -203,7 +211,6 @@ public class AuthApiDocsTest extends RestDocsSupport {
     @DisplayName("로그인 사용자의 인증 메일 발송 요청 성공 시 200을 반환한다")
     @Test
     void sendVerifyEmail() throws Exception {
-        // When / Then
         mockMvc.perform(
                         get("/api/auth/send-verify-email")
                                 .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
@@ -244,6 +251,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
         authTokenRepository.save(authToken);
 
         VerifyEmailReq req = new VerifyEmailReq("payload");
+        simpleRequestConstraints = new ConstraintDescriptions(VerifyEmailReq.class);
 
         // When / Then
         mockMvc.perform(
@@ -265,6 +273,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                                 ),
                                 requestFields(
                                         fieldWithPath("payload").type(STRING).description("이메일 인증 토큰 값")
+                                                .attributes(withPath("payload"))
                                 ),
                                 commonResponseFields(null)
                         )
@@ -277,7 +286,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
     void verifyPassword() throws Exception {
         // Given
         VerifyPasswordReq req = new VerifyPasswordReq("test");
-
+        simpleRequestConstraints = new ConstraintDescriptions(VerifyPasswordReq.class);
         // When / Then
         mockMvc.perform(
                         post("/api/auth/verify-password")
@@ -298,6 +307,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                                 ),
                                 requestFields(
                                         fieldWithPath("currPassword").type(STRING).description("현재 비밀번호")
+                                                .attributes(withPath("currPassword"))
                                 ),
                                 commonResponseFields(null)
                         )
@@ -312,7 +322,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .accountId("tester")
                 .email("test@test.com")
                 .build();
-
+        simpleRequestConstraints = new ConstraintDescriptions(SendAnonymousEmailReq.class);
         // When / Then
         mockMvc.perform(
                         post("/api/auth/anonymous/send-verify-email")
@@ -326,8 +336,10 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .andDo(
                         restDocs.document(
                                 requestFields(
-                                        fieldWithPath("accountId").type(STRING).description("인증 시도할 사용자의 계정 ID"),
+                                        fieldWithPath("accountId").type(STRING).description("인증 시도할 사용자의 계정 ID")
+                                                .attributes(withPath("accountId")),
                                         fieldWithPath("email").type(STRING).description("인증 시도할 사용자의 email")
+                                                .attributes(withPath("email"))
                                 ),
                                 commonResponseFields(null)
                         )
@@ -353,7 +365,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .email("test@test.com")
                 .payload("payload")
                 .build();
-
+        simpleRequestConstraints = new ConstraintDescriptions(GetTokenReq.class);
         String authKey = AesUtil.encrypt(req.getPayload());
         // When / Then
         mockMvc.perform(
@@ -375,9 +387,12 @@ public class AuthApiDocsTest extends RestDocsSupport {
                                         headerWithName(REFRESH_TOKEN_HEADER).description("Refresh 토큰 헤더")
                                 ),
                                 requestFields(
-                                        fieldWithPath("accountId").type(STRING).description("인증 시도할 사용자의 계정 ID"),
-                                        fieldWithPath("email").type(STRING).description("인증 시도할 사용자의 email"),
+                                        fieldWithPath("accountId").type(STRING).description("인증 시도할 사용자의 계정 ID")
+                                                .attributes(withPath("accountId")),
+                                        fieldWithPath("email").type(STRING).description("인증 시도할 사용자의 email")
+                                                .attributes(withPath("email")),
                                         fieldWithPath("payload").type(STRING).description("발급받은 이메일 인증 토큰 값")
+                                                .attributes(withPath("payload"))
                                 ),
                                 commonResponseFields(null)
                                         .and(
@@ -407,7 +422,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .newPassword("test")
                 .confirmNewPassword("test")
                 .build();
-
+        simpleRequestConstraints = new ConstraintDescriptions(UpdateAnonymousPasswordReq.class);
         // When / Then
         mockMvc.perform(
                         patch("/api/auth/anonymous/password")
@@ -423,8 +438,10 @@ public class AuthApiDocsTest extends RestDocsSupport {
                                         parameterWithName("authKey").description("발급받은 인증 키")
                                 ),
                                 requestFields(
-                                        fieldWithPath("newPassword").type(STRING).description("새로운 비밀번호"),
+                                        fieldWithPath("newPassword").type(STRING).description("새로운 비밀번호")
+                                                .attributes(withPath("newPassword")),
                                         fieldWithPath("confirmNewPassword").type(STRING).description("새로운 비밀번호 확인")
+                                                .attributes(withPath("confirmNewPassword"))
                                 )
                         )
                 );

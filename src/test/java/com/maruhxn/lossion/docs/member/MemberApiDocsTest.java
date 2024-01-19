@@ -1,5 +1,6 @@
 package com.maruhxn.lossion.docs.member;
 
+import com.maruhxn.lossion.domain.member.dto.request.UpdateMemberProfileReq;
 import com.maruhxn.lossion.domain.member.dto.request.UpdatePasswordReq;
 import com.maruhxn.lossion.global.common.Constants;
 import com.maruhxn.lossion.util.RestDocsSupport;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.restdocs.constraints.ConstraintDescriptions;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -21,9 +23,7 @@ import static com.maruhxn.lossion.global.common.Constants.ACCESS_TOKEN_HEADER;
 import static com.maruhxn.lossion.global.common.Constants.REFRESH_TOKEN_HEADER;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.JsonFieldType.BOOLEAN;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -82,6 +82,7 @@ public class MemberApiDocsTest extends RestDocsSupport {
     void updateProfile() throws Exception {
         MockMultipartHttpServletRequestBuilder builder = getMockMultipartHttpServletRequestBuilder(MEMBER_API_PATH, member.getId());
         MockMultipartFile profileImage = getMockMultipartFile();
+        simpleRequestConstraints = new ConstraintDescriptions(UpdateMemberProfileReq.class);
 
         mockMvc.perform(
                         builder
@@ -103,9 +104,12 @@ public class MemberApiDocsTest extends RestDocsSupport {
                                         headerWithName(REFRESH_TOKEN_HEADER).description("Refresh 토큰 헤더")
                                 ),
                                 requestParts(
-                                        partWithName("username").optional().description("수정할 유저명"),
-                                        partWithName("email").optional().description("수정할 유저명"),
-                                        partWithName("profileImage").optional().description("수정할 유저명")
+                                        partWithName("username").optional().description("수정할 유저명")
+                                                .attributes(withPath("username")),
+                                        partWithName("email").optional().description("수정할 이메일")
+                                                .attributes(withPath("email")),
+                                        partWithName("profileImage").optional().description("수정할 프로필 이미지")
+                                                .attributes(withPath("profileImage"))
                                 )
                         )
                 );
@@ -120,7 +124,7 @@ public class MemberApiDocsTest extends RestDocsSupport {
                 .newPassword("updatedTest")
                 .confirmNewPassword("updatedTest")
                 .build();
-
+        simpleRequestConstraints = new ConstraintDescriptions(UpdatePasswordReq.class);
         mockMvc.perform(
                         patch(MEMBER_API_PATH + "/password", member.getId())
                                 .header(Constants.ACCESS_TOKEN_HEADER, Constants.BEARER_PREFIX + tokenDto.getAccessToken())
@@ -140,9 +144,12 @@ public class MemberApiDocsTest extends RestDocsSupport {
                                         headerWithName(REFRESH_TOKEN_HEADER).description("Refresh 토큰 헤더")
                                 ),
                                 requestFields(
-                                        fieldWithPath("currPassword").type(STRING).description("현재 비밀번호"),
-                                        fieldWithPath("newPassword").type(STRING).description("새 비밀번호"),
+                                        fieldWithPath("currPassword").type(STRING).description("현재 비밀번호")
+                                                .attributes(withPath("currPassword")),
+                                        fieldWithPath("newPassword").type(STRING).description("새 비밀번호")
+                                                .attributes(withPath("newPassword")),
                                         fieldWithPath("confirmNewPassword").type(STRING).description("새 비밀번호 확인")
+                                                .attributes(withPath("confirmNewPassword"))
                                 )
                         )
                 );

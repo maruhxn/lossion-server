@@ -16,9 +16,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.constraints.ConstraintDescriptions;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
 import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.restdocs.payload.ResponseFieldsSnippet;
+import org.springframework.restdocs.snippet.Attributes;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,9 +28,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
+
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
@@ -63,7 +68,7 @@ public abstract class RestDocsSupport {
 
     protected Member member;
     protected TokenDto tokenDto;
-
+    protected ConstraintDescriptions simpleRequestConstraints;
 
     @BeforeEach
     void setUp(
@@ -107,5 +112,11 @@ public abstract class RestDocsSupport {
                 fieldWithPath("message").type(STRING).description("상태 메시지"),
                 fieldWithPath("data").optional().description(dataName)
         );
+    }
+
+    public Attributes.Attribute withPath(String path) {
+        List<String> constraints = simpleRequestConstraints.descriptionsForProperty(path);
+        String constraintDesc = String.join("\n\n", constraints.stream().map(s -> "- " + s).toArray(String[]::new));
+        return key("constraints").value(constraintDesc);
     }
 }
