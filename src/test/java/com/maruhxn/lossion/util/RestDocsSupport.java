@@ -30,7 +30,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
-import static org.springframework.restdocs.payload.JsonFieldType.STRING;
+import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.snippet.Attributes.key;
@@ -111,6 +111,23 @@ public abstract class RestDocsSupport {
                 fieldWithPath("code").type(STRING).description("상태 코드"),
                 fieldWithPath("message").type(STRING).description("상태 메시지"),
                 fieldWithPath("data").optional().description(dataName)
+        );
+    }
+
+    public ResponseFieldsSnippet pageResponseFields(String resultDataName) {
+        return commonResponseFields("PageItem").andWithPrefix("data.",
+                fieldWithPath("isFirst").type(BOOLEAN)
+                        .description("첫번째 페이지 여부"),
+                fieldWithPath("isLast").type(BOOLEAN)
+                        .description("마지막 페이지 여부"),
+                fieldWithPath("isEmpty").type(BOOLEAN)
+                        .description("isEmpty"),
+                fieldWithPath("totalPage").type(NUMBER)
+                        .description("전체 페이지 수"),
+                fieldWithPath("totalElements").type(NUMBER)
+                        .description("전체 데이터 수"),
+                fieldWithPath("results").type(ARRAY)
+                        .description(resultDataName)
         );
     }
 
