@@ -207,11 +207,11 @@ class CommentServiceTest extends IntegrationTestSupport {
 
         // Then
         assertThat(replies).hasSize(3)
-                .extracting("id", "replyTo", "groupId")
+                .extracting("id", "replyToId", "groupId")
                 .containsExactlyInAnyOrder(
-                        tuple(reply1.getId(), CommentItem.from(comment), comment.getGroupId()),
-                        tuple(reply2.getId(), CommentItem.from(reply1), comment.getGroupId()),
-                        tuple(reply3.getId(), CommentItem.from(comment), comment.getGroupId())
+                        tuple(reply1.getId(), comment.getId(), comment.getGroupId()),
+                        tuple(reply2.getId(), reply1.getId(), comment.getGroupId()),
+                        tuple(reply3.getId(), comment.getId(), comment.getGroupId())
                 );
     }
 

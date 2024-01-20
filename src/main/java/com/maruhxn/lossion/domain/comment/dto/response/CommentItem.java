@@ -16,7 +16,7 @@ public class CommentItem {
     private Long id;
     private String text;
     private AuthorInfoItem author;
-    private CommentItem replyTo;
+    private Long replyToId;
     private String groupId;
     private Long favoriteCount;
     private LocalDateTime createdAt;
@@ -24,11 +24,11 @@ public class CommentItem {
 
     @Builder
     @QueryProjection
-    public CommentItem(Long id, String text, Member author, String groupId, Long favoriteCount, Comment replyTo, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public CommentItem(Long id, String text, Member author, String groupId, Long favoriteCount, Long replyToId, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.text = text;
         this.author = AuthorInfoItem.from(author);
-        this.replyTo = replyTo == null ? null : CommentItem.from(replyTo);
+        this.replyToId = replyToId;
         this.groupId = groupId;
         this.favoriteCount = favoriteCount;
         this.createdAt = createdAt;
@@ -41,7 +41,7 @@ public class CommentItem {
                 .text(reply.getText())
                 .author(reply.getAuthor())
                 .favoriteCount((long) reply.getFavorites().size())
-                .replyTo(reply.getReplyTo())
+                .replyToId(reply.getReplyTo().getId())
                 .groupId(reply.getGroupId())
                 .createdAt(reply.getCreatedAt())
                 .updatedAt(reply.getUpdatedAt())

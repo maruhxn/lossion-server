@@ -30,7 +30,7 @@ public class CommentQueryRepository {
                         comment.author,
                         comment.groupId,
                         commentFavorite.countDistinct(),
-                        comment.replyTo,
+                        comment.replyTo.id,
                         comment.createdAt,
                         comment.updatedAt
                 ))
@@ -62,7 +62,7 @@ public class CommentQueryRepository {
                         comment.author,
                         comment.groupId,
                         commentFavorite.countDistinct(),
-                        comment.replyTo,
+                        comment.replyTo.id,
                         comment.createdAt,
                         comment.updatedAt
                 ))

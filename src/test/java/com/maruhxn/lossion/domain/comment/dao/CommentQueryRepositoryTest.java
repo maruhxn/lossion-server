@@ -86,7 +86,7 @@ class CommentQueryRepositoryTest extends IntegrationTestSupport {
 
         // Then
         assertThat(topLevelCommentsPageItem).hasSize(5)
-                .extracting("id", "favoriteCount", "replyTo", "groupId")
+                .extracting("id", "favoriteCount", "replyToId", "groupId")
                 .containsExactlyInAnyOrder(
                         tuple(comment5.getId(), 0L, null, comment5.getGroupId()),
                         tuple(comment4.getId(), 0L, null, comment4.getGroupId()),
@@ -129,11 +129,11 @@ class CommentQueryRepositoryTest extends IntegrationTestSupport {
 
         // Then
         assertThat(replies).hasSize(3)
-                .extracting("id", "favoriteCount", "replyTo", "groupId")
+                .extracting("id", "favoriteCount", "replyToId", "groupId")
                 .containsExactlyInAnyOrder(
-                        tuple(reply1.getId(), 1L, CommentItem.from(comment), comment.getGroupId()),
-                        tuple(reply2.getId(), 0L, CommentItem.from(reply1), comment.getGroupId()),
-                        tuple(reply3.getId(), 0L, CommentItem.from(comment), comment.getGroupId())
+                        tuple(reply1.getId(), 1L, comment.getId(), comment.getGroupId()),
+                        tuple(reply2.getId(), 0L, reply1.getId(), comment.getGroupId()),
+                        tuple(reply3.getId(), 0L, comment.getId(), comment.getGroupId())
                 );
 
     }
