@@ -354,7 +354,7 @@ class TopicControllerTest extends ControllerTestSupport {
     @WithMockUser
     void closeTopic() throws Exception {
         mockMvc.perform(
-                        patch("/api/topics/{topicId}/update-status", 1)
+                        patch("/api/topics/{topicId}/status", 1)
                                 .with(csrf())
                 )
                 .andExpect(status().isNoContent());
@@ -365,7 +365,7 @@ class TopicControllerTest extends ControllerTestSupport {
     @WithMockUser
     void closeTopicWithInvalidPathVariable() throws Exception {
         mockMvc.perform(
-                        patch("/api/topics/{topicId}/update-status", "hack")
+                        patch("/api/topics/{topicId}/status", "hack")
                                 .with(csrf())
                 )
                 .andExpect(status().isBadRequest())
@@ -424,15 +424,14 @@ class TopicControllerTest extends ControllerTestSupport {
                 .andDo(print());
     }
 
-    private static MockMultipartFile getMockMultipartFile() throws IOException {
-        final String fileName = "defaultProfileImage"; // 파일명
-        final String contentType = "jfif"; // 파일타입
-        final String filePath = "src/test/resources/static/img/" + fileName + "." + contentType; //파일경로
+    private MockMultipartFile getMockMultipartFile() throws IOException {
+        final String originalFileName = "defaultProfileImage.jfif";
+        final String filePath = "src/test/resources/static/img/" + originalFileName;
 
         return new MockMultipartFile(
                 "images", //name
-                fileName + "." + contentType, //originalFilename
-                contentType,
+                originalFileName,
+                "image/jpeg",
                 new FileInputStream(filePath)
         );
     }

@@ -19,11 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.maruhxn.lossion.global.common.Constants.*;
+import static com.maruhxn.lossion.global.common.Constants.ACCESS_TOKEN_HEADER;
+import static com.maruhxn.lossion.global.common.Constants.REFRESH_TOKEN_HEADER;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,14 +48,12 @@ public class FavoriteApiDocsTest extends RestDocsSupport {
     @DisplayName("해당 주제에 좋아요를 남긴다.")
     @Test
     void topicFavorite() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
 
-        mockMvc.perform(
-                        patch("/api/favorites/topics/{topicId}", topic.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        patchAction("/api/favorites/topics/{topicId}", null, true, null, topic.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -74,26 +71,24 @@ public class FavoriteApiDocsTest extends RestDocsSupport {
     @DisplayName("주제 좋아요 요청 시 해당 주제가 없다면 404를 반환한다.")
     @Test
     void topicFavoriteFailWhenNotFoundTopic() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
 
-        mockMvc.perform(
-                        patch("/api/favorites/topics/{topicId}", topic.getId() + 1)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        patchAction("/api/favorites/topics/{topicId}", null, true, null, topic.getId() + 1)
                 .andExpect(status().isNotFound());
     }
 
     @DisplayName("주제 좋아요 요청 시 로그인 하지 않은 사용자는 401 에러를 반환한다.")
     @Test
     void topicFavoriteFailWhenIsNotLogin() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
 
-        mockMvc.perform(
-                        patch("/api/favorites/topics/{topicId}", topic.getId())
-                )
+        // When / Then
+        patchAction("/api/favorites/topics/{topicId}", null, false, null, topic.getId())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -101,6 +96,7 @@ public class FavoriteApiDocsTest extends RestDocsSupport {
     @DisplayName("해당 주제의 좋아요 여부를 확인한다.")
     @Test
     void checkTopicFavorite() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
         TopicFavorite topicFavorite = TopicFavorite.builder()
@@ -109,11 +105,8 @@ public class FavoriteApiDocsTest extends RestDocsSupport {
                 .build();
         topicFavoriteRepository.save(topicFavorite);
 
-        mockMvc.perform(
-                        get("/api/favorites/topics/{topicId}", topic.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        getAction("/api/favorites/topics/{topicId}", true, null, topic.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -131,6 +124,7 @@ public class FavoriteApiDocsTest extends RestDocsSupport {
     @DisplayName("주제 좋아요 여부 확인 시 해당 주제가 없으면 404 에러를 반환한다.")
     @Test
     void checkTopicFavoriteFailWhenIsNotFoundTopic() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
         TopicFavorite topicFavorite = TopicFavorite.builder()
@@ -139,17 +133,15 @@ public class FavoriteApiDocsTest extends RestDocsSupport {
                 .build();
         topicFavoriteRepository.save(topicFavorite);
 
-        mockMvc.perform(
-                        get("/api/favorites/topics/{topicId}", topic.getId() + 1)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        getAction("/api/favorites/topics/{topicId}", true, null, topic.getId() + 1)
                 .andExpect(status().isNotFound());
     }
 
     @DisplayName("주제 좋아요 여부 확인 시 로그인 하지 않은 경우 401 에러를 반환한다.")
     @Test
     void checkTopicFavoriteFailWhenIsNotLogin() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
         TopicFavorite topicFavorite = TopicFavorite.builder()
@@ -158,24 +150,21 @@ public class FavoriteApiDocsTest extends RestDocsSupport {
                 .build();
         topicFavoriteRepository.save(topicFavorite);
 
-        mockMvc.perform(
-                        get("/api/favorites/topics/{topicId}", topic.getId())
-                )
+        // When / Then
+        getAction("/api/favorites/topics/{topicId}", false, null, topic.getId())
                 .andExpect(status().isUnauthorized());
     }
 
     @DisplayName("댓글에 좋아요를 남긴다.")
     @Test
     void commentFavorite() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
         Comment comment = createComment(topic, member);
 
-        mockMvc.perform(
-                        patch("/api/favorites/comments/{commentId}", comment.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        patchAction("/api/favorites/comments/{commentId}", null, true, null, comment.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -193,34 +182,33 @@ public class FavoriteApiDocsTest extends RestDocsSupport {
     @DisplayName("댓글 좋아요 요청 시 해당 댓글이 없으면 404 에러를 반환한다.")
     @Test
     void commentFavoriteFailWhenIsNotFoundComment() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
         Comment comment = createComment(topic, member);
 
-        mockMvc.perform(
-                        patch("/api/favorites/comments/{commentId}", comment.getId() + 1)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        patchAction("/api/favorites/comments/{commentId}", null, true, null, comment.getId() + 1)
                 .andExpect(status().isNotFound());
     }
 
     @DisplayName("댓글 좋아요 요청 시 로그인 하지 않은 경우 401 에러를 반환한다.")
     @Test
     void commentFavoriteFailWhenIsNotLogin() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
         Comment comment = createComment(topic, member);
 
-        mockMvc.perform(
-                        patch("/api/favorites/comments/{commentId}", comment.getId())
-                )
+        // When / Then
+        patchAction("/api/favorites/comments/{commentId}", null, false, null, comment.getId())
                 .andExpect(status().isUnauthorized());
     }
 
     @DisplayName("댓글의 좋아요 여부를 확인한다.")
     @Test
     void checkCommentFavorite() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
         Comment comment = createComment(topic, member);
@@ -231,11 +219,8 @@ public class FavoriteApiDocsTest extends RestDocsSupport {
                 .build();
         commentFavoriteRepository.save(commentFavorite);
 
-        mockMvc.perform(
-                        get("/api/favorites/comments/{commentId}", comment.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        getAction("/api/favorites/comments/{commentId}", true, null, comment.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -253,6 +238,7 @@ public class FavoriteApiDocsTest extends RestDocsSupport {
     @DisplayName("댓글 좋아요 여부 확인 시 해당 댓글이 없으면 404 에러를 반환한다.")
     @Test
     void checkCommentFavoriteFailWhenIsNotFoundComment() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
         Comment comment = createComment(topic, member);
@@ -263,17 +249,15 @@ public class FavoriteApiDocsTest extends RestDocsSupport {
                 .build();
         commentFavoriteRepository.save(commentFavorite);
 
-        mockMvc.perform(
-                        get("/api/favorites/comments/{commentId}", comment.getId() + 1)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        getAction("/api/favorites/comments/{commentId}", true, null, comment.getId() + 1)
                 .andExpect(status().isNotFound());
     }
 
     @DisplayName("댓글 좋아요 여부 확인 시 로그인 하지 않은 경우 401 에러를 반환한다.")
     @Test
     void checkCommentFavoriteFailWhenIsNotLogin() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
         Comment comment = createComment(topic, member);
@@ -284,9 +268,8 @@ public class FavoriteApiDocsTest extends RestDocsSupport {
                 .build();
         commentFavoriteRepository.save(commentFavorite);
 
-        mockMvc.perform(
-                        patch("/api/favorites/comments/{commentId}", comment.getId())
-                )
+        // When / Then
+        getAction("/api/favorites/comments/{commentId}", false, null, comment.getId())
                 .andExpect(status().isUnauthorized());
     }
 

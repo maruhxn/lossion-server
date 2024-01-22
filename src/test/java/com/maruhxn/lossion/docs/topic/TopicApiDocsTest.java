@@ -16,25 +16,19 @@ import com.maruhxn.lossion.util.RestDocsSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.mock.web.MockPart;
-import org.springframework.restdocs.constraints.ConstraintDescriptions;
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.maruhxn.lossion.global.common.Constants.*;
+import static com.maruhxn.lossion.global.common.Constants.ACCESS_TOKEN_HEADER;
+import static com.maruhxn.lossion.global.common.Constants.REFRESH_TOKEN_HEADER;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -64,14 +58,12 @@ public class TopicApiDocsTest extends RestDocsSupport {
         Category category = createCategory();
         LocalDateTime now = LocalDateTime.of(2024, 1, 22, 10, 0);
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
-        Topic topic1 = createTopic("test1", closedAt, now, member, category);
-        Topic topic2 = createTopic("test2", closedAt, now, member, category);
-        Topic topic3 = createTopic("test3", closedAt, now, member, category);
+        createTopic("test1", closedAt, now, member, category);
+        createTopic("test2", closedAt, now, member, category);
+        createTopic("test3", closedAt, now, member, category);
 
         // When / Then
-        mockMvc.perform(
-                        get(TOPIC_BASE_URL)
-                )
+        getAction(TOPIC_BASE_URL, false, null)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("주제 리스트 조회 성공"))
@@ -131,15 +123,15 @@ public class TopicApiDocsTest extends RestDocsSupport {
         Category category = createCategory();
         LocalDateTime now = LocalDateTime.of(2024, 1, 22, 10, 0);
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
-        Topic topic1 = createTopic("test1", closedAt, now, member, category);
-        Topic topic2 = createTopic("test2", closedAt, now, member, category);
-        Topic topic3 = createTopic("test3", closedAt, now, member, category);
+        createTopic("test1", closedAt, now, member, category);
+        createTopic("test2", closedAt, now, member, category);
+        createTopic("test3", closedAt, now, member, category);
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("author", "anyLongName");
 
         // When / Then
-        mockMvc.perform(
-                        get(TOPIC_BASE_URL)
-                                .queryParam("author", "anyLongName")
-                )
+        getAction(TOPIC_BASE_URL, false, queryParams)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -153,22 +145,21 @@ public class TopicApiDocsTest extends RestDocsSupport {
         // Given
         Category category = createCategory();
         String closedAtStr = LocalDateTime.now().plusDays(1).toString();
-        // When / Then
-        mockMvc.perform(
-                        multipart(TOPIC_BASE_URL)
-                                .part(new MockPart("title", "test".getBytes()))
-                                .part(new MockPart("description", "test".getBytes()))
-                                .part(new MockPart("firstChoice", "firstChoice".getBytes()))
-                                .part(new MockPart("secondChoice", "secondChoice".getBytes()))
-                                .part(new MockPart("closedAt", closedAtStr.getBytes()))
-                                .part(new MockPart("categoryId", category.getId().toString().getBytes()))
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
 
-                )
+        Map<String, String> parts = new HashMap<>();
+        parts.put("title", "test");
+        parts.put("description", "test");
+        parts.put("firstChoice", "firstChoice");
+        parts.put("secondChoice", "secondChoice");
+        parts.put("closedAt", closedAtStr);
+        parts.put("categoryId", category.getId().toString());
+
+        // When / Then
+        multipartPostAction(TOPIC_BASE_URL, CreateTopicReq.class, List.of(), parts)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("주제 생성 성공"));
+
     }
 
     @Test
@@ -179,22 +170,17 @@ public class TopicApiDocsTest extends RestDocsSupport {
         String closedAtStr = LocalDateTime.now().plusDays(1).toString();
         MockMultipartFile image1 = getMockMultipartFile();
         MockMultipartFile image2 = getMockMultipartFile();
-        simpleRequestConstraints = new ConstraintDescriptions(CreateTopicReq.class);
+
+        Map<String, String> parts = new HashMap<>();
+        parts.put("title", "test");
+        parts.put("description", "test");
+        parts.put("firstChoice", "firstChoice");
+        parts.put("secondChoice", "secondChoice");
+        parts.put("closedAt", closedAtStr);
+        parts.put("categoryId", category.getId().toString());
 
         // When / Then
-        mockMvc.perform(
-                        multipart(TOPIC_BASE_URL)
-                                .file(image1).file(image2)
-                                .part(new MockPart("title", "test".getBytes()))
-                                .part(new MockPart("description", "test".getBytes()))
-                                .part(new MockPart("firstChoice", "firstChoice".getBytes()))
-                                .part(new MockPart("secondChoice", "secondChoice".getBytes()))
-                                .part(new MockPart("closedAt", closedAtStr.getBytes()))
-                                .part(new MockPart("categoryId", category.getId().toString().getBytes()))
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-
-                )
+        multipartPostAction(TOPIC_BASE_URL, CreateTopicReq.class, List.of(image1, image2), parts)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("주제 생성 성공"))
@@ -232,18 +218,15 @@ public class TopicApiDocsTest extends RestDocsSupport {
         Category category = createCategory();
         String closedAtStr = LocalDateTime.of(2024, 1, 17, 10, 0).toString();
 
-        // When / Then
-        mockMvc.perform(
-                        multipart(TOPIC_BASE_URL)
-                                .part(new MockPart("description", "test".getBytes()))
-                                .part(new MockPart("firstChoice", "firstChoice".getBytes()))
-                                .part(new MockPart("secondChoice", "secondChoice".getBytes()))
-                                .part(new MockPart("closedAt", closedAtStr.getBytes()))
-                                .part(new MockPart("categoryId", category.getId().toString().getBytes()))
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
+        Map<String, String> parts = new HashMap<>();
+        parts.put("description", "test");
+        parts.put("firstChoice", "firstChoice");
+        parts.put("secondChoice", "secondChoice");
+        parts.put("closedAt", closedAtStr);
+        parts.put("categoryId", category.getId().toString());
 
-                )
+        // When / Then
+        multipartPostAction(TOPIC_BASE_URL, CreateTopicReq.class, List.of(), parts)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -259,19 +242,16 @@ public class TopicApiDocsTest extends RestDocsSupport {
         Category category = createCategory();
         String closedAtStr = LocalDateTime.of(2024, 1, 17, 10, 0).toString();
 
-        // When / Then
-        mockMvc.perform(
-                        multipart(TOPIC_BASE_URL)
-                                .part(new MockPart("title", "1".getBytes()))
-                                .part(new MockPart("description", "test".getBytes()))
-                                .part(new MockPart("firstChoice", "firstChoice".getBytes()))
-                                .part(new MockPart("secondChoice", "secondChoice".getBytes()))
-                                .part(new MockPart("closedAt", closedAtStr.getBytes()))
-                                .part(new MockPart("categoryId", category.getId().toString().getBytes()))
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
+        Map<String, String> parts = new HashMap<>();
+        parts.put("title", "1");
+        parts.put("description", "test");
+        parts.put("firstChoice", "firstChoice");
+        parts.put("secondChoice", "secondChoice");
+        parts.put("closedAt", closedAtStr);
+        parts.put("categoryId", category.getId().toString());
 
-                )
+        // When / Then
+        multipartPostAction(TOPIC_BASE_URL, CreateTopicReq.class, List.of(), parts)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -285,18 +265,16 @@ public class TopicApiDocsTest extends RestDocsSupport {
         // Given
         Category category = createCategory();
         String closedAtStr = LocalDateTime.of(2024, 1, 17, 10, 0).toString();
-        // When / Then
-        mockMvc.perform(
-                        multipart(TOPIC_BASE_URL)
-                                .part(new MockPart("title", "test".getBytes()))
-                                .part(new MockPart("firstChoice", "firstChoice".getBytes()))
-                                .part(new MockPart("secondChoice", "secondChoice".getBytes()))
-                                .part(new MockPart("closedAt", closedAtStr.getBytes()))
-                                .part(new MockPart("categoryId", category.getId().toString().getBytes()))
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
 
-                )
+        Map<String, String> parts = new HashMap<>();
+        parts.put("title", "test");
+        parts.put("firstChoice", "firstChoice");
+        parts.put("secondChoice", "secondChoice");
+        parts.put("closedAt", closedAtStr);
+        parts.put("categoryId", category.getId().toString());
+
+        // When / Then
+        multipartPostAction(TOPIC_BASE_URL, CreateTopicReq.class, List.of(), parts)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -311,17 +289,15 @@ public class TopicApiDocsTest extends RestDocsSupport {
         // Given
         Category category = createCategory();
         String closedAtStr = LocalDateTime.of(2024, 1, 17, 10, 0).toString();
-        // When / Then
-        mockMvc.perform(
-                        multipart(TOPIC_BASE_URL)
-                                .part(new MockPart("title", "test".getBytes()))
-                                .part(new MockPart("description", "test".getBytes()))
-                                .part(new MockPart("closedAt", closedAtStr.getBytes()))
-                                .part(new MockPart("categoryId", category.getId().toString().getBytes()))
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
 
-                )
+        Map<String, String> parts = new HashMap<>();
+        parts.put("title", "test");
+        parts.put("description", "test");
+        parts.put("closedAt", closedAtStr);
+        parts.put("categoryId", category.getId().toString());
+
+        // When / Then
+        multipartPostAction(TOPIC_BASE_URL, CreateTopicReq.class, List.of(), parts)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -334,18 +310,16 @@ public class TopicApiDocsTest extends RestDocsSupport {
     void createTopicWithoutClosedAt() throws Exception {
         // Given
         Category category = createCategory();
-        // When / Then
-        mockMvc.perform(
-                        multipart(TOPIC_BASE_URL)
-                                .part(new MockPart("title", "test".getBytes()))
-                                .part(new MockPart("description", "test".getBytes()))
-                                .part(new MockPart("firstChoice", "firstChoice".getBytes()))
-                                .part(new MockPart("secondChoice", "secondChoice".getBytes()))
-                                .part(new MockPart("categoryId", category.getId().toString().getBytes()))
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
 
-                )
+        Map<String, String> parts = new HashMap<>();
+        parts.put("title", "test");
+        parts.put("description", "test");
+        parts.put("firstChoice", "firstChoice");
+        parts.put("secondChoice", "secondChoice");
+        parts.put("categoryId", category.getId().toString());
+
+        // When / Then
+        multipartPostAction(TOPIC_BASE_URL, CreateTopicReq.class, List.of(), parts)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -358,18 +332,16 @@ public class TopicApiDocsTest extends RestDocsSupport {
     void createTopicWithoutCategoryId() throws Exception {
         // Given
         String closedAtStr = LocalDateTime.of(2024, 1, 17, 10, 0).toString();
-        // When / Then
-        mockMvc.perform(
-                        multipart(TOPIC_BASE_URL)
-                                .part(new MockPart("title", "test".getBytes()))
-                                .part(new MockPart("description", "test".getBytes()))
-                                .part(new MockPart("firstChoice", "firstChoice".getBytes()))
-                                .part(new MockPart("secondChoice", "secondChoice".getBytes()))
-                                .part(new MockPart("closedAt", closedAtStr.getBytes()))
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
 
-                )
+        Map<String, String> parts = new HashMap<>();
+        parts.put("title", "test");
+        parts.put("description", "test");
+        parts.put("firstChoice", "firstChoice");
+        parts.put("secondChoice", "secondChoice");
+        parts.put("closedAt", closedAtStr);
+
+        // When / Then
+        multipartPostAction(TOPIC_BASE_URL, CreateTopicReq.class, List.of(), parts)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -387,9 +359,7 @@ public class TopicApiDocsTest extends RestDocsSupport {
         Topic topic = createTopic("test1", closedAt, now, member, category);
 
         // When / Then
-        mockMvc.perform(
-                        get(TOPIC_BASE_URL + "/{topicId}", topic.getId())
-                )
+        getAction(TOPIC_BASE_URL + "/{topicId}", false, null, topic.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("주제 조회 성공"))
@@ -432,9 +402,7 @@ public class TopicApiDocsTest extends RestDocsSupport {
     @DisplayName("주제를 상세 조회 시 올바르지 않은 topicId를 전달할 경우 400 에러를 반환한다.")
     @Test
     void getTopicDetailWithInvalidPathVariable() throws Exception {
-        mockMvc.perform(
-                        get(TOPIC_BASE_URL + "/{topicId}", "hack")
-                )
+        getAction(TOPIC_BASE_URL + "/{topicId}", false, null, "hack")
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.PATH_VAR_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.PATH_VAR_ERROR.getMessage()));
@@ -443,29 +411,24 @@ public class TopicApiDocsTest extends RestDocsSupport {
     @DisplayName("토론 주제를 수정할 수 있다.")
     @Test
     void updateTopic() throws Exception {
+        // Given
         Category category = createCategory();
         LocalDateTime now = LocalDateTime.of(2024, 1, 22, 10, 0);
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
         Topic topic = createTopic("test", closedAt, now, member, category);
 
-
         MockMultipartFile image1 = getMockMultipartFile();
-        MockMultipartHttpServletRequestBuilder builder = getMockMultipartHttpServletRequestBuilder(TOPIC_BASE_URL + "/{topicId}", topic.getId());
-        simpleRequestConstraints = new ConstraintDescriptions(UpdateTopicReq.class);
 
-        mockMvc.perform(
-                        builder
-                                .file(image1)
-                                .part(new MockPart("title", "test!".getBytes()))
-                                .part(new MockPart("description", "test!".getBytes()))
-                                .part(new MockPart("firstChoice", "firstChoice!".getBytes()))
-                                .part(new MockPart("secondChoice", "secondChoice!".getBytes()))
-                                .part(new MockPart("closedAt", String.valueOf(closedAt).getBytes()))
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
+        Map<String, String> parts = new HashMap<>();
+        parts.put("title", "test");
+        parts.put("description", "test");
+        parts.put("firstChoice", "firstChoice");
+        parts.put("secondChoice", "secondChoice");
+        parts.put("closedAt", closedAt.toString());
+        parts.put("categoryId", category.getId().toString());
 
-                )
+        // When / Then
+        multipartPatchAction(TOPIC_BASE_URL + "/{topicId}", UpdateTopicReq.class, List.of(image1), parts, topic.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -499,7 +462,7 @@ public class TopicApiDocsTest extends RestDocsSupport {
     @DisplayName("작성자가 아닌 경우 토론 수정 요청 시 403 에러를 반환한다.")
     @Test
     void updateTopicFailWhenIsNotAuthor() throws Exception {
-
+        // Given
         Member subMember = Member.builder()
                 .accountId("tester2")
                 .username("tester2")
@@ -515,37 +478,31 @@ public class TopicApiDocsTest extends RestDocsSupport {
         Topic topic = createTopic("test", closedAt, now, subMember, category);
 
         MockMultipartFile image1 = getMockMultipartFile();
-        MockMultipartHttpServletRequestBuilder builder = getMockMultipartHttpServletRequestBuilder("/api/topics/{topicId}", topic.getId());
-        simpleRequestConstraints = new ConstraintDescriptions(UpdateTopicReq.class);
 
-        mockMvc.perform(
-                        builder
-                                .part(new MockPart("title", "test!".getBytes()))
-                                .part(new MockPart("description", "test!".getBytes()))
-                                .part(new MockPart("firstChoice", "firstChoice!".getBytes()))
-                                .part(new MockPart("secondChoice", "secondChoice!".getBytes()))
-                                .part(new MockPart("closedAt", String.valueOf(closedAt).getBytes()))
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
+        Map<String, String> parts = new HashMap<>();
+        parts.put("title", "test");
+        parts.put("description", "test");
+        parts.put("firstChoice", "firstChoice");
+        parts.put("secondChoice", "secondChoice");
+        parts.put("closedAt", closedAt.toString());
+        parts.put("categoryId", category.getId().toString());
 
-                )
+        // When / Then
+        multipartPatchAction(TOPIC_BASE_URL + "/{topicId}", UpdateTopicReq.class, List.of(image1), parts, topic.getId())
                 .andExpect(status().isForbidden());
     }
 
     @DisplayName("토론을 종료할 수 있다.")
     @Test
     void closeTopic() throws Exception {
+        // Given
         Category category = createCategory();
         LocalDateTime now = LocalDateTime.of(2024, 1, 22, 10, 0);
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
         Topic topic = createTopic("test", closedAt, now, member, category);
 
-        mockMvc.perform(
-                        patch(TOPIC_BASE_URL + "/{topicId}/update-status", topic.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        patchAction(TOPIC_BASE_URL + "/{topicId}/status", null, true, null, topic.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -563,16 +520,14 @@ public class TopicApiDocsTest extends RestDocsSupport {
     @DisplayName("토론 종료 시 올바르지 않은 topicId를 전달할 경우 400 에러를 반환한다.")
     @Test
     void closeTopicWithInvalidPathVariable() throws Exception {
+        // Given
         Category category = createCategory();
         LocalDateTime now = LocalDateTime.of(2024, 1, 22, 10, 0);
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
         Topic topic = createTopic("test", closedAt, now, member, category);
 
-        mockMvc.perform(
-                        patch(TOPIC_BASE_URL + "/{topicId}/update-status", "hack")
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        patchAction(TOPIC_BASE_URL + "/{topicId}/status", null, true, null, "hack")
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.PATH_VAR_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.PATH_VAR_ERROR.getMessage()));
@@ -581,16 +536,14 @@ public class TopicApiDocsTest extends RestDocsSupport {
     @DisplayName("주제를 삭제할 수 있다.")
     @Test
     void deleteTopic() throws Exception {
+        // Given
         Category category = createCategory();
         LocalDateTime now = LocalDateTime.of(2024, 1, 22, 10, 0);
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
         Topic topic = createTopic("test", closedAt, now, member, category);
 
-        mockMvc.perform(
-                        delete(TOPIC_BASE_URL + "/{topicId}", topic.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        deleteAction(TOPIC_BASE_URL + "/{topicId}", true, topic.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -608,17 +561,14 @@ public class TopicApiDocsTest extends RestDocsSupport {
     @DisplayName("주제 삭제 시 올바르지 않은 topicId를 전달할 경우 400 에러를 반환한다.")
     @Test
     void deleteTopicWithInvalidPathVariable() throws Exception {
-
+        // Given
         Category category = createCategory();
         LocalDateTime now = LocalDateTime.of(2024, 1, 22, 10, 0);
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
         Topic topic = createTopic("test", closedAt, now, member, category);
 
-        mockMvc.perform(
-                        delete(TOPIC_BASE_URL + "/{topicId}", "hack")
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        deleteAction(TOPIC_BASE_URL + "/{topicId}", true, "hack")
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.PATH_VAR_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.PATH_VAR_ERROR.getMessage()));
@@ -627,6 +577,7 @@ public class TopicApiDocsTest extends RestDocsSupport {
     @DisplayName("이미지를 삭제할 수 있다.")
     @Test
     void deleteTopicImage() throws Exception {
+        // Given
         Category category = createCategory();
         LocalDateTime now = LocalDateTime.of(2024, 1, 22, 10, 0);
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
@@ -640,11 +591,8 @@ public class TopicApiDocsTest extends RestDocsSupport {
 
         topicImageRepository.save(topicImage);
 
-        mockMvc.perform(
-                        delete(TOPIC_BASE_URL + "/{topicId}/images/{imageId}", topic.getId(), topicImage.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        deleteAction(TOPIC_BASE_URL + "/{topicId}/images/{imageId}", true, topic.getId(), topicImage.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -663,7 +611,7 @@ public class TopicApiDocsTest extends RestDocsSupport {
     @DisplayName("이미지 삭제 시 작성자가 아닌 경우 403 에러를 반환한다.")
     @Test
     void deleteTopicImageFailWhenIsNotAuthor() throws Exception {
-
+        // Given
         Member subMember = Member.builder()
                 .accountId("tester2")
                 .username("tester2")
@@ -683,46 +631,28 @@ public class TopicApiDocsTest extends RestDocsSupport {
                 .originalName("originalName")
                 .build();
         topicImage.setTopic(topic);
-
         topicImageRepository.save(topicImage);
 
-        mockMvc.perform(
-                        delete(TOPIC_BASE_URL + "/{topicId}/images/{imageId}", topic.getId(), topicImage.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        // When / Then
+        deleteAction(TOPIC_BASE_URL + "/{topicId}/images/{imageId}", true, topic.getId(), topicImage.getId())
                 .andExpect(status().isForbidden());
     }
 
     @DisplayName("이미지 삭제 시 올바르지 않은 topicId를 전달할 경우 400 에러를 반환한다.")
     @Test
     void deleteTopicImageWithInvalidPathVariable1() throws Exception {
+        // Given
         Category category = createCategory();
         LocalDateTime now = LocalDateTime.of(2024, 1, 22, 10, 0);
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
         Topic topic = createTopic("test", closedAt, now, member, category);
-        mockMvc.perform(
-                        delete(TOPIC_BASE_URL + "/{topicId}/images/{imageId}", topic.getId(), "hack")
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+
+        // When / Then
+        deleteAction(TOPIC_BASE_URL + "/{topicId}/images/{imageId}", true, topic.getId(), "hack")
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.PATH_VAR_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.PATH_VAR_ERROR.getMessage()));
     }
-
-    private MockMultipartFile getMockMultipartFile() throws IOException {
-        final String originalFileName = "defaultProfileImage.jfif";
-        final String filePath = "src/test/resources/static/img/" + originalFileName;
-
-        return new MockMultipartFile(
-                "images", //name
-                originalFileName,
-                "image/jpeg",
-                new FileInputStream(filePath)
-        );
-    }
-
 
     @Test
     @DisplayName("투표에 성공할 경우 204 응답을 반환한다.")
@@ -733,21 +663,13 @@ public class TopicApiDocsTest extends RestDocsSupport {
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
         Topic topic = createTopic("test", closedAt, now, member, category);
 
-        VoteRequest request = VoteRequest.builder()
+        VoteRequest req = VoteRequest.builder()
                 .voteAt(LocalDateTime.of(2024, 1, 17, 10, 0))
                 .voteType(VoteType.FIRST)
                 .build();
-        simpleRequestConstraints = new ConstraintDescriptions(VoteRequest.class);
 
         // When / Then
-        mockMvc.perform(
-                        patch(TOPIC_BASE_URL + "/{topicId}/vote", topic.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        patchAction(TOPIC_BASE_URL + "/{topicId}/vote", req, true, null, topic.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -778,19 +700,12 @@ public class TopicApiDocsTest extends RestDocsSupport {
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
         Topic topic = createTopic("test", closedAt, now, member, category);
 
-        VoteRequest request = VoteRequest.builder()
+        VoteRequest req = VoteRequest.builder()
                 .voteAt(LocalDateTime.of(2024, 1, 17, 10, 0))
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        patch(TOPIC_BASE_URL + "/{topicId}/vote", topic.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        patchAction(TOPIC_BASE_URL + "/{topicId}/vote", req, true, null, topic.getId())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -807,19 +722,12 @@ public class TopicApiDocsTest extends RestDocsSupport {
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
         Topic topic = createTopic("test", closedAt, now, member, category);
 
-        VoteRequest request = VoteRequest.builder()
+        VoteRequest req = VoteRequest.builder()
                 .voteType(VoteType.FIRST)
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        patch(TOPIC_BASE_URL + "/{topicId}/vote", topic.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        patchAction(TOPIC_BASE_URL + "/{topicId}/vote", req, true, null, topic.getId())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -833,15 +741,11 @@ public class TopicApiDocsTest extends RestDocsSupport {
         Category category = createCategory();
         LocalDateTime now = LocalDateTime.of(2024, 1, 22, 10, 0);
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
-        Topic topic1 = createTopic("test", closedAt, now, member, category);
-        Topic topic2 = createTopic("test", closedAt, now, member, category);
-        Topic topic3 = createTopic("test", closedAt, now, member, category);
+        createTopic("test", closedAt, now, member, category);
+        createTopic("test", closedAt, now, member, category);
+        createTopic("test", closedAt, now, member, category);
 
-        mockMvc.perform(
-                        get(TOPIC_BASE_URL + "/my")
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        getAction(TOPIC_BASE_URL + "/my", true, null)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("OK"))
                 .andExpect(jsonPath("$.message").value("내가 작성한 주제 리스트 조회 성공"))
@@ -893,6 +797,19 @@ public class TopicApiDocsTest extends RestDocsSupport {
 
     }
 
+    private MockMultipartFile getMockMultipartFile() throws IOException {
+        final String originalFileName = "defaultProfileImage.jfif";
+        final String filePath = "src/test/resources/static/img/" + originalFileName;
+
+        return new MockMultipartFile(
+                "images", //name
+                originalFileName,
+                "image/jpeg",
+                new FileInputStream(filePath)
+        );
+    }
+
+
     private Topic createTopic(String title, LocalDateTime closedAt, LocalDateTime now, Member member, Category category) {
         Topic topic = Topic.builder()
                 .title(title)
@@ -914,19 +831,5 @@ public class TopicApiDocsTest extends RestDocsSupport {
                 .build();
 
         return categoryRepository.save(category);
-    }
-
-    private MockMultipartHttpServletRequestBuilder getMockMultipartHttpServletRequestBuilder(String path, Object... id) {
-        MockMultipartHttpServletRequestBuilder builder = RestDocumentationRequestBuilders.
-                multipart(path, id);
-
-        builder.with(new RequestPostProcessor() {
-            @Override
-            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-                request.setMethod(HttpMethod.PATCH.name());
-                return request;
-            }
-        });
-        return builder;
     }
 }

@@ -11,17 +11,16 @@ import com.maruhxn.lossion.util.RestDocsSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.restdocs.constraints.ConstraintDescriptions;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.maruhxn.lossion.global.common.Constants.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -48,14 +47,8 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .password("test")
                 .confirmPassword("test")
                 .build();
-        simpleRequestConstraints = new ConstraintDescriptions(SignUpReq.class);
         // When / Then
-        mockMvc.perform(
-                        post("/api/auth/sign-up")
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+        postAction("/api/auth/sign-up", req, false)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("회원가입 성공"))
@@ -94,14 +87,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        post("/api/auth/sign-up")
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        postAction("/api/auth/sign-up", req, true)
                 .andExpect(status().isForbidden());
     }
 
@@ -119,12 +105,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        post("/api/auth/sign-up")
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+        postAction("/api/auth/sign-up", req, false)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -139,14 +120,9 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .accountId("tester")
                 .password("test")
                 .build();
-        simpleRequestConstraints = new ConstraintDescriptions(LoginReq.class);
+
         // When / Then
-        mockMvc.perform(
-                        post("/api/auth/login")
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+        postAction("/api/auth/login", req, false)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("로그인 성공"))
@@ -171,11 +147,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
     @DisplayName("Access Token의 refresh 성공 시 200을 반환한다.")
     @Test
     void refresh() throws Exception {
-        mockMvc.perform(
-                        get("/api/auth/refresh")
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        getAction("/api/auth/refresh", true, null)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("Token Refresh 성공"))
@@ -194,6 +166,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                                         )
                         )
                 );
+
     }
 
     @DisplayName("refresh 시도할 때 refresh token을 넘겨주지 않은 경우 400을 반환한다.")
@@ -211,11 +184,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
     @DisplayName("로그인 사용자의 인증 메일 발송 요청 성공 시 200을 반환한다")
     @Test
     void sendVerifyEmail() throws Exception {
-        mockMvc.perform(
-                        get("/api/auth/send-verify-email")
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        getAction("/api/auth/send-verify-email", true, null)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("인증 메일 발송 성공"))
@@ -233,9 +202,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
     @DisplayName("비로그인 사용자의 인증 메일 발송 요청 성공 시 401을 반환한다")
     @Test
     void sendVerifyEmailWhenIsNotLogin() throws Exception {
-        mockMvc.perform(
-                        get("/api/auth/send-verify-email")
-                )
+        getAction("/api/auth/send-verify-email", false, null)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -251,17 +218,9 @@ public class AuthApiDocsTest extends RestDocsSupport {
         authTokenRepository.save(authToken);
 
         VerifyEmailReq req = new VerifyEmailReq("payload");
-        simpleRequestConstraints = new ConstraintDescriptions(VerifyEmailReq.class);
 
         // When / Then
-        mockMvc.perform(
-                        post("/api/auth/verify-email")
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        postAction("/api/auth/verify-email", req, true)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("이메일 인증 성공"))
@@ -278,6 +237,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                                 commonResponseFields(null)
                         )
                 );
+
     }
 
     @DisplayName("비밀번호 인증 성공 시 200을 반환한다.")
@@ -286,16 +246,9 @@ public class AuthApiDocsTest extends RestDocsSupport {
     void verifyPassword() throws Exception {
         // Given
         VerifyPasswordReq req = new VerifyPasswordReq("test");
-        simpleRequestConstraints = new ConstraintDescriptions(VerifyPasswordReq.class);
+
         // When / Then
-        mockMvc.perform(
-                        post("/api/auth/verify-password")
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        postAction("/api/auth/verify-password", req, true)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("비밀번호 인증 성공"))
@@ -322,14 +275,9 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .accountId("tester")
                 .email("test@test.com")
                 .build();
-        simpleRequestConstraints = new ConstraintDescriptions(SendAnonymousEmailReq.class);
+
         // When / Then
-        mockMvc.perform(
-                        post("/api/auth/anonymous/send-verify-email")
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+        postAction("/api/auth/anonymous/send-verify-email", req, false)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("인증 메일 발송 성공"))
@@ -365,27 +313,17 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .email("test@test.com")
                 .payload("payload")
                 .build();
-        simpleRequestConstraints = new ConstraintDescriptions(GetTokenReq.class);
+
         String authKey = AesUtil.encrypt(req.getPayload());
+
         // When / Then
-        mockMvc.perform(
-                        post("/api/auth/anonymous/get-token")
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        postAction("/api/auth/anonymous/get-token", req, false)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("유저 정보 조회 성공"))
                 .andExpect(jsonPath("data").value(authKey))
                 .andDo(
                         restDocs.document(
-                                requestHeaders(
-                                        headerWithName(ACCESS_TOKEN_HEADER).description("인증 토큰 헤더"),
-                                        headerWithName(REFRESH_TOKEN_HEADER).description("Refresh 토큰 헤더")
-                                ),
                                 requestFields(
                                         fieldWithPath("accountId").type(STRING).description("인증 시도할 사용자의 계정 ID")
                                                 .attributes(withPath("accountId")),
@@ -422,15 +360,12 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .newPassword("test")
                 .confirmNewPassword("test")
                 .build();
-        simpleRequestConstraints = new ConstraintDescriptions(UpdateAnonymousPasswordReq.class);
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("authKey", authKey);
+
         // When / Then
-        mockMvc.perform(
-                        patch("/api/auth/anonymous/password")
-                                .queryParam("authKey", authKey)
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+        patchAction("/api/auth/anonymous/password", req, false, queryParams)
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -445,16 +380,13 @@ public class AuthApiDocsTest extends RestDocsSupport {
                                 )
                         )
                 );
+
     }
 
     @DisplayName("로그인한 사용자가 로그아웃 성공 시 204를 반환한다.")
     @Test
     void logout() throws Exception {
-        mockMvc.perform(
-                        patch("/api/auth/logout")
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        patchAction("/api/auth/logout", null, true, null)
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -464,6 +396,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                                 )
                         )
                 );
+
     }
 
 }

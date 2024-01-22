@@ -13,18 +13,17 @@ import com.maruhxn.lossion.util.RestDocsSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.restdocs.constraints.ConstraintDescriptions;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.maruhxn.lossion.global.common.Constants.*;
+import static com.maruhxn.lossion.global.common.Constants.ACCESS_TOKEN_HEADER;
+import static com.maruhxn.lossion.global.common.Constants.REFRESH_TOKEN_HEADER;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
-import static org.springframework.restdocs.payload.JsonFieldType.*;
+import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
+import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
@@ -56,14 +55,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
         simpleRequestConstraints = new ConstraintDescriptions(CreateCommentReq.class);
 
         // When / Then
-        mockMvc.perform(
-                        post("/api/topics/{topicId}/comments", topic.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        postAction("/api/topics/{topicId}/comments", req, true, topic.getId())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("댓글 생성 성공"))
@@ -97,14 +89,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        post("/api/topics/{topicId}/comments", topic.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        postAction("/api/topics/{topicId}/comments", req, true, topic.getId())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value("VALIDATION_ERROR"))
                 .andExpect(jsonPath("message").value("올바르지 않은 입력입니다."))
@@ -122,12 +107,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        post("/api/topics/{topicId}/comments", topic.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        postAction("/api/topics/{topicId}/comments", req, false, topic.getId())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -142,14 +122,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        post("/api/topics/{topicId}/comments", topic.getId() + 1)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        postAction("/api/topics/{topicId}/comments", req, true, topic.getId() + 1)
                 .andExpect(status().isNotFound());
     }
 
@@ -163,11 +136,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
         Comment comment2 = createComment(topic, member);
 
         // When / Then
-        mockMvc.perform(
-                        get("/api/topics/{topicId}/comments", topic.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        getAction("/api/topics/{topicId}/comments", false, null, topic.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("댓글 조회 성공"))
@@ -237,11 +206,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
         commentRepository.save(comment);
 
         // When / Then
-        mockMvc.perform(
-                        get("/api/topics/{topicId}/comments", topic.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        getAction("/api/topics/{topicId}/comments", false, null, topic.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("댓글 조회 성공"))
@@ -268,14 +233,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
         simpleRequestConstraints = new ConstraintDescriptions(UpdateCommentReq.class);
 
         // When / Then
-        mockMvc.perform(
-                        patch("/api/topics/{topicId}/comments/{commentId}", topic.getId(), comment.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        patchAction("/api/topics/{topicId}/comments/{commentId}", req, true, null, topic.getId(), comment.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -306,14 +264,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        patch("/api/topics/{topicId}/comments/{commentId}", topic.getId(), comment.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        patchAction("/api/topics/{topicId}/comments/{commentId}", req, true, null, topic.getId(), comment.getId())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value("VALIDATION_ERROR"))
                 .andExpect(jsonPath("message").value("올바르지 않은 입력입니다."))
@@ -333,14 +284,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        patch("/api/topics/{topicId}/comments/{commentId}", topic.getId(), comment.getId() + 1)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        patchAction("/api/topics/{topicId}/comments/{commentId}", req, true, null, topic.getId(), comment.getId() + 1)
                 .andExpect(status().isNotFound());
     }
 
@@ -356,12 +300,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        patch("/api/topics/{topicId}/comments/{commentId}", topic.getId(), comment.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        patchAction("/api/topics/{topicId}/comments/{commentId}", req, false, null, topic.getId(), comment.getId())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -377,14 +316,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        patch("/api/topics/{topicId}/comments/{commentId}", topic.getId() + 1, comment.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        patchAction("/api/topics/{topicId}/comments/{commentId}", req, true, null, topic.getId() + 1, comment.getId())
                 .andExpect(status().isNotFound());
     }
 
@@ -409,31 +341,20 @@ public class CommentApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        patch("/api/topics/{topicId}/comments/{commentId}", topic.getId(), comment.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(req))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        patchAction("/api/topics/{topicId}/comments/{commentId}", req, true, null, topic.getId(), comment.getId())
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @DisplayName("댓글을 삭제한다.")
     void deleteComment() throws Exception {
+        // Given
         Category category = createCategory();
         Topic topic = createTopic(member, category);
         Comment comment = createComment(topic, member);
 
-        mockMvc.perform(
-                        delete("/api/topics/{topicId}/comments/{commentId}", topic.getId(), comment.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        // When / Then
+        deleteAction("/api/topics/{topicId}/comments/{commentId}", true, topic.getId(), comment.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -458,13 +379,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
         Comment comment = createComment(topic, member);
 
         // When / Then
-        mockMvc.perform(
-                        delete("/api/topics/{topicId}/comments/{commentId}", topic.getId() + 1, comment.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        deleteAction("/api/topics/{topicId}/comments/{commentId}", true, topic.getId() + 1, comment.getId())
                 .andExpect(status().isNotFound());
     }
 
@@ -477,13 +392,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
         Comment comment = createComment(topic, member);
 
         // When / Then
-        mockMvc.perform(
-                        delete("/api/topics/{topicId}/comments/{commentId}", topic.getId(), comment.getId() + 1)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        deleteAction("/api/topics/{topicId}/comments/{commentId}", true, topic.getId(), comment.getId() + 1)
                 .andExpect(status().isNotFound());
     }
 
@@ -496,11 +405,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
         Comment comment = createComment(topic, member);
 
         // When / Then
-        mockMvc.perform(
-                        delete("/api/topics/{topicId}/comments/{commentId}", topic.getId(), comment.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        deleteAction("/api/topics/{topicId}/comments/{commentId}", false, topic.getId(), comment.getId())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -522,13 +427,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
         Comment comment = createComment(topic, member2);
 
         // When / Then
-        mockMvc.perform(
-                        delete("/api/topics/{topicId}/comments/{commentId}", topic.getId(), comment.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        deleteAction("/api/topics/{topicId}/comments/{commentId}", true, topic.getId(), comment.getId())
                 .andExpect(status().isForbidden());
     }
 
@@ -555,11 +454,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
         commentRepository.save(comment);
 
         // When / Then
-        mockMvc.perform(
-                        get("/api/topics/{topicId}/comments/groups/{groupId}", topic.getId(), comment.getGroupId())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        getAction("/api/topics/{topicId}/comments/groups/{groupId}", false, null, topic.getId(), comment.getGroupId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("답글 조회 성공"))
@@ -603,7 +498,6 @@ public class CommentApiDocsTest extends RestDocsSupport {
                         )
                 );
     }
-
 
     private Comment createComment(Topic topic, Member member) {
         Comment comment = Comment.builder()

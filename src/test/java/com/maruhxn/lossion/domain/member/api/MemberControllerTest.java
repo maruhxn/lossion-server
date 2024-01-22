@@ -170,7 +170,7 @@ class MemberControllerTest extends ControllerTestSupport {
         final String filePath = "src/test/resources/static/img/" + fileName + "." + contentType; //파일경로
 
         return new MockMultipartFile(
-                "images", //name
+                "profileImage", //name
                 fileName + "." + contentType, //originalFilename
                 contentType,
                 new FileInputStream(filePath)

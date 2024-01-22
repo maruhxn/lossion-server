@@ -13,15 +13,11 @@ import com.maruhxn.lossion.util.RestDocsSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.restdocs.constraints.ConstraintDescriptions;
 
-import java.nio.charset.StandardCharsets;
-
-import static com.maruhxn.lossion.global.common.Constants.*;
+import static com.maruhxn.lossion.global.common.Constants.ACCESS_TOKEN_HEADER;
+import static com.maruhxn.lossion.global.common.Constants.REFRESH_TOKEN_HEADER;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -46,14 +42,12 @@ public class CategoryApiDocsTest extends RestDocsSupport {
     @Test
     void getAllCategories() throws Exception {
         // Given
-        Category category1 = createCategory("test1");
-        Category category2 = createCategory("test2");
-        Category category3 = createCategory("test3");
+        createCategory("test1");
+        createCategory("test2");
+        createCategory("test3");
 
         // When / Then
-        mockMvc.perform(
-                        get(CATEGORY_BASE_URL)
-                )
+        getAction(CATEGORY_BASE_URL, false, null)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("카테고리 조회 성공"))
@@ -83,17 +77,9 @@ public class CategoryApiDocsTest extends RestDocsSupport {
         CreateCategoryReq req = CreateCategoryReq.builder()
                 .name("test")
                 .build();
-        simpleRequestConstraints = new ConstraintDescriptions(CreateCategoryReq.class);
 
         // When / Then
-        mockMvc.perform(
-                        post(CATEGORY_BASE_URL)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .content(objectMapper.writeValueAsString(req))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        postAction(CATEGORY_BASE_URL, req, true)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("code").value("OK"))
                 .andExpect(jsonPath("message").value("카테고리 생성 성공"))
@@ -123,14 +109,7 @@ public class CategoryApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        post(CATEGORY_BASE_URL)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .content(objectMapper.writeValueAsString(req))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        postAction(CATEGORY_BASE_URL, req, true)
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("code").value(ErrorCode.FORBIDDEN.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.FORBIDDEN.getMessage()));
@@ -148,14 +127,7 @@ public class CategoryApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        post(CATEGORY_BASE_URL)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .content(objectMapper.writeValueAsString(req))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        postAction(CATEGORY_BASE_URL, req, true)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -176,14 +148,7 @@ public class CategoryApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        post(CATEGORY_BASE_URL)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .content(objectMapper.writeValueAsString(req))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        postAction(CATEGORY_BASE_URL, req, true)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -203,17 +168,9 @@ public class CategoryApiDocsTest extends RestDocsSupport {
         UpdateCategoryReq req = UpdateCategoryReq.builder()
                 .name("test")
                 .build();
-        simpleRequestConstraints = new ConstraintDescriptions(UpdateCategoryReq.class);
 
         // When / Then
-        mockMvc.perform(
-                        patch(CATEGORY_BASE_URL + "/{categoryId}", category.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .content(objectMapper.writeValueAsString(req))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        patchAction(CATEGORY_BASE_URL + "/{categoryId}", req, true, null, category.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -244,14 +201,7 @@ public class CategoryApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        patch(CATEGORY_BASE_URL + "/{categoryId}", category.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .content(objectMapper.writeValueAsString(req))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        patchAction(CATEGORY_BASE_URL + "/{categoryId}", req, true, null, category.getId())
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("code").value(ErrorCode.FORBIDDEN.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.FORBIDDEN.getMessage()));
@@ -270,14 +220,7 @@ public class CategoryApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        patch(CATEGORY_BASE_URL + "/{categoryId}", category.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .content(objectMapper.writeValueAsString(req))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        patchAction(CATEGORY_BASE_URL + "/{categoryId}", req, true, null, category.getId())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -299,14 +242,7 @@ public class CategoryApiDocsTest extends RestDocsSupport {
                 .build();
 
         // When / Then
-        mockMvc.perform(
-                        patch(CATEGORY_BASE_URL + "/{categoryId}", category.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                                .content(objectMapper.writeValueAsString(req))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                )
+        patchAction(CATEGORY_BASE_URL + "/{categoryId}", req, true, null, category.getId())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
@@ -324,11 +260,7 @@ public class CategoryApiDocsTest extends RestDocsSupport {
         createAdminJWT(admin);
 
         // When / Then
-        mockMvc.perform(
-                        delete(CATEGORY_BASE_URL + "/{categoryId}", category.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        deleteAction(CATEGORY_BASE_URL + "/{categoryId}", true, category.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -351,11 +283,7 @@ public class CategoryApiDocsTest extends RestDocsSupport {
         Category category = createCategory("test");
 
         // When / Then
-        mockMvc.perform(
-                        delete(CATEGORY_BASE_URL + "/{categoryId}", category.getId())
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        deleteAction(CATEGORY_BASE_URL + "/{categoryId}", true, category.getId())
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("code").value(ErrorCode.FORBIDDEN.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.FORBIDDEN.getMessage()));
@@ -371,11 +299,7 @@ public class CategoryApiDocsTest extends RestDocsSupport {
         createAdminJWT(admin);
 
         // When / Then
-        mockMvc.perform(
-                        delete(CATEGORY_BASE_URL + "/{categoryId}", category.getId() + 1)
-                                .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
-                                .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken())
-                )
+        deleteAction(CATEGORY_BASE_URL + "/{categoryId}", true, category.getId() + 1)
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("code").value(ErrorCode.NOT_FOUND_CATEGORY.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
@@ -390,7 +314,6 @@ public class CategoryApiDocsTest extends RestDocsSupport {
 
     private Member createAdmin() {
         Member admin = Member.builder()
-                .id(1L)
                 .accountId("admin")
                 .username("admin")
                 .password(passwordEncoder.encode("test"))

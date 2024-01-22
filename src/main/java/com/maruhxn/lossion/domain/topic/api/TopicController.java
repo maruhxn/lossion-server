@@ -65,7 +65,7 @@ public class TopicController {
         topicService.updateTopic(topicId, req);
     }
 
-    @PatchMapping("/{topicId}/update-status")
+    @PatchMapping("/{topicId}/status")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void closeTopic(
             @PathVariable Long topicId
