@@ -7,6 +7,7 @@ MARUHXN_;
 :toclevels: 2
 :sectlinks:
 
+include::common/overview.adoc[]
 include::api/auth-api.adoc[]
 include::api/member-api.adoc[]
 include::api/category-api.adoc[]
