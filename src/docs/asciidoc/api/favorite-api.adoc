@@ -4,19 +4,19 @@
 [[Favorite-주제_좋아요_요청]]
 === 주제 - '좋아요' 요청
 
-operation::favorite_docs_test/topic-favorite[snippets='curl-request,path-parameters,request-headers,http-request,http-response']
+operation::favorite_api_docs_test/topic-favorite[snippets='curl-request,path-parameters,request-headers,http-request,http-response']
 
 [[Favorite-주제_좋아요_여부_확인]]
 === 주제 - '좋아요' 여부 확인
 
-operation::favorite_docs_test/check-topic-favorite[snippets='curl-request,path-parameters,request-headers,http-request,http-response']
+operation::favorite_api_docs_test/check-topic-favorite[snippets='curl-request,path-parameters,request-headers,http-request,http-response']
 
 [[Favorite-댓글_좋아요_요청]]
 === 댓글 - '좋아요' 요청
 
-operation::favorite_docs_test/comment-favorite[snippets='curl-request,path-parameters,request-headers,http-request,http-response']
+operation::favorite_api_docs_test/comment-favorite[snippets='curl-request,path-parameters,request-headers,http-request,http-response']
 
 [[Favorite-댓글_좋아요_여부_확인]]
 === 댓글 - '좋아요' 여부 확인
 
-operation::favorite_docs_test/check-comment-favorite[snippets='curl-request,path-parameters,request-headers,http-request,http-response']
+operation::favorite_api_docs_test/check-comment-favorite[snippets='curl-request,path-parameters,request-headers,http-request,http-response']
