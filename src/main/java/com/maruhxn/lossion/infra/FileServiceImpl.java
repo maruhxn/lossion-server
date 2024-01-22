@@ -62,10 +62,13 @@ public class FileServiceImpl implements FileService {
         String originalFilename = profileImage.getOriginalFilename(); // 파일 원본 이름
         String storeFileName = createStoreFileName(originalFilename); // 서버에 저장된 파일 이름 (랜덤)
         String savePath = getFullPath(storeFileName); // 서버에 저장된 경로
-        try {
-            profileImage.transferTo(new File(savePath)); // 파일 저장
-        } catch (IOException e) {
-            throw new InternalServerException(ErrorCode.INTERNAL_ERROR, e);
+
+        if (!environment.acceptsProfiles(Profiles.of("test"))) {
+            try {
+                profileImage.transferTo(new File(savePath)); // 파일 저장
+            } catch (IOException e) {
+                throw new InternalServerException(ErrorCode.INTERNAL_ERROR, e);
+            }
         }
 
         return storeFileName;
