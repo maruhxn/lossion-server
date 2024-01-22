@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("[컨트롤러] - MemberController")
+@DisplayName("[Controller] - MemberController")
 class MemberControllerTest extends ControllerTestSupport {
 
     final String MEMBER_API_PATH = "/api/members/{memberId}";

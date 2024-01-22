@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("[컨트롤러] - TopicController")
+@DisplayName("[Controller] - TopicController")
 class TopicControllerTest extends ControllerTestSupport {
 
     @DisplayName("주제 리스트를 페이징 조회한다.")

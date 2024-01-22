@@ -27,7 +27,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-@DisplayName("[레포지토리] - TopicQueryRepository")
+@DisplayName("[Repository] - TopicQueryRepository")
 class TopicQueryRepositoryTest extends IntegrationTestSupport {
 
     @Autowired

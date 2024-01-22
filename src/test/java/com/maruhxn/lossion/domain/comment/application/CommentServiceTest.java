@@ -25,7 +25,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 
-@DisplayName("[서비스] - CommentService")
+@DisplayName("[Service] - CommentService")
 class CommentServiceTest extends IntegrationTestSupport {
 
     @Autowired

@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-@DisplayName("[서비스] - MemberService")
+@DisplayName("[Service] - MemberService")
 class MemberServiceTest extends IntegrationTestSupport {
 
     @Autowired

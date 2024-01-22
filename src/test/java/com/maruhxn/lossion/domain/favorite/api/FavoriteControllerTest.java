@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("[컨트롤러] - FavoriteController")
+@DisplayName("[Controller] - FavoriteController")
 class FavoriteControllerTest extends ControllerTestSupport {
 
     @DisplayName("게시글에 좋아요를 남긴다.")
