@@ -65,7 +65,7 @@ public class SecurityConfig {
                                         "/api/auth/sign-up",
                                         "/api/auth/refresh",
                                         "/api/auth/anonymous/send-verify-email",
-                                        "/api/auth/get-token",
+                                        "/api/auth/anonymous/get-token",
                                         "/api/auth/anonymous/password",
                                         "/api/categories"
                                 ).permitAll()
