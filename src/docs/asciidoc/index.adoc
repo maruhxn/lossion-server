@@ -9,3 +9,6 @@ MARUHXN_;
 
 include::api/auth-api.adoc[]
 include::api/member-api.adoc[]
+include::api/category-api.adoc[]
+include::api/comment-api.adoc[]
+include::api/favorite-api.adoc[]
