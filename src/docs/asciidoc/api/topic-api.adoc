@@ -1,0 +1,38 @@
+[[Topic-API]]
+== Topic API
+
+[[Topic-토론_주제_리스트_조회]]
+== 토론 주제 리스트 조회
+operation::topic_api_docs_test/get-topics-by-query[snippets='curl-request,query-parameters,http-request,http-response,response-fields']
+
+[[Topic-토론_주제_생성]]
+=== 토론 주제 생성
+operation::topic_api_docs_test/create-topic-with-images[snippets='curl-request,request-headers,http-request,request-parts,http-response,response-fields']
+
+[[Topic-토론_주제_상세_조회]]
+=== 토론 주제 상세 조회
+operation::topic_api_docs_test/get-topic-detail[snippets='curl-request,path-parameters,http-request,http-response,response-fields']
+
+[[Topic-토론_주제_수정]]
+=== 토론 주제 수정
+operation::topic_api_docs_test/update-topic[snippets='curl-request,request-headers,http-request,request-parts,http-response']
+
+[[Topic-토론_종료]]
+=== 토론 종료
+operation::topic_api_docs_test/close-topic[snippets='curl-request,request-headers,http-request,http-response']
+
+[[Topic-토론_삭제]]
+=== 토론 삭제
+operation::topic_api_docs_test/delete-topic[snippets='curl-request,request-headers,http-request,http-response']
+
+[[Topic-토론_이미지_삭제]]
+=== 토론 이미지 삭제
+operation::topic_api_docs_test/delete-topic-image[snippets='curl-request,request-headers,http-request,http-response']
+
+[[Topic-투표하기]]
+=== 투표하기
+operation::topic_api_docs_test/vote[snippets='curl-request,path-parameters,request-headers,http-request,request-fields,http-response']
+
+[[Topic-내가_작성한_토론_주제_리스트_조회]]
+== 내가 작성한 토론 주제 리스트 조회
+operation::topic_api_docs_test/get-my-topics[snippets='curl-request,query-parameters,http-request,http-response,response-fields']
