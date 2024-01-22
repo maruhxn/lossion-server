@@ -185,10 +185,7 @@ public class CommentApiDocsTest extends RestDocsSupport {
                                 ),
                                 queryParameters(
                                         parameterWithName("size").optional().description("조회 결과 크기"),
-                                        parameterWithName("page").optional().description("페이지"),
-                                        parameterWithName("title").optional().description("제목 검색"),
-                                        parameterWithName("content").optional().description("내용 검색"),
-                                        parameterWithName("author").optional().description("작성자 이름 검색")
+                                        parameterWithName("page").optional().description("페이지")
                                 ),
                                 pageResponseFields("CommentItem[]")
                                         .andWithPrefix("data.results[0].",
