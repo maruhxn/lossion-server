@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.willDoNothing;
 
-@DisplayName("[서비스] - AuthService")
+@DisplayName("[Service] - AuthService")
 class AuthServiceTest extends IntegrationTestSupport {
 
     @Autowired

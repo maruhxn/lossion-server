@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("[컨트롤러] - AuthController")
+@DisplayName("[Controller] - AuthController")
 class AuthControllerTest extends ControllerTestSupport {
 
     @DisplayName("회원가입 성공 시 201을 반환한다.")

@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-@DisplayName("[서비스] - MemberService")
+@DisplayName("[Service] - MemberService")
 class MemberServiceTest extends IntegrationTestSupport {
 
     @Autowired
@@ -328,14 +328,13 @@ class MemberServiceTest extends IntegrationTestSupport {
     }
 
     private MockMultipartFile getMockMultipartFile() throws IOException {
-        final String fileName = "defaultProfileImage"; // 파일명
-        final String contentType = "jfif"; // 파일타입
-        final String filePath = "src/test/resources/static/img/" + fileName + "." + contentType; //파일경로
+        final String originalFileName = "defaultProfileImage.jfif";
+        final String filePath = "src/test/resources/static/img/" + originalFileName;
 
         return new MockMultipartFile(
-                "images", //name
-                fileName + "." + contentType, //originalFilename
-                contentType,
+                "profileImage", //name
+                originalFileName,
+                "image/jpeg",
                 new FileInputStream(filePath)
         );
     }

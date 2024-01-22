@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("[컨트롤러] - MemberController")
+@DisplayName("[Controller] - MemberController")
 class MemberControllerTest extends ControllerTestSupport {
 
     final String MEMBER_API_PATH = "/api/members/{memberId}";
@@ -111,26 +111,6 @@ class MemberControllerTest extends ControllerTestSupport {
 
     }
 
-
-//    /**
-//     * multipart 테스트에서는 patch http method를 사용할 수 없기에 따로 builder를 통해 생성
-//     *
-//     * @return
-//     */
-//    private MockMultipartHttpServletRequestBuilder getMockMultipartHttpServletRequestBuilder() {
-//        MockMultipartHttpServletRequestBuilder builder = RestDocumentationRequestBuilders.
-//                multipart(MEMBER_API_PATH, 1);
-//
-//        builder.with(new RequestPostProcessor() {
-//            @Override
-//            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-//                request.setMethod(HttpMethod.PATCH.name());
-//                return request;
-//            }
-//        });
-//        return builder;
-//    }
-
     @Test
     @CustomWithUserDetails
     @DisplayName("Member 비밀번호 변경")
@@ -142,7 +122,7 @@ class MemberControllerTest extends ControllerTestSupport {
                 .build();
 
         mockMvc.perform(
-                patch(MEMBER_API_PATH + "/update-password", 1)
+                patch(MEMBER_API_PATH + "/password", 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -161,7 +141,7 @@ class MemberControllerTest extends ControllerTestSupport {
                 .build();
 
         mockMvc.perform(
-                        patch(MEMBER_API_PATH + "/update-password", 1)
+                        patch(MEMBER_API_PATH + "/password", 1)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                                 .characterEncoding(StandardCharsets.UTF_8)
@@ -190,7 +170,7 @@ class MemberControllerTest extends ControllerTestSupport {
         final String filePath = "src/test/resources/static/img/" + fileName + "." + contentType; //파일경로
 
         return new MockMultipartFile(
-                "images", //name
+                "profileImage", //name
                 fileName + "." + contentType, //originalFilename
                 contentType,
                 new FileInputStream(filePath)

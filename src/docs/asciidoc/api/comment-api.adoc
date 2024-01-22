@@ -1,0 +1,22 @@
+[[Comment-API]]
+== Comment API
+
+[[Comment-댓글_작성]]
+=== 댓글 작성
+operation::comment_api_docs_test/create-comment[snippets='curl-request,path-parameters,request-headers,http-request,request-fields,http-response']
+
+[[Comment-상위_댓글_페이징_조회]]
+=== 상위 댓글 페이징 조회
+operation::comment_api_docs_test/get-comment-list1[snippets='curl-request,path-parameters,query-parameters,http-request,http-response,response-fields']
+
+[[Comment-댓글_수정]]
+=== 댓글 수정
+operation::comment_api_docs_test/update-comment[snippets='curl-request,path-parameters,request-headers,http-request,request-fields,http-response']
+
+[[Comment-댓글_삭제]]
+=== 댓글 삭제
+operation::comment_api_docs_test/delete-comment[snippets='curl-request,path-parameters,request-headers,http-request,http-response']
+
+[[Comment-답글_조회]]
+=== 답글 조회
+operation::comment_api_docs_test/get-replies[snippets='curl-request,path-parameters,http-request,http-response,response-fields']

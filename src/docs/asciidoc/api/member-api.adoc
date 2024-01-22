@@ -1,0 +1,22 @@
+[[Member-API]]
+== Member API
+
+[[Member-프로필_조회]]
+=== 프로필 조회
+
+operation::member_api_docs_test/get-profile[snippets='curl-request,path-parameters,request-headers,http-request,http-response,response-fields']
+
+[[Member-프로필_수정]]
+=== 프로필 수정
+
+operation::member_api_docs_test/update-profile[snippets='curl-request,path-parameters,request-headers,http-request,request-parts,http-response']
+
+[[Member-비밀번호_수정]]
+=== 비밀번호 수정
+
+operation::member_api_docs_test/update-password[snippets='curl-request,path-parameters,request-headers,http-request,request-fields,http-response']
+
+[[Member-회원탈퇴]]
+=== 회원탈퇴
+
+operation::member_api_docs_test/withdraw[snippets='curl-request,path-parameters,request-headers,http-request,http-response']

@@ -1,0 +1,50 @@
+[[overview]]
+== Overview
+
+[[overview-http-status-codes]]
+=== HTTP status codes
+
+|===
+| 상태 코드 | 설명
+
+| `200 OK`
+| 성공
+
+| `201 Created`
+| 자원 생성
+
+| `204 No Content`
+| 자원 수정 및 삭제
+
+| `400 Bad Request`
+| 잘못된 요청
+
+| `401 Unauthorized`
+| 비인증 상태
+
+| `403 Forbidden`
+| 권한 거부
+
+| `404 Not Found`
+| 존재하지 않는 요청 리소스
+
+| `422 Unprocessable Entity`
+| 이미 존재하는 리소스로 인해 진행 불가능
+
+| `500 Internal Server Error`
+| 서버 에러
+|===
+
+[[overview-error-response]]
+=== HTTP Error Response
+
+[[overview-error-respons-유효성-검증-실패]]
+==== 유효성 검증 실패
+
+operation::global_data_docs_test/validation-error-sample[snippets='http-response,response-fields']
+
+==== 전역 에러 ( 유효성 검증 제외 )
+
+operation::global_data_docs_test/internal-server-exception-sample[snippets='http-response,response-fields']
+
+include::error-code.adoc[]

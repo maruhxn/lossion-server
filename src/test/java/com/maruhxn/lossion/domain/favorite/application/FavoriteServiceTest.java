@@ -26,7 +26,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("[서비스] - FavoriteService")
+@DisplayName("[Service] - FavoriteService")
 class FavoriteServiceTest extends IntegrationTestSupport {
 
     @Autowired

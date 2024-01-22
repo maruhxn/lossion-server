@@ -22,7 +22,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("[서비스] - CategoryService")
+@DisplayName("[Service] - CategoryService")
 class CategoryServiceTest extends IntegrationTestSupport {
 
     @Autowired

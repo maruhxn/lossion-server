@@ -1,0 +1,22 @@
+[[Category-API]]
+== Category API
+
+[[Category-카테고리_조회]]
+=== 카테고리 조회
+
+operation::category_api_docs_test/get-all-categories[snippets='curl-request,http-request,http-response,response-fields']
+
+[[Category-카테고리_생성]]
+=== 카테고리 생성
+
+operation::category_api_docs_test/create-category-when-is-admin[snippets='curl-request,request-headers,http-request,request-fields,http-response,response-fields']
+
+[[Category-카테고리_수정]]
+=== 카테고리 수정
+
+operation::category_api_docs_test/update-category[snippets='curl-request,path-parameters,request-headers,http-request,request-fields,http-response']
+
+[[Category-카테고리_삭제]]
+=== 카테고리 삭제
+
+operation::category_api_docs_test/delete-category[snippets='curl-request,path-parameters,request-headers,http-request,http-response']

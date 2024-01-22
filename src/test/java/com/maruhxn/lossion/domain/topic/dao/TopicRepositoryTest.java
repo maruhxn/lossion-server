@@ -18,7 +18,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("[레포지토리] - TopicRepository")
+@DisplayName("[Repository] - TopicRepository")
 class TopicRepositoryTest extends IntegrationTestSupport {
 
     @Autowired

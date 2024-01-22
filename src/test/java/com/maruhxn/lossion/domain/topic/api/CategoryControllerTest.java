@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("[컨트롤러] - CategoryController")
+@DisplayName("[Controller] - CategoryController")
 class CategoryControllerTest extends ControllerTestSupport {
 
     @DisplayName("카테고리 전체 조회")

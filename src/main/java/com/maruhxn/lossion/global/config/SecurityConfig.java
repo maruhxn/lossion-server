@@ -62,11 +62,12 @@ public class SecurityConfig {
                         authz
                                 .requestMatchers(
                                         "/",
+                                        "/test/**",
                                         "/api/auth/sign-up",
                                         "/api/auth/refresh",
-                                        "/api/auth/send-anonymous-verify-email",
-                                        "/api/auth/get-token",
-                                        "/api/auth/update-anonymous-password",
+                                        "/api/auth/anonymous/send-verify-email",
+                                        "/api/auth/anonymous/get-token",
+                                        "/api/auth/anonymous/password",
                                         "/api/categories"
                                 ).permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()

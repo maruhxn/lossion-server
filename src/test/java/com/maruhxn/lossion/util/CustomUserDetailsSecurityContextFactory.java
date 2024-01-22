@@ -20,8 +20,8 @@ public class CustomUserDetailsSecurityContextFactory implements WithSecurityCont
         Member findMember = Member.builder()
                 .id(1L)
                 .accountId(accountId)
-                .password(password)
                 .username("tester")
+                .password(password)
                 .telNumber("01000000000")
                 .email("test@test.com")
                 .build();

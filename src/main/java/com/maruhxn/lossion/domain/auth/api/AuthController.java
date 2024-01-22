@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/sign-up")
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<BaseResponse> signUp(
             @RequestBody @Valid SignUpReq req
     ) {
@@ -72,6 +74,7 @@ public class AuthController {
     }
 
     @PostMapping("/anonymous/send-verify-email")
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<BaseResponse> sendEmailWithAnonymous(
             @RequestBody @Valid SendAnonymousEmailReq req
     ) {
@@ -103,6 +106,7 @@ public class AuthController {
      */
     @PatchMapping("/anonymous/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("isAnonymous()")
     public void updateAnonymousPassword(
             @RequestParam(value = "authKey", required = true) String authKey,
             @RequestBody @Valid UpdateAnonymousPasswordReq updateAnonymousPasswordReq
