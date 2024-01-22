@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
@@ -38,7 +40,13 @@ public class TopicAuthorCheckInterceptor implements HandlerInterceptor {
             Map<String, String> pathVariables = (Map<String, String>) request.getAttribute(
                     HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
-            Long postId = Long.valueOf(String.valueOf(pathVariables.get("topicId")));
+            Long postId = null;
+            try {
+                postId = Long.valueOf(String.valueOf(pathVariables.get("topicId")));
+            } catch (NumberFormatException e) {
+                throw new BadRequestException(ErrorCode.PATH_VAR_ERROR);
+            }
+
             Topic findTopic = topicRepository.findById(postId).orElseThrow(
                     () -> new EntityNotFoundException(ErrorCode.NOT_FOUND_TOPIC));
 
