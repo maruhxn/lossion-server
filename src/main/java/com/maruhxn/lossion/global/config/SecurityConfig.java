@@ -62,6 +62,7 @@ public class SecurityConfig {
                         authz
                                 .requestMatchers(
                                         "/",
+                                        "/test/**",
                                         "/api/auth/sign-up",
                                         "/api/auth/refresh",
                                         "/api/auth/anonymous/send-verify-email",
