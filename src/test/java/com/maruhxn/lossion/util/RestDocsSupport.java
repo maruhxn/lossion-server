@@ -55,10 +55,10 @@ public abstract class RestDocsSupport {
     protected RestDocumentationResultHandler restDocs;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    protected JwtUtils jwtUtils;
 
     @Autowired
-    private JwtService jwtService;
+    protected JwtService jwtService;
 
     @Autowired
     protected MemberRepository memberRepository;
