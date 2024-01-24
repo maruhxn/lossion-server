@@ -158,7 +158,7 @@ class MemberServiceTest extends IntegrationTestSupport {
         UpdateMemberProfileReq req = UpdateMemberProfileReq.builder()
                 .profileImage(newProfileImage)
                 .build();
-        given(fileService.saveAndExtractUpdatedProfileImage(any(MultipartFile.class)))
+        given(fileService.storeOneFile(any(MultipartFile.class)))
                 .willReturn("newProfileImageName");
         // When
         memberService.updateProfile(member.getId(), req);

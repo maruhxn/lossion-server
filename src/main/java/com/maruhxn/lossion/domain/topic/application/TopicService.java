@@ -69,7 +69,15 @@ public class TopicService {
 
     private List<TopicImage> storeTopicImageList(List<MultipartFile> images) {
         if (images != null && !images.isEmpty()) {
-            return fileService.storeFiles(images);
+            return images.stream()
+                    .map(image -> {
+                        String storedFileName = fileService.storeOneFile(image);
+                        return TopicImage.builder()
+                                .originalName(image.getOriginalFilename())
+                                .storedName(storedFileName)
+                                .build();
+                    })
+                    .toList();
         }
         return new ArrayList<>();
     }

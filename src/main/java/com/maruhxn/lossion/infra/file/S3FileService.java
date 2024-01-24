@@ -3,7 +3,6 @@ package com.maruhxn.lossion.infra.file;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.maruhxn.lossion.domain.topic.domain.TopicImage;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.BadRequestException;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
@@ -17,8 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -31,43 +28,24 @@ public class S3FileService implements FileService {
     private String bucket;
 
     @Override
-    public String saveAndExtractUpdatedProfileImage(MultipartFile file) {
-        if (file.isEmpty()) throw new BadRequestException(ErrorCode.EMPTY_FILE);
-
-        String fileName = file.getOriginalFilename();
-        String storeFileName = createStoreFileName(fileName);
-
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType(file.getContentType());
-        metadata.setContentLength(file.getSize());
-
-        try {
-            s3Client.putObject(new PutObjectRequest(bucket, storeFileName, file.getInputStream(), metadata));
-        } catch (IOException e) {
-            throw new InternalServerException(ErrorCode.S3_UPLOAD_ERROR, e);
-        }
-        return storeFileName;
-    }
-
-    @Override
-    public Resource getImage(String storeFileName) {
-        URL fileUrl = s3Client.getUrl(bucket, storeFileName);
+    public Resource getImage(String storedFileName) {
+        URL fileUrl = s3Client.getUrl(bucket, storedFileName);
         return new UrlResource(fileUrl);
     }
 
     @Override
-    public void deleteFile(String storeFileName) {
-        boolean isExist = s3Client.doesObjectExist(bucket, storeFileName);
+    public void deleteFile(String storedFileName) {
+        boolean isExist = s3Client.doesObjectExist(bucket, storedFileName);
 
         if (!isExist) {
             throw new EntityNotFoundException(ErrorCode.NOT_FOUND_FILE);
         }
 
-        s3Client.deleteObject(bucket, storeFileName);
+        s3Client.deleteObject(bucket, storedFileName);
     }
 
     @Override
-    public TopicImage storeOneFile(MultipartFile file) {
+    public String storeOneFile(MultipartFile file) {
         if (file.isEmpty()) throw new BadRequestException(ErrorCode.EMPTY_FILE);
 
         String fileName = file.getOriginalFilename();
@@ -83,18 +61,7 @@ public class S3FileService implements FileService {
             throw new InternalServerException(ErrorCode.S3_UPLOAD_ERROR, e);
         }
 
-        return TopicImage.builder()
-                .originalName(fileName)
-                .storedName(storeFileName)
-                .build();
-    }
-
-    @Override
-    public List<TopicImage> storeFiles(List<MultipartFile> files) {
-        List<TopicImage> storedFileURLResult = new ArrayList<>();
-        files.forEach(multipartFile ->
-                storedFileURLResult.add(storeOneFile(multipartFile)));
-        return storedFileURLResult;
+        return storeFileName;
     }
 
     /**

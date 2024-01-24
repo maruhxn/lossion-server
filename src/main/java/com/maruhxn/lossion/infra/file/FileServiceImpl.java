@@ -1,22 +1,17 @@
 package com.maruhxn.lossion.infra.file;
 
-import com.maruhxn.lossion.domain.topic.domain.TopicImage;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.BadRequestException;
 import com.maruhxn.lossion.global.error.exception.InternalServerException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 //@Service
@@ -26,21 +21,12 @@ public class FileServiceImpl implements FileService {
     @Value("${file.upload_dir}")
     private String fileDir;
 
-    private final Environment environment;
-
-    public TopicImage storeOneFile(MultipartFile file) {
+    public String storeOneFile(MultipartFile file) {
         if (file.isEmpty()) throw new BadRequestException(ErrorCode.EMPTY_FILE);
 
         String originalFilename = file.getOriginalFilename(); // 파일 원본 이름
         String storeFileName = createStoreFileName(originalFilename); // 서버에 저장된 파일 이름 (랜덤)
         String savePath = getFullPath(storeFileName); // 서버에 저장된 경로
-
-        if (environment.acceptsProfiles(Profiles.of("test"))) {
-            return TopicImage.builder()
-                    .originalName(originalFilename)
-                    .storedName(storeFileName)
-                    .build();
-        }
 
         try {
             file.transferTo(new File(savePath)); // 파일 저장
@@ -48,54 +34,22 @@ public class FileServiceImpl implements FileService {
             throw new InternalServerException(ErrorCode.INTERNAL_ERROR, e);
         }
 
-        return TopicImage.builder()
-                .originalName(originalFilename)
-                .storedName(storeFileName)
-                .build();
-    }
-
-    @Override
-    public String saveAndExtractUpdatedProfileImage(MultipartFile profileImage) {
-        if (profileImage.isEmpty()) throw new BadRequestException(ErrorCode.EMPTY_FILE);
-
-        String originalFilename = profileImage.getOriginalFilename(); // 파일 원본 이름
-        String storeFileName = createStoreFileName(originalFilename); // 서버에 저장된 파일 이름 (랜덤)
-        String savePath = getFullPath(storeFileName); // 서버에 저장된 경로
-
-        if (!environment.acceptsProfiles(Profiles.of("test"))) {
-            try {
-                profileImage.transferTo(new File(savePath)); // 파일 저장
-            } catch (IOException e) {
-                throw new InternalServerException(ErrorCode.INTERNAL_ERROR, e);
-            }
-        }
-
         return storeFileName;
-    }
-
-    public List<TopicImage> storeFiles(List<MultipartFile> files) {
-        List<TopicImage> storedFileURLResult = new ArrayList<>();
-        files.forEach(multipartFile ->
-                storedFileURLResult.add(storeOneFile(multipartFile)));
-        return storedFileURLResult;
     }
 
     /**
      * 이미지 조회
      *
-     * @param fileName
+     * @param storedFileName
      * @return
      */
     @Override
-    public Resource getImage(String fileName) {
-        Resource resource = null;
-
+    public Resource getImage(String storedFileName) {
         try {
-            resource = new UrlResource("file:" + getFullPath(fileName));
+            return new UrlResource("file:" + getFullPath(storedFileName));
         } catch (Exception e) {
             throw new InternalServerException(ErrorCode.INTERNAL_ERROR, e);
         }
-        return resource;
     }
 
     /**
@@ -134,11 +88,11 @@ public class FileServiceImpl implements FileService {
     /**
      * 실제 물리 이미지 삭제
      *
-     * @param storeFileName
+     * @param storedFileName
      */
     @Override
-    public void deleteFile(String storeFileName) {
-        String savePath = getFullPath(storeFileName); // 서버에 저장된 경로
+    public void deleteFile(String storedFileName) {
+        String savePath = getFullPath(storedFileName); // 서버에 저장된 경로
         try {
             File file = new File(savePath);
             file.delete();

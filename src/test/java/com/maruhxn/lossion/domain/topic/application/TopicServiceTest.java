@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
 @DisplayName("[Service] - TopicService")
@@ -295,6 +297,9 @@ class TopicServiceTest extends IntegrationTestSupport {
                 .images(List.of(image1, image2))
                 .build();
 
+        given(fileService.storeOneFile(any(MultipartFile.class)))
+                .willReturn("storedName");
+
         // When
         Topic topic = topicService.createTopic(member, req, closedAt.minusDays(1));
 
@@ -414,13 +419,8 @@ class TopicServiceTest extends IntegrationTestSupport {
                 new FileInputStream(filePath)
         );
 
-        TopicImage topicImage = TopicImage.builder()
-                .originalName("originalFilename")
-                .storedName("storeFileName")
-                .build();
-
-        given(fileService.storeFiles(any(List.class)))
-                .willReturn(List.of(topicImage));
+        given(fileService.storeOneFile(any()))
+                .willReturn("storeFileName");
 
         UpdateTopicReq req = UpdateTopicReq.builder()
                 .title("title!!")

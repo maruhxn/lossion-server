@@ -96,7 +96,7 @@ public class MemberService {
         MultipartFile newProfileImage = updateMemberProfileReq.getProfileImage();
 
         if (newProfileImage != null) {
-            newProfileImageName = fileService.saveAndExtractUpdatedProfileImage(newProfileImage);
+            newProfileImageName = fileService.storeOneFile(newProfileImage);
             // 기존 이미지 삭제
             deleteProfileImageOfFindMember(findMember);
         }
