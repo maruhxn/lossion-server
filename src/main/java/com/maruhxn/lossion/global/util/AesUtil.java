@@ -3,6 +3,7 @@ package com.maruhxn.lossion.global.util;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.InternalServerException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -11,11 +12,22 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Base64;
 
+@Component
 public class AesUtil {
-    @Value("${aes.secret-key}")
+
     private static String privateKey;
-    @Value("${aes.iv}")
     private static String privateIv;
+
+    @Value("${aes.secret-key}")
+    public void setPrivateKey(String privateKey) {
+        AesUtil.privateKey = privateKey;
+    }
+
+    @Value("${aes.iv}")
+    public void setPrivateIv(String privateIv) {
+        AesUtil.privateIv = privateIv;
+    }
+
     private static final String ALGORITHM = "AES";
     private static final String SPEC_NAME = "AES/CBC/PKCS5Padding";
 
