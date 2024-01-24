@@ -73,6 +73,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/topics", "/api/topics/{topicId}").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/topics/{topicId}/comments", "/api/topics/{topicId}/comments/groups/{groupId}").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/files", "/api/files/**").permitAll()
                                 .requestMatchers("/api/auth/test").authenticated()
                                 .anyRequest().authenticated()
                 )

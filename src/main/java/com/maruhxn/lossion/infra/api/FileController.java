@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/file")
+@RequestMapping("/api/files")
 @RequiredArgsConstructor
 public class FileController {
 
     private final FileService fileService;
 
-    @GetMapping(value = "/{fileName}")
+    @GetMapping(value = "/{fileName}", produces = "image/jpeg")
     public Resource getFile(@PathVariable String fileName) {
         return fileService.getImage(fileName);
     }
