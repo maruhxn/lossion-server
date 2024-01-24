@@ -298,9 +298,6 @@ public class AuthApiDocsTest extends RestDocsSupport {
     @Test
     void getAuthKeyToFindPassword() throws Exception {
         // Given
-        ReflectionTestUtils.setField(AesUtil.class, "privateKey", "verySecretKey");
-        ReflectionTestUtils.setField(AesUtil.class, "privateIv", "1234123412341234");
-
         AuthToken authToken = AuthToken.builder()
                 .payload("payload")
                 .expiredAt(LocalDateTime.now().plusMinutes(5))
@@ -344,9 +341,6 @@ public class AuthApiDocsTest extends RestDocsSupport {
     @Test
     void updateAnonymousPassword() throws Exception {
         // Given
-        ReflectionTestUtils.setField(AesUtil.class, "privateKey", "verySecretKey");
-        ReflectionTestUtils.setField(AesUtil.class, "privateIv", "1234123412341234");
-
         AuthToken authToken = AuthToken.builder()
                 .payload("payload")
                 .expiredAt(LocalDateTime.now().plusMinutes(5))
