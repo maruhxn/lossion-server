@@ -18,7 +18,7 @@ import com.maruhxn.lossion.global.common.dto.PageItem;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.BadRequestException;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
-import com.maruhxn.lossion.infra.FileService;
+import com.maruhxn.lossion.infra.file.FileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

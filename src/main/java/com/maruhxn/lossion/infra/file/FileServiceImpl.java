@@ -1,4 +1,4 @@
-package com.maruhxn.lossion.infra;
+package com.maruhxn.lossion.infra.file;
 
 import com.maruhxn.lossion.domain.topic.domain.TopicImage;
 import com.maruhxn.lossion.global.error.ErrorCode;
@@ -11,7 +11,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -20,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Service
+//@Service
 @RequiredArgsConstructor
 @Slf4j
 public class FileServiceImpl implements FileService {

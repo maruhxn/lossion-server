@@ -9,7 +9,7 @@ import com.maruhxn.lossion.domain.member.dto.response.ProfileItem;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.BadRequestException;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
-import com.maruhxn.lossion.infra.FileService;
+import com.maruhxn.lossion.infra.file.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

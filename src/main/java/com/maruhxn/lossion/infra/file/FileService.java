@@ -1,4 +1,4 @@
-package com.maruhxn.lossion.infra;
+package com.maruhxn.lossion.infra.file;
 
 import com.maruhxn.lossion.domain.topic.domain.TopicImage;
 import org.springframework.core.io.Resource;
