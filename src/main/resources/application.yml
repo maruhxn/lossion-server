@@ -1,6 +1,17 @@
 spring:
   profiles:
     default: dev
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: nekogasuk2@gmail.com
+    password: qlls ewsr duvo cnhs
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 jwt:
   secret-key: S3cr3tK3yasdfasvlhasklrqklwefhlaskdfhlaksdfhlaskrhlkqewrhklfasdvnkansdk
