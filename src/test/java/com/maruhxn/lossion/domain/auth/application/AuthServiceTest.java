@@ -12,12 +12,10 @@ import com.maruhxn.lossion.global.error.exception.BadRequestException;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
 import com.maruhxn.lossion.global.error.exception.ExpirationException;
 import com.maruhxn.lossion.global.util.AesUtil;
-import com.maruhxn.lossion.infra.EmailService;
 import com.maruhxn.lossion.util.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -266,7 +264,7 @@ class AuthServiceTest extends IntegrationTestSupport {
         VerifyEmailReq req = new VerifyEmailReq(payload);
 
         // When
-        authService.verifyEmail(member, req, now);
+        authService.verifyEmail(member.getId(), req, now);
 
         // Then
         List<AuthToken> tokens = authTokenRepository.findAll();
@@ -287,7 +285,7 @@ class AuthServiceTest extends IntegrationTestSupport {
         VerifyEmailReq req = new VerifyEmailReq(payload);
 
         // When / Then
-        assertThatThrownBy(() -> authService.verifyEmail(member, req, now))
+        assertThatThrownBy(() -> authService.verifyEmail(member.getId(), req, now))
                 .isInstanceOf(AlreadyExistsResourceException.class)
                 .hasMessage(ErrorCode.ALREADY_VERIFIED.getMessage());
 
@@ -311,7 +309,7 @@ class AuthServiceTest extends IntegrationTestSupport {
         VerifyEmailReq req = new VerifyEmailReq(payload);
 
         // When / Then
-        assertThatThrownBy(() -> authService.verifyEmail(member, req, now))
+        assertThatThrownBy(() -> authService.verifyEmail(member.getId(), req, now))
                 .isInstanceOf(ExpirationException.class)
                 .hasMessage(ErrorCode.TOKEN_EXPIRATION.getMessage());
 

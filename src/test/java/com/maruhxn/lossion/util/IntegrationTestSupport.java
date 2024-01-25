@@ -1,6 +1,6 @@
 package com.maruhxn.lossion.util;
 
-import com.maruhxn.lossion.infra.EmailService;
+import com.maruhxn.lossion.infra.email.EmailService;
 import com.maruhxn.lossion.infra.file.FileService;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
