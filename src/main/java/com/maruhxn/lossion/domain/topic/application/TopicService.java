@@ -18,7 +18,7 @@ import com.maruhxn.lossion.global.common.dto.PageItem;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.BadRequestException;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
-import com.maruhxn.lossion.infra.FileService;
+import com.maruhxn.lossion.infra.file.FileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -69,7 +69,15 @@ public class TopicService {
 
     private List<TopicImage> storeTopicImageList(List<MultipartFile> images) {
         if (images != null && !images.isEmpty()) {
-            return fileService.storeFiles(images);
+            return images.stream()
+                    .map(image -> {
+                        String storedFileName = fileService.storeOneFile(image);
+                        return TopicImage.builder()
+                                .originalName(image.getOriginalFilename())
+                                .storedName(storedFileName)
+                                .build();
+                    })
+                    .toList();
         }
         return new ArrayList<>();
     }

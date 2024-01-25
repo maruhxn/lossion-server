@@ -1,6 +1,7 @@
 package com.maruhxn.lossion.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.maruhxn.lossion.config.MockS3Config;
 import com.maruhxn.lossion.config.RestDocsTestConfiguration;
 import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;
@@ -9,6 +10,7 @@ import com.maruhxn.lossion.global.auth.application.JwtUtils;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.dto.TokenDto;
 import com.maruhxn.lossion.global.common.Constants;
+import com.maruhxn.lossion.infra.file.FileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +59,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @ActiveProfiles("test")
 @Transactional
 @ExtendWith(RestDocumentationExtension.class)
-@Import(RestDocsTestConfiguration.class)
+@Import({RestDocsTestConfiguration.class, MockS3Config.class})
 public abstract class RestDocsSupport {
 
     @Autowired
@@ -80,6 +82,9 @@ public abstract class RestDocsSupport {
 
     @Autowired
     protected PasswordEncoder passwordEncoder;
+
+    @Autowired
+    protected FileService fileService;
 
     protected Member member;
     protected TokenDto tokenDto;

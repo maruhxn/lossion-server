@@ -5,18 +5,10 @@ server:
 spring:
   config:
     activate:
-      on-profile: dev
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/lossion?rewriteBatchedStatements=true
-    username: root
-    password: 602057
-  h2:
-    console:
-      enabled: false
+      on-profile: test
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
@@ -39,7 +31,6 @@ logging:
   level:
     com.maruhxn.lossion: debug
     org.hibernate.SQL: debug
-
 cloud:
   aws:
     s3:
@@ -48,6 +39,12 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: false
-    credentials:
-      access-key: AKIA37DKYVMQQAY2Y5HQ
-      secret-key: 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
+
+jwt:
+  secret-key: 11111111111111111111111111111111111111111111111111111111111111111111111
+  expiration: 86400000 # 1일
+  refresh-token:
+    expiration: 604800000 # 7일
+aes:
+  secret-key: 1111111111111111111111111111111
+  iv: 1111111111111111

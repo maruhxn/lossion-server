@@ -1,0 +1,7 @@
+[[File-API]]
+== File API
+
+[[File-파일_조회]]
+=== 파일 조회
+
+operation::file_api_docs_test/get-file[snippets='curl-request,path-parameters,http-request,http-response']

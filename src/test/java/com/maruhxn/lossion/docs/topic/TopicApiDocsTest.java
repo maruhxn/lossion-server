@@ -582,12 +582,14 @@ public class TopicApiDocsTest extends RestDocsSupport {
         LocalDateTime now = LocalDateTime.of(2024, 1, 22, 10, 0);
         LocalDateTime closedAt = LocalDateTime.of(2024, 1, 23, 10, 0);
         Topic topic = createTopic("test", closedAt, now, member, category);
+        String storedName = fileService.storeOneFile(getMockMultipartFile());
 
         TopicImage topicImage = TopicImage.builder()
-                .storedName("storedName")
-                .originalName("originalName")
+                .storedName(storedName)
+                .originalName("defaultProfileImage.jfif")
                 .build();
-        topicImage.setTopic(topic);
+
+        topic.addTopicImage(topicImage);
 
         topicImageRepository.save(topicImage);
 
