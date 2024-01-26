@@ -85,6 +85,13 @@ public class Member extends BaseEntity {
         this.isVerified = true;
     }
 
+    /**
+     * 테스트용 메서드
+     */
+    public void unVerifyEmail() {
+        this.isVerified = false;
+    }
+
     public void updateProfile(String username, String email, String newProfileImageName) {
         if (StringUtils.hasText(username)) this.username = username;
         if (StringUtils.hasText(email)) {

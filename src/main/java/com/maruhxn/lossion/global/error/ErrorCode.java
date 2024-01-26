@@ -25,6 +25,7 @@ public enum ErrorCode {
 
     /* FORBIDDEN 403 */
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    UNVERIFIED_EMAIL(HttpStatus.FORBIDDEN, "이메일 인증이 필요합니다."),
 
     /* NOT FOUND 404 */
     NOT_FOUND_RESOURCE(HttpStatus.NOT_FOUND, "요청하신 자원이 존재하지 않습니다."),

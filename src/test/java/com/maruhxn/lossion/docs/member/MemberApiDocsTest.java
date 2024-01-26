@@ -42,7 +42,7 @@ public class MemberApiDocsTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.data.email").value("test@test.com"))
                 .andExpect(jsonPath("$.data.username").value("tester"))
                 .andExpect(jsonPath("$.data.telNumber").value("01000000000"))
-                .andExpect(jsonPath("$.data.isVerified").value(false))
+                .andExpect(jsonPath("$.data.isVerified").value(true))
                 .andExpect(jsonPath("$.data.profileImage").value(Constants.BASIC_PROFILE_IMAGE_NAME))
                 .andDo(
                         restDocs.document(

@@ -112,6 +112,8 @@ public abstract class RestDocsSupport {
                 .email("test@test.com")
                 .build();
 
+        member.verifyEmail();
+
         memberRepository.save(member);
 
         JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(member);
