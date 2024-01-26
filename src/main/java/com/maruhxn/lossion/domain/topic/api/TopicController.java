@@ -60,6 +60,7 @@ public class TopicController {
 
     @PatchMapping("/{topicId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authChecker.isTopicAuthor(#topicId)")
     public void updateTopic(
             @PathVariable Long topicId,
             @ModelAttribute @Valid UpdateTopicReq req
@@ -69,6 +70,7 @@ public class TopicController {
 
     @PatchMapping("/{topicId}/status")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authChecker.isTopicAuthor(#topicId)")
     public void closeTopic(
             @PathVariable Long topicId
     ) {
@@ -77,6 +79,7 @@ public class TopicController {
 
     @DeleteMapping("/{topicId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authChecker.isTopicAuthor(#topicId)")
     public void deleteTopic(
             @PathVariable Long topicId
     ) {
@@ -85,7 +88,9 @@ public class TopicController {
 
     @DeleteMapping("/{topicId}/images/{imageId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authChecker.isTopicAuthor(#topicId)")
     public void deleteTopicImage(
+            @PathVariable Long topicId,
             @PathVariable Long imageId
     ) {
         topicService.deleteOneTopicImage(imageId);
