@@ -25,13 +25,3 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: false
-
-jwt:
-  secret-key: 11111111111111111111111111111111111111111111111111111111111111111111111
-  expiration: 86400000 # 1일
-  refresh-token:
-    expiration: 604800000 # 7일
-
-aes:
-  secret-key: 1111111111111111111111111111111
-  iv: 1111111111111111

@@ -4,19 +4,22 @@ import com.maruhxn.lossion.domain.auth.dao.RefreshTokenRepository;
 import com.maruhxn.lossion.domain.auth.domain.RefreshToken;
 import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;
-import com.maruhxn.lossion.domain.member.domain.Role;
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.dto.TokenDto;
 import com.maruhxn.lossion.global.common.Constants;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
 import com.maruhxn.lossion.util.IntegrationTestSupport;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,7 +56,7 @@ class JwtServiceTest extends IntegrationTestSupport {
         jwtService.saveRefreshToken(jwtMemberInfo, tokenDto);
 
         // Then
-        Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByEmail(jwtMemberInfo.getEmail());
+        Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByAccountId(jwtMemberInfo.getAccountId());
         assertThat(optionalRefreshToken.isPresent()).isTrue();
 
     }
@@ -64,7 +67,6 @@ class JwtServiceTest extends IntegrationTestSupport {
         // Given
         RefreshToken refreshToken = RefreshToken.builder()
                 .accountId("tester")
-                .email("test@test.com")
                 .refreshToken("refreshToken")
                 .build();
         refreshTokenRepository.save(refreshToken);
@@ -80,7 +82,7 @@ class JwtServiceTest extends IntegrationTestSupport {
         jwtService.saveRefreshToken(jwtMemberInfo, tokenDto);
 
         // Then
-        RefreshToken findRefreshToken = refreshTokenRepository.findByEmail(jwtMemberInfo.getEmail()).get();
+        RefreshToken findRefreshToken = refreshTokenRepository.findByAccountId(jwtMemberInfo.getAccountId()).get();
         assertThat(findRefreshToken.getRefreshToken()).isEqualTo(tokenDto.getRefreshToken());
 
     }
@@ -93,9 +95,8 @@ class JwtServiceTest extends IntegrationTestSupport {
         Member member = createMember();
         JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(member);
 
-        String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo);
+        String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo, new Date());
         RefreshToken refreshToken = RefreshToken.builder()
-                .email(member.getEmail())
                 .accountId(member.getAccountId())
                 .refreshToken(rawRefreshToken)
                 .build();
@@ -109,6 +110,29 @@ class JwtServiceTest extends IntegrationTestSupport {
         assertThat(response.getHeader(Constants.REFRESH_TOKEN_HEADER)).isEqualTo(Constants.BEARER_PREFIX + tokenDto.getRefreshToken());
     }
 
+    @DisplayName("refreshToken이 만료되었다면 401 에러를 반환한다.")
+    @Test
+    void refreshWithInvalidRefreshToken() {
+        // Given
+        HttpServletResponse response = new MockHttpServletResponse();
+        Member member = createMember();
+        JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(member);
+        LocalDateTime now = LocalDateTime.of(2024, 1, 1, 10, 0);
+        String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo, Date.from(now.atZone(ZoneId.systemDefault()).toInstant()));
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .accountId(member.getAccountId())
+                .refreshToken(rawRefreshToken)
+                .build();
+        refreshTokenRepository.save(refreshToken);
+
+        String bearerRefreshToken = Constants.BEARER_PREFIX + rawRefreshToken;
+        // When / Then
+        assertThatThrownBy(() -> jwtService.refresh(bearerRefreshToken, response))
+                .isInstanceOf(JwtException.class)
+                .hasMessage(ErrorCode.INVALID_TOKEN.getMessage());
+    }
+
     @DisplayName("refreshToken이 데이터베이스 존재하지 않다면 에러를 반환한다.")
     @Test
     void refreshFailWhenNoRefreshToken() {
@@ -117,7 +141,7 @@ class JwtServiceTest extends IntegrationTestSupport {
         Member member = createMember();
         JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(member);
 
-        String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo);
+        String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo, new Date());
 
         String bearerRefreshToken = Constants.BEARER_PREFIX + rawRefreshToken;
         // When / Then
@@ -133,10 +157,9 @@ class JwtServiceTest extends IntegrationTestSupport {
         HttpServletResponse response = new MockHttpServletResponse();
         JwtMemberInfo jwtMemberInfo = createJwtMemberInfo();
 
-        String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo);
+        String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo, new Date());
 
         RefreshToken refreshToken = RefreshToken.builder()
-                .email(jwtMemberInfo.getEmail())
                 .accountId(jwtMemberInfo.getAccountId())
                 .refreshToken(rawRefreshToken)
                 .build();
@@ -156,9 +179,8 @@ class JwtServiceTest extends IntegrationTestSupport {
         Member member = createMember();
         JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(member);
 
-        String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo);
+        String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo, new Date());
         RefreshToken refreshToken = RefreshToken.builder()
-                .email(member.getEmail())
                 .accountId(member.getAccountId())
                 .refreshToken(rawRefreshToken)
                 .build();
@@ -171,19 +193,13 @@ class JwtServiceTest extends IntegrationTestSupport {
         // Then
         List<RefreshToken> refreshTokens = refreshTokenRepository.findAll();
         assertThat(refreshTokens).isEmpty();
-        
+
     }
 
     private static JwtMemberInfo createJwtMemberInfo() {
         return JwtMemberInfo.builder()
                 .id(1L)
                 .accountId("tester")
-                .username("tester")
-                .email("test@test.com")
-                .telNumber("01000000000")
-                .profileImage(Constants.BASIC_PROFILE_IMAGE_NAME)
-                .role(Role.ROLE_USER.name())
-                .isVerified(false)
                 .build();
     }
 

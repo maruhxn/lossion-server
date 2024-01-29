@@ -22,13 +22,16 @@ import static com.maruhxn.lossion.global.common.Constants.ACCESS_TOKEN_HEADER;
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final List<String> EXCLUDE_URL =
-            List.of("/",
+            List.of(
+                    "/",
+                    "/test/**",
                     "/api/auth/sign-up",
-                    "/api/auth/login",
                     "/api/auth/refresh",
-                    "/api/auth/send-anonymous-verify-email",
-                    "/api/auth/get-token",
-                    "/api/auth/update-anonymous-password");
+                    "/api/auth/anonymous/send-verify-email",
+                    "/api/auth/anonymous/get-token",
+                    "/api/auth/anonymous/password",
+                    "/api/categories"
+            );
 
     private final JwtUtils jwtUtils;
     private final JwtUserDetailsService userDetailsService;
@@ -63,8 +66,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        boolean result = EXCLUDE_URL.stream().anyMatch(exclude -> exclude.equalsIgnoreCase(request.getServletPath()));
-
-        return result;
+        return EXCLUDE_URL.stream().anyMatch(exclude -> exclude.equalsIgnoreCase(request.getServletPath()));
     }
 }
