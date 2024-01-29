@@ -1,53 +1,8 @@
-server:
-  error:
-    whitelabel:
-      enabled: false
 spring:
-  config:
-    activate:
-      on-profile: dev
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/lossion?rewriteBatchedStatements=true
-    username: root
-    password: 602057
-  h2:
-    console:
-      enabled: false
   jpa:
     hibernate:
       ddl-auto: create-drop
-    properties:
-      hibernate:
-        format_sql: true
-        default_batch_fetch_size: 100
-    open-in-view: false
-  data:
-    web:
-      pageable:
-        default-page-size: 10
-        max-page-size: 10
-  web:
-    resources:
-      add-mappings: false
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 500MB
-      max-request-size: 600MB
 logging:
   level:
     com.maruhxn.lossion: debug
     org.hibernate.SQL: debug
-
-cloud:
-  aws:
-    s3:
-      bucket: lossion
-    region:
-      static: ap-northeast-2
-    stack:
-      auto: false
-    credentials:
-      access-key: AKIA37DKYVMQQAY2Y5HQ
-      secret-key: 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
