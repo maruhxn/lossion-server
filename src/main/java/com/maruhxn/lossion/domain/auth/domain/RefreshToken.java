@@ -19,14 +19,10 @@ public class RefreshToken extends BaseEntity {
     @NotBlank
     private String accountId;
 
-    @NotBlank
-    private String email;
-
     @Builder
-    public RefreshToken(String refreshToken, String accountId, String email) {
+    public RefreshToken(String refreshToken, String accountId) {
         this.refreshToken = refreshToken;
         this.accountId = accountId;
-        this.email = email;
     }
 
     public RefreshToken updateToken(String refreshToken) {

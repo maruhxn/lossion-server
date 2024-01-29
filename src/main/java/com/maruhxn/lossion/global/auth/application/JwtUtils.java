@@ -2,6 +2,7 @@ package com.maruhxn.lossion.global.auth.application;
 
 import com.maruhxn.lossion.global.auth.dto.JwtMemberInfo;
 import com.maruhxn.lossion.global.auth.dto.TokenDto;
+import com.maruhxn.lossion.global.error.ErrorCode;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,12 +28,6 @@ public class JwtUtils {
     private JwtParser jwtParser;
     public static String ID_CLAIM = "id";
     public static String ACCOUNT_ID_CLAIM = "accountId";
-    public static String USERNAME_CLAIM = "username";
-    public static String TEL_NUMBER_CLAIM = "telNumber";
-    public static String EMAIL_CLAIM = "email";
-    public static String PROFILE_IMAGE_CLAIM = "profileImage";
-    public static String IS_VERIFIED_CLAIM = "isVerified";
-    public static String ROLE_CLAIM = "role";
 
     public JwtUtils(@Value("${jwt.secret-key}") String secret) {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
@@ -43,8 +38,8 @@ public class JwtUtils {
 
     public TokenDto createJwt(JwtMemberInfo jwtMemberInfo) {
 
-        String accessToken = generateAccessToken(jwtMemberInfo);
-        String refreshToken = generateRefreshToken(jwtMemberInfo);
+        String accessToken = generateAccessToken(jwtMemberInfo, new Date());
+        String refreshToken = generateRefreshToken(jwtMemberInfo, new Date());
 
         return TokenDto.builder()
                 .accessToken(accessToken)
@@ -52,28 +47,21 @@ public class JwtUtils {
                 .build();
     }
 
-    public String generateRefreshToken(JwtMemberInfo jwtMemberInfo) {
+    public String generateRefreshToken(JwtMemberInfo jwtMemberInfo, Date now) {
         return Jwts.builder()
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .subject(jwtMemberInfo.getAccountId())
-                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
+                .subject(String.valueOf(jwtMemberInfo.getAccountId()))
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + refreshTokenExpiration))
                 .signWith(secretKey)
                 .compact();
     }
 
-    public String generateAccessToken(JwtMemberInfo jwtMemberInfo) {
+    public String generateAccessToken(JwtMemberInfo jwtMemberInfo, Date now) {
         return Jwts.builder()
-                .subject(jwtMemberInfo.getUsername())
-                .claim(ID_CLAIM, jwtMemberInfo.getId())
+                .subject(String.valueOf(jwtMemberInfo.getId()))
                 .claim(ACCOUNT_ID_CLAIM, jwtMemberInfo.getAccountId())
-                .claim(EMAIL_CLAIM, jwtMemberInfo.getEmail())
-                .claim(USERNAME_CLAIM, jwtMemberInfo.getUsername())
-                .claim(TEL_NUMBER_CLAIM, jwtMemberInfo.getTelNumber())
-                .claim(PROFILE_IMAGE_CLAIM, jwtMemberInfo.getProfileImage())
-                .claim(IS_VERIFIED_CLAIM, jwtMemberInfo.getIsVerified())
-                .claim(ROLE_CLAIM, jwtMemberInfo.getRole())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + jwtExpiration))
                 .signWith(secretKey)
                 .compact();
     }
@@ -92,49 +80,13 @@ public class JwtUtils {
         return getPayload(token).get(ACCOUNT_ID_CLAIM, String.class);
     }
 
-    public String getEmail(String token) {
-        return getPayload(token)
-                .get(EMAIL_CLAIM, String.class);
-    }
-
-    public String getUsername(String token) {
-        return getPayload(token)
-                .get(USERNAME_CLAIM, String.class);
-    }
-
-    public String getProfileImage(String token) {
-        return getPayload(token)
-                .get(PROFILE_IMAGE_CLAIM, String.class);
-    }
-
-    public String getTelNumber(String token) {
-        return getPayload(token)
-                .get(TEL_NUMBER_CLAIM, String.class);
-    }
-
-    public String getRole(String token) {
-        return getPayload(token)
-                .get(ROLE_CLAIM, String.class);
-    }
-
-    public Boolean getIsVerified(String token) {
-        return getPayload(token)
-                .get(IS_VERIFIED_CLAIM, Boolean.class);
-    }
-
-    public Boolean validate(String token) {
+    public boolean validate(String token) {
         try {
             return getPayload(token)
                     .getExpiration()
                     .after(new Date());
-        } catch (SecurityException e) {
-            throw new JwtException("검증 정보가 올바르지 않습니다.");
-        } catch (MalformedJwtException e) {
-            throw new JwtException("유효하지 않은 토큰입니다.");
-        } catch (ExpiredJwtException e) {
-            throw new JwtException("기한이 만료된 토큰입니다.");
-        } catch (UnsupportedJwtException e) {
-            throw new JwtException("지원되지 않는 토큰입니다.");
+        } catch (SecurityException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException e) {
+            throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage());
         }
     }
 

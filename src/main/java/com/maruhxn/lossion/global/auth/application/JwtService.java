@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -26,7 +27,7 @@ public class JwtService {
     private final MemberRepository memberRepository;
 
     public void saveRefreshToken(JwtMemberInfo jwtMemberInfo, TokenDto tokenDto) {
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByEmail(jwtMemberInfo.getEmail());
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByAccountId(jwtMemberInfo.getAccountId());
         refreshToken.ifPresentOrElse(
                 // 있다면 새토큰 발급후 업데이트
                 token -> {
@@ -34,7 +35,7 @@ public class JwtService {
                 },
                 // 없다면 새로 만들고 DB에 저장
                 () -> {
-                    RefreshToken newToken = new RefreshToken(tokenDto.getRefreshToken(), jwtMemberInfo.getAccountId(), jwtMemberInfo.getEmail());
+                    RefreshToken newToken = new RefreshToken(tokenDto.getRefreshToken(), jwtMemberInfo.getAccountId());
                     refreshTokenRepository.save(newToken);
                 });
     }
@@ -57,8 +58,8 @@ public class JwtService {
 
         // access token 과 refresh token 모두를 재발급
         JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(findMember);
-        String newAccessToken = jwtUtils.generateAccessToken(jwtMemberInfo);
-        String newRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo);
+        String newAccessToken = jwtUtils.generateAccessToken(jwtMemberInfo, new Date());
+        String newRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo, new Date());
 
         TokenDto tokenDto = TokenDto.builder()
                 .accessToken(newAccessToken)

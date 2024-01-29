@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -289,9 +290,8 @@ class MemberServiceTest extends IntegrationTestSupport {
         Member member = createMember("tester", "tester", "test@test,com", "01000000000");
         JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(member);
 
-        String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo);
+        String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo, new Date());
         RefreshToken refreshToken = RefreshToken.builder()
-                .email(member.getEmail())
                 .accountId(member.getAccountId())
                 .refreshToken(rawRefreshToken)
                 .build();
