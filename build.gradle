@@ -80,11 +80,15 @@ dependencies {
 
     // Java Mail Sender
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // Jasypt
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
 }
 
 test {
     outputs.dir snippetsDir
     useJUnitPlatform()
+    systemProperty 'jasypt.encryptor.password', findProperty("jasypt.encryptor.password")
 }
 
 /******* Start Spring Rest Docs *******/
