@@ -77,11 +77,18 @@ dependencies {
     // AWS S3
     implementation "org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE"
     testImplementation "io.findify:s3mock_2.13:0.2.6"
+
+    // Java Mail Sender
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // Jasypt
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
 }
 
 test {
     outputs.dir snippetsDir
     useJUnitPlatform()
+    systemProperty 'jasypt.encryptor.password', findProperty("jasypt.encryptor.password")
 }
 
 /******* Start Spring Rest Docs *******/

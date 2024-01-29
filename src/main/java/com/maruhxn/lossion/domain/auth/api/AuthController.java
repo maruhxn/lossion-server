@@ -60,7 +60,8 @@ public class AuthController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid VerifyEmailReq req
     ) {
-        authService.verifyEmail(userDetails.getMember(), req, LocalDateTime.now());
+        // open-in-view로 인해 영속성 컨텍스트가 유지되지 않음. -> 수정사항 반영 X -> member를 그대로 넘기지 말고 아이디를 넘기자.
+        authService.verifyEmail(userDetails.getId(), req, LocalDateTime.now());
         return ResponseEntity.ok(new BaseResponse("이메일 인증 성공"));
     }
 

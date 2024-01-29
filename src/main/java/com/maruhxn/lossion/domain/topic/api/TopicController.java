@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,7 @@ public class TopicController {
     }
 
     @PostMapping
+    @PreAuthorize("@authChecker.isVerified()")
     public ResponseEntity<BaseResponse> createTopic(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @ModelAttribute @Valid CreateTopicReq req
@@ -58,6 +60,7 @@ public class TopicController {
 
     @PatchMapping("/{topicId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authChecker.isTopicAuthor(#topicId)")
     public void updateTopic(
             @PathVariable Long topicId,
             @ModelAttribute @Valid UpdateTopicReq req
@@ -67,6 +70,7 @@ public class TopicController {
 
     @PatchMapping("/{topicId}/status")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authChecker.isTopicAuthor(#topicId)")
     public void closeTopic(
             @PathVariable Long topicId
     ) {
@@ -75,6 +79,7 @@ public class TopicController {
 
     @DeleteMapping("/{topicId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authChecker.isTopicAuthor(#topicId)")
     public void deleteTopic(
             @PathVariable Long topicId
     ) {
@@ -83,7 +88,9 @@ public class TopicController {
 
     @DeleteMapping("/{topicId}/images/{imageId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authChecker.isTopicAuthor(#topicId)")
     public void deleteTopicImage(
+            @PathVariable Long topicId,
             @PathVariable Long imageId
     ) {
         topicService.deleteOneTopicImage(imageId);
@@ -91,6 +98,7 @@ public class TopicController {
 
     @PatchMapping("/{topicId}/vote")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authChecker.isVerified()")
     public void vote(
             @PathVariable Long topicId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -100,6 +108,7 @@ public class TopicController {
     }
 
     @GetMapping("/my")
+    @PreAuthorize("@authChecker.isVerified()")
     public ResponseEntity<DataResponse<PageItem<MyTopicItem>>> getMyTopics(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             Pageable pageable

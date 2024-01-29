@@ -11,7 +11,6 @@ import com.maruhxn.lossion.util.RestDocsSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -184,6 +183,11 @@ public class AuthApiDocsTest extends RestDocsSupport {
     @DisplayName("로그인 사용자의 인증 메일 발송 요청 성공 시 200을 반환한다")
     @Test
     void sendVerifyEmail() throws Exception {
+        // Given
+        member.unVerifyEmail();
+        memberRepository.save(member);
+
+        // When / Then
         getAction("/api/auth/send-verify-email", true, null)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value("OK"))
@@ -210,6 +214,9 @@ public class AuthApiDocsTest extends RestDocsSupport {
     @Test
     void verifyEmail() throws Exception {
         // Given
+        member.unVerifyEmail();
+        memberRepository.save(member);
+
         AuthToken authToken = AuthToken.builder()
                 .payload("payload")
                 .expiredAt(LocalDateTime.now().plusMinutes(5))

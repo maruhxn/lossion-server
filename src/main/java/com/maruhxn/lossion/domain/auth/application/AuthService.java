@@ -12,7 +12,7 @@ import com.maruhxn.lossion.global.error.exception.BadRequestException;
 import com.maruhxn.lossion.global.error.exception.EntityNotFoundException;
 import com.maruhxn.lossion.global.error.exception.ExpirationException;
 import com.maruhxn.lossion.global.util.AesUtil;
-import com.maruhxn.lossion.infra.EmailService;
+import com.maruhxn.lossion.infra.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -87,6 +87,8 @@ public class AuthService {
     private void sendMail(Member findMember, LocalDateTime now) {
         String payload = String.valueOf((int) Math.floor(100000 + Math.random() * 900000));
 
+        emailService.sendEmail(findMember.getEmail(), payload);
+
         AuthToken authToken = AuthToken.builder()
                 .payload(payload)
                 .expiredAt(now.plusMinutes(5))
@@ -94,11 +96,11 @@ public class AuthService {
                 .build();
 
         authTokenRepository.save(authToken);
-
-        emailService.sendEmail(findMember.getEmail(), "Authentication Code : " + payload);
     }
 
-    public void verifyEmail(Member member, VerifyEmailReq req, LocalDateTime now) {
+    public void verifyEmail(Long memberId, VerifyEmailReq req, LocalDateTime now) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_MEMBER));
         if (member.getIsVerified()) throw new AlreadyExistsResourceException(ErrorCode.ALREADY_VERIFIED);
 
         AuthToken findAuthToken = authTokenRepository.findByPayloadAndMember_Id(req.getPayload(), member.getId())

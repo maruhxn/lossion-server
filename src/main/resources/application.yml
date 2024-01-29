@@ -1,14 +1,40 @@
+server:
+  error:
+    whitelabel:
+      enabled: false
+
 spring:
   profiles:
-    default: dev
+    include:
+      - db
+      - aws
+      - aes
+      - mail
+      - jwt
+    active: dev
+  h2:
+    console:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+    open-in-view: false
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 10
+  web:
+    resources:
+      add-mappings: false
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 600MB
 
-jwt:
-  secret-key: S3cr3tK3yasdfasvlhasklrqklwefhlaskdfhlaksdfhlaskrhlkqewrhklfasdvnkansdk
-  expiration: 86400000 # 1일
-  refresh-token:
-    expiration: 604800000 # 7일
-file:
-  upload_dir: C:/Users/asus/spring-study/lossion/upload/
-aes:
-  secret-key: AES_PRIVATE_KEY_THIS_TEST_32BYTE
-  iv: 0987654321654321
+

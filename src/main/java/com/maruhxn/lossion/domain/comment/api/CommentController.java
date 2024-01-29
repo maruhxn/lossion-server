@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
+    @PreAuthorize("@authChecker.isVerified()")
     public ResponseEntity<BaseResponse> createComment(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long topicId,
@@ -50,6 +52,7 @@ public class CommentController {
 
     @PatchMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authChecker.isCommentAuthor(#commentId)")
     public void updateComment(
             @PathVariable Long topicId,
             @PathVariable Long commentId,
@@ -60,6 +63,7 @@ public class CommentController {
 
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authChecker.isCommentAuthor(#commentId)")
     public void deleteComment(
             @PathVariable Long topicId,
             @PathVariable Long commentId

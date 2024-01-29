@@ -1,40 +1,26 @@
-server:
-  error:
-    whitelabel:
-      enabled: false
 spring:
-  config:
-    activate:
-      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:test
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
   jpa:
     hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        format_sql: true
-        default_batch_fetch_size: 100
-    open-in-view: false
-  data:
-    web:
-      pageable:
-        default-page-size: 10
-        max-page-size: 10
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
   web:
     resources:
       add-mappings: false
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 500MB
-      max-request-size: 600MB
+
 logging:
   level:
     com.maruhxn.lossion: debug
     org.hibernate.SQL: debug
+
 cloud:
   aws:
     s3:
-      bucket: lossion
+      bucket: lossion-test
     region:
       static: ap-northeast-2
     stack:
@@ -45,6 +31,7 @@ jwt:
   expiration: 86400000 # 1일
   refresh-token:
     expiration: 604800000 # 7일
+
 aes:
   secret-key: 1111111111111111111111111111111
   iv: 1111111111111111

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members/{memberId}")
-@PreAuthorize("(principal.getId() == #memberId) or hasRole('ROLE_ADMIN')")
+@PreAuthorize("@authChecker.isSelf(#memberId) or hasRole('ROLE_ADMIN')")
 public class MemberController {
 
     private final MemberService memberService;

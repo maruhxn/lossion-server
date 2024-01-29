@@ -25,6 +25,7 @@ public enum ErrorCode {
 
     /* FORBIDDEN 403 */
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    UNVERIFIED_EMAIL(HttpStatus.FORBIDDEN, "이메일 인증이 필요합니다."),
 
     /* NOT FOUND 404 */
     NOT_FOUND_RESOURCE(HttpStatus.NOT_FOUND, "요청하신 자원이 존재하지 않습니다."),
@@ -52,7 +53,8 @@ public enum ErrorCode {
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류입니다."),
     SPRING_INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "스프링 오류 입니다."),
     DATA_ACCESS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "데이터베이스 오류입니다."),
-    S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 중 문제가 발생했습니다.");
+    S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 중 문제가 발생했습니다."),
+    MAIL_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "메일 전송 중 문제가 발생했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
