@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -32,15 +33,25 @@ public class AuthService {
 
     public void signUp(SignUpReq req) {
         // 제약조건 검사
-        uniqueMemberCheck(req);
-
         validatePassword(req.getPassword(), req.getConfirmPassword());
-
         String hashedPwd = passwordEncoder.encode(req.getPassword());
-        req.changeRawPwdToHashedPwd(hashedPwd);
 
-        Member member = Member.from(req);
-        memberRepository.save(member);
+        Optional<Member> optionalMember = memberRepository.findByEmail(req.getEmail());
+
+        if (optionalMember.isPresent()) { // 찾은 멤버가 소셜 로그인을 시도한 적이 있는 경우, -> 아이디, 유저명, 비밀번호 덮어쓰기.
+            Member findMember = optionalMember.get();
+            if (findMember.getSnsId() != null) {
+                findMember.rewriteOAuth2User(req.getUsername(), req.getAccountId(), hashedPwd);
+            } else {
+                throw new AlreadyExistsResourceException(ErrorCode.EXISTING_EMAIL);
+            }
+        } else {
+            uniqueMemberCheck(req);
+            req.changeRawPwdToHashedPwd(hashedPwd);
+
+            Member member = Member.from(req);
+            memberRepository.save(member);
+        }
     }
 
     private static void validatePassword(String password, String confirmPassword) {
@@ -53,11 +64,6 @@ public class AuthService {
         Boolean existedAccountId = memberRepository.existsByAccountId(req.getAccountId());
         if (existedAccountId) {
             throw new AlreadyExistsResourceException(ErrorCode.EXISTING_ID);
-        }
-
-        Boolean existedEmail = memberRepository.existsByEmail(req.getEmail());
-        if (existedEmail) {
-            throw new AlreadyExistsResourceException(ErrorCode.EXISTING_EMAIL);
         }
 
         Boolean existedUsername = memberRepository.existsByUsername(req.getUsername());
