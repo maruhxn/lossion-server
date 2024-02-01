@@ -16,13 +16,15 @@ import org.hibernate.annotations.DynamicInsert;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import static com.maruhxn.lossion.domain.member.domain.OAuthProvider.LOCAL;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
 public class Member extends BaseEntity {
 
-    @Column(length = 10, nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String accountId;
 
     @Column(length = 30, nullable = false, unique = true)
@@ -31,11 +33,17 @@ public class Member extends BaseEntity {
     @Column(length = 10, nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
     private String password;
 
     @Column(length = 15, nullable = false, unique = true)
     private String telNumber;
+
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("'LOCAL'")
+    private OAuthProvider provider;
+
+    @Column(unique = true)
+    private String snsId;
 
     @Column(nullable = false)
     @ColumnDefault("0")
@@ -49,12 +57,11 @@ public class Member extends BaseEntity {
     private Role role;
 
     @Builder
-    public Member(Long id, String accountId, String email, String telNumber, String username, String password) {
+    public Member(Long id, String accountId, String email, String telNumber, String username, String password, String profileImage, Boolean isVerified, OAuthProvider provider, String snsId) {
         Assert.hasText(accountId, "아이디는 필수입니다.");
         Assert.hasText(email, "이메일은 필수입니다.");
         Assert.hasText(telNumber, "전화번호는 필수입니다.");
         Assert.hasText(username, "유저명은 필수입니다.");
-        Assert.hasText(password, "비밀번호는 필수입니다.");
 
         this.id = id;
         this.accountId = accountId;
@@ -62,9 +69,11 @@ public class Member extends BaseEntity {
         this.telNumber = telNumber;
         this.username = username;
         this.password = password;
-        this.profileImage = Constants.BASIC_PROFILE_IMAGE_NAME;
+        this.profileImage = StringUtils.hasText(profileImage) ? profileImage : Constants.BASIC_PROFILE_IMAGE_NAME;
+        this.provider = provider != null ? provider : LOCAL;
+        this.snsId = StringUtils.hasText(snsId) ? snsId : null;
         this.role = Role.ROLE_USER;
-        this.isVerified = false;
+        this.isVerified = isVerified != null ? isVerified : false;
     }
 
     public static Member from(SignUpReq req) {
@@ -83,6 +92,13 @@ public class Member extends BaseEntity {
 
     public void verifyEmail() {
         this.isVerified = true;
+    }
+
+    public void rewriteOAuth2User(String username, String accountId, String hashedPwd) {
+        this.provider = LOCAL;
+        this.username = username;
+        this.accountId = accountId;
+        this.password = hashedPwd;
     }
 
     /**
