@@ -56,7 +56,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
         Set<ConstraintViolation<LoginReq>> validate = validator.validate(loginReq);
 
         if (!validate.isEmpty()) {
-            throw new AuthenticationServiceException("유효하지 않은 로그인입니다.");
+            throw new AuthenticationServiceException("유효하지 않은 로그인 요청입니다.");
         }
 
         UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(
@@ -100,6 +100,8 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
             responseDto = ErrorResponse.of(ErrorCode.INCORRECT_PASSWORD);
         } else if (exception instanceof UsernameNotFoundException) {
             responseDto = ErrorResponse.of(ErrorCode.NOT_FOUND_MEMBER);
+        } else if (exception instanceof AuthenticationServiceException) {
+            responseDto = ErrorResponse.of(ErrorCode.VALIDATION_ERROR);
         }
 
         objectMapper.writeValue(response.getWriter(), responseDto);
