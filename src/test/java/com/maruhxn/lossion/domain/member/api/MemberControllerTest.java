@@ -5,6 +5,7 @@ import com.maruhxn.lossion.domain.member.dto.response.ProfileItem;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.util.ControllerTestSupport;
 import com.maruhxn.lossion.util.CustomWithUserDetails;
+import com.maruhxn.lossion.util.WithMockCustomOAuth2User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -19,6 +20,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,6 +43,22 @@ class MemberControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.code").value("OK"))
                 .andExpect(jsonPath("$.message").value("프로필 조회 성공"))
                 .andExpect(jsonPath("$.data").isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("OAuth2 Member 프로필 조회")
+    @WithMockCustomOAuth2User(registrationId = "google")
+    void getProfileWithOAuth2Member() throws Exception {
+        given(memberService.getProfile(anyLong()))
+                .willReturn(ProfileItem.builder().build());
+
+        mockMvc.perform(
+                        get(MEMBER_API_PATH, 1)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("OK"))
+                .andExpect(jsonPath("$.message").value("프로필 조회 성공"))
+                .andExpect(jsonPath("$.data").isNotEmpty()).andDo(print());
     }
 
     @Test

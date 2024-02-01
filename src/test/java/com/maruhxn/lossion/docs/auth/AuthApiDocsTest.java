@@ -3,11 +3,13 @@ package com.maruhxn.lossion.docs.auth;
 import com.maruhxn.lossion.domain.auth.dao.AuthTokenRepository;
 import com.maruhxn.lossion.domain.auth.domain.AuthToken;
 import com.maruhxn.lossion.domain.auth.dto.*;
+import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.domain.member.dto.request.UpdateAnonymousPasswordReq;
 import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.util.AesUtil;
 import com.maruhxn.lossion.util.CustomWithUserDetails;
 import com.maruhxn.lossion.util.RestDocsSupport;
+import com.maruhxn.lossion.util.WithMockCustomOAuth2User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,10 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.maruhxn.lossion.domain.member.domain.OAuthProvider.GOOGLE;
+import static com.maruhxn.lossion.domain.member.domain.Role.ROLE_USER;
 import static com.maruhxn.lossion.global.common.Constants.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -70,6 +75,44 @@ public class AuthApiDocsTest extends RestDocsSupport {
                                 commonResponseFields(null)
                         )
                 );
+    }
+
+    @DisplayName("이미 소셜 로그인을 한 사용자의 경우 이메일, 유저명, 비밀번호를 덮어씌워 통합한다.")
+    @Test
+    void consolidateAccountWhenIsAlreadyDoneSocialLogin() throws Exception {
+        // Given
+        Member oAuthMember = Member.builder()
+                .accountId("google_11111111")
+                .username("oAuthUser")
+                .email("oAuth@test.com")
+                .telNumber("01012345678")
+                .provider(GOOGLE)
+                .snsId("11111111")
+                .isVerified(true)
+                .profileImage("http://my_profile_img.com")
+                .build();
+        memberRepository.save(oAuthMember);
+
+        SignUpReq req = SignUpReq.builder()
+                .accountId("tester2")
+                .username("tester2")
+                .email("oAuth@test.com")
+                .telNumber("01012345678")
+                .password("test")
+                .confirmPassword("test")
+                .build();
+
+        // When / Then
+        postAction("/api/auth/sign-up", req, false)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("code").value("OK"))
+                .andExpect(jsonPath("message").value("회원가입 성공"));
+
+        Member findMember = memberRepository.findById(oAuthMember.getId()).get();
+        assertThat(findMember)
+                .extracting("accountId", "email", "telNumber", "username", "profileImage", "role", "isVerified")
+                .contains("tester2", "oAuth@test.com", "01012345678", "tester2", "http://my_profile_img.com", ROLE_USER, true);
+
     }
 
     @DisplayName("로그인 회원의 회원가입 시도 시 403을 반환한다.")
