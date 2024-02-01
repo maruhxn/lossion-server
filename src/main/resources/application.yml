@@ -11,6 +11,7 @@ spring:
       - aes
       - mail
       - jwt
+      - oauth
     active: dev
   h2:
     console:
