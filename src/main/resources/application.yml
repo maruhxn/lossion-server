@@ -11,6 +11,7 @@ spring:
       - aes
       - mail
       - jwt
+      - oauth
     active: dev
   h2:
     console:
@@ -36,5 +37,8 @@ spring:
       enabled: true
       max-file-size: 500MB
       max-request-size: 600MB
+
+client:
+  url: http://localhost:3000
 
 

@@ -2,11 +2,15 @@ package com.maruhxn.lossion.docs.member;
 
 import com.maruhxn.lossion.domain.member.dto.request.UpdateMemberProfileReq;
 import com.maruhxn.lossion.domain.member.dto.request.UpdatePasswordReq;
+import com.maruhxn.lossion.global.auth.dto.CustomUserDetails;
 import com.maruhxn.lossion.global.common.Constants;
 import com.maruhxn.lossion.util.RestDocsSupport;
+import com.maruhxn.lossion.util.WithMockCustomOAuth2User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -67,6 +71,24 @@ public class MemberApiDocsTest extends RestDocsSupport {
     }
 
     @Test
+    @DisplayName("OAuth2 Member 프로필 조회")
+    @WithMockCustomOAuth2User(registrationId = "google")
+    void getProfileWithOAuth2User() throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        getAction(MEMBER_API_PATH, false, null, userDetails.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("OK"))
+                .andExpect(jsonPath("$.message").value("프로필 조회 성공"))
+                .andExpect(jsonPath("$.data.accountId").value("google_111111111111111111111"))
+                .andExpect(jsonPath("$.data.email").value("oauth@test.com"))
+                .andExpect(jsonPath("$.data.username").value("oauth"))
+                .andExpect(jsonPath("$.data.telNumber").isNotEmpty())
+                .andExpect(jsonPath("$.data.isVerified").value(true))
+                .andExpect(jsonPath("$.data.profileImage").value("https://test_profile_image.com"));
+    }
+
+    @Test
     @DisplayName("Member 프로필 수정")
     void updateProfile() throws Exception {
         // Given
@@ -76,7 +98,7 @@ public class MemberApiDocsTest extends RestDocsSupport {
         parts.put("email", "test!@test.com");
 
         // When / Then
-        multipartPatchAction(MEMBER_API_PATH, UpdateMemberProfileReq.class, List.of(profileImage), parts, member.getId())
+        multipartPatchAction(MEMBER_API_PATH, UpdateMemberProfileReq.class, List.of(profileImage), true, parts, member.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -97,6 +119,24 @@ public class MemberApiDocsTest extends RestDocsSupport {
                                 )
                         )
                 );
+
+    }
+
+    @Test
+    @DisplayName("OAuth2 Member 프로필 수정")
+    @WithMockCustomOAuth2User(registrationId = "google")
+    void updateProfileWithOAuth2User() throws Exception {
+        // Given
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        MockMultipartFile profileImage = getMockMultipartFile();
+        Map<String, String> parts = new HashMap<>();
+        parts.put("username", "username");
+        parts.put("email", "test!@test.com");
+
+        // When / Then
+        multipartPatchAction(MEMBER_API_PATH, UpdateMemberProfileReq.class, List.of(profileImage), false, parts, userDetails.getId())
+                .andExpect(status().isNoContent());
 
     }
 
@@ -132,6 +172,24 @@ public class MemberApiDocsTest extends RestDocsSupport {
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("OAuth2 Member의 비밀번호 변경 시도 시 400 반환")
+    @WithMockCustomOAuth2User(registrationId = "google")
+    void updatePasswordWithOAuth2User() throws Exception {
+        // Given
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UpdatePasswordReq req = UpdatePasswordReq.builder()
+                .currPassword("test")
+                .newPassword("updatedTest")
+                .confirmNewPassword("updatedTest")
+                .build();
+
+        // When / Then
+        patchAction(MEMBER_API_PATH + "/password", req, false, null, userDetails.getId())
+                .andExpect(status().isBadRequest());
     }
 
     @Test

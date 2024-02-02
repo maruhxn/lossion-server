@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static com.maruhxn.lossion.domain.member.domain.OAuthProvider.GOOGLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -213,6 +214,24 @@ class MemberServiceTest extends IntegrationTestSupport {
 
     }
 
+    @DisplayName("회원 비밀번호 수정 시 소셜 로그인으로 인해 비밀번호가 없는 경우 에러가 발생한다.")
+    @Test
+    void updatePasswordFailWhenNoPassword() {
+        // Given
+        Member oAuthMember = createOAuthMember("tester", "test@test.com", "01000000000");
+        UpdatePasswordReq req = UpdatePasswordReq.builder()
+                .currPassword("test")
+                .newPassword("test!!")
+                .confirmNewPassword("test!!")
+                .build();
+
+        // When / Then
+        assertThatThrownBy(() -> memberService.updatePassword(oAuthMember.getId(), req))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.NEED_PASSWORD.getMessage());
+
+    }
+
     @DisplayName("회원 비밀번호를 수정 시 현재 비밀번호가 올바르지 않으면 에러를 반환한다.")
     @Test
     void updatePasswordWithIncorrectPassword() {
@@ -322,6 +341,20 @@ class MemberServiceTest extends IntegrationTestSupport {
                 .email(email)
                 .password(passwordEncoder.encode("test"))
                 .telNumber(telNumber)
+                .build();
+
+        return memberRepository.save(member);
+    }
+
+    private Member createOAuthMember(String username, String email, String telNumber) {
+        Member member = Member.builder()
+                .accountId("google_11111111")
+                .username(username)
+                .email(email)
+                .telNumber(telNumber)
+                .provider(GOOGLE)
+                .snsId("11111111")
+                .isVerified(true)
                 .build();
 
         return memberRepository.save(member);

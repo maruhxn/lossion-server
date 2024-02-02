@@ -10,6 +10,7 @@ import com.maruhxn.lossion.domain.favorite.api.FavoriteController;
 import com.maruhxn.lossion.domain.favorite.application.FavoriteService;
 import com.maruhxn.lossion.domain.member.api.MemberController;
 import com.maruhxn.lossion.domain.member.application.MemberService;
+import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.topic.api.CategoryController;
 import com.maruhxn.lossion.domain.topic.api.TopicController;
 import com.maruhxn.lossion.domain.topic.application.CategoryService;
@@ -76,6 +77,9 @@ public abstract class ControllerTestSupport {
 
     @MockBean
     protected CommentRepository commentRepository;
+
+    @MockBean
+    protected MemberRepository memberRepository;
 
     @MockBean
     protected EntityManager entityManager;

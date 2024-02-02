@@ -428,7 +428,7 @@ public class TopicApiDocsTest extends RestDocsSupport {
         parts.put("categoryId", category.getId().toString());
 
         // When / Then
-        multipartPatchAction(TOPIC_BASE_URL + "/{topicId}", UpdateTopicReq.class, List.of(image1), parts, topic.getId())
+        multipartPatchAction(TOPIC_BASE_URL + "/{topicId}", UpdateTopicReq.class, List.of(image1), true, parts, topic.getId())
                 .andExpect(status().isNoContent())
                 .andDo(
                         restDocs.document(
@@ -488,7 +488,7 @@ public class TopicApiDocsTest extends RestDocsSupport {
         parts.put("categoryId", category.getId().toString());
 
         // When / Then
-        multipartPatchAction(TOPIC_BASE_URL + "/{topicId}", UpdateTopicReq.class, List.of(image1), parts, topic.getId())
+        multipartPatchAction(TOPIC_BASE_URL + "/{topicId}", UpdateTopicReq.class, List.of(image1), true, parts, topic.getId())
                 .andExpect(status().isForbidden());
     }
 

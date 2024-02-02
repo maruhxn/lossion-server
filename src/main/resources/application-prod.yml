@@ -5,3 +5,6 @@ spring:
 logging:
   level:
     com.maruhxn.lossion: info
+
+client:
+  url: http://localhost:3000

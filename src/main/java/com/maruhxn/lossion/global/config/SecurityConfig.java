@@ -1,14 +1,17 @@
 package com.maruhxn.lossion.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.global.auth.application.JwtService;
 import com.maruhxn.lossion.global.auth.application.JwtUserDetailsService;
 import com.maruhxn.lossion.global.auth.application.JwtUtils;
+import com.maruhxn.lossion.global.auth.application.OAuth2UserService;
 import com.maruhxn.lossion.global.auth.filter.JwtAuthenticationFilter;
 import com.maruhxn.lossion.global.auth.filter.JwtAuthorizationFilter;
 import com.maruhxn.lossion.global.auth.filter.JwtExceptionFilter;
 import com.maruhxn.lossion.global.auth.handler.JwtAccessDeniedHandler;
 import com.maruhxn.lossion.global.auth.handler.JwtAuthenticationEntryPoint;
+import com.maruhxn.lossion.global.auth.handler.OAuth2SuccessHandler;
 import com.maruhxn.lossion.global.auth.provider.JwtAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -44,6 +47,7 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
     private final JwtUserDetailsService jwtUserDetailsService;
+    private final MemberRepository memberRepository;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -63,6 +67,7 @@ public class SecurityConfig {
                                 .requestMatchers(
                                         "/",
                                         "/test/**",
+                                        "/login/oauth2/**",
                                         "/api/auth/sign-up",
                                         "/api/auth/refresh",
                                         "/api/auth/anonymous/send-verify-email",
@@ -77,6 +82,13 @@ public class SecurityConfig {
                                 .requestMatchers("/api/auth/test").authenticated()
                                 .anyRequest().authenticated()
                 )
+                .oauth2Login(oauth2 ->
+                        oauth2
+                                .authorizationEndpoint(endPoint -> endPoint.baseUri("/api/auth/oauth2"))
+                                .redirectionEndpoint(endPoint -> endPoint.baseUri("/login/oauth2/code/*"))
+                                .userInfoEndpoint(endPoint -> endPoint.userService(oAuth2UserService()))
+                                .successHandler(oAuth2SuccessHandler())
+                )
                 .addFilterAt(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtExceptionFilter(), JwtAuthorizationFilter.class)
@@ -87,6 +99,16 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public OAuth2UserService oAuth2UserService() {
+        return new OAuth2UserService(memberRepository);
+    }
+
+    @Bean
+    public OAuth2SuccessHandler oAuth2SuccessHandler() {
+        return new OAuth2SuccessHandler(jwtUtils, jwtService);
     }
 
     @Bean

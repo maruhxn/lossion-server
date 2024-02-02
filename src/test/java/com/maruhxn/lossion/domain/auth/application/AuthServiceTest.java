@@ -22,6 +22,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.maruhxn.lossion.domain.member.domain.OAuthProvider.GOOGLE;
 import static com.maruhxn.lossion.domain.member.domain.Role.ROLE_USER;
 import static com.maruhxn.lossion.global.common.Constants.BASIC_PROFILE_IMAGE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -170,6 +171,31 @@ class AuthServiceTest extends IntegrationTestSupport {
                 .hasMessage(ErrorCode.PASSWORD_CONFIRM_FAIL.getMessage());
     }
 
+    @DisplayName("이미 소셜 로그인을 한 사용자의 경우 이메일, 유저명, 비밀번호를 덮어씌워 통합한다.")
+    @Test
+    void consolidateAccountWhenIsAlreadyDoneSocialLogin() {
+        // Given
+        Member oAuthMember = createOAuthMember("tester", "test@test.com");
+        SignUpReq req = SignUpReq.builder()
+                .accountId("tester")
+                .username("tester!!")
+                .email("test@test.com")
+                .password("test")
+                .confirmPassword("test")
+                .telNumber("01000000000")
+                .build();
+
+        // When
+        authService.signUp(req);
+
+        // Then
+        Member findMember = memberRepository.findById(oAuthMember.getId()).get();
+        assertThat(findMember)
+                .extracting("accountId", "email", "telNumber", "username", "profileImage", "role", "isVerified")
+                .contains("tester", "test@test.com", "01012345678", "tester!!", "http://my_profile_img.com", ROLE_USER, true);
+
+    }
+
     private Member createMember() {
         Member member = Member.builder()
                 .accountId("tester")
@@ -177,6 +203,21 @@ class AuthServiceTest extends IntegrationTestSupport {
                 .telNumber("01000000000")
                 .username("tester")
                 .password(passwordEncoder.encode("test"))
+                .build();
+
+        return memberRepository.save(member);
+    }
+
+    private Member createOAuthMember(String username, String email) {
+        Member member = Member.builder()
+                .accountId("google_11111111")
+                .username(username)
+                .email(email)
+                .telNumber("01012345678")
+                .provider(GOOGLE)
+                .snsId("11111111")
+                .isVerified(true)
+                .profileImage("http://my_profile_img.com")
                 .build();
 
         return memberRepository.save(member);
@@ -198,6 +239,7 @@ class AuthServiceTest extends IntegrationTestSupport {
         List<AuthToken> tokens = authTokenRepository.findAll();
         assertThat(tokens.size()).isEqualTo(1);
     }
+
 
     @Test
     @DisplayName("이미 이메일 인증된 사용자는 이미 인증되었다는 에러를 반환한다.")

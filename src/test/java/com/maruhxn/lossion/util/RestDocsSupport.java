@@ -104,7 +104,6 @@ public abstract class RestDocsSupport {
 
 
         member = Member.builder()
-                .id(1L)
                 .accountId("tester")
                 .username("tester")
                 .password(passwordEncoder.encode("test"))
@@ -258,7 +257,7 @@ public abstract class RestDocsSupport {
         return mockMvc.perform(builder);
     }
 
-    protected ResultActions multipartPatchAction(String uri, Class<?> reqClass, List<MockMultipartFile> images, Map<String, String> parts, Object... pathParameters) throws Exception {
+    protected ResultActions multipartPatchAction(String uri, Class<?> reqClass, List<MockMultipartFile> images, Boolean isLogin, Map<String, String> parts, Object... pathParameters) throws Exception {
         MockMultipartHttpServletRequestBuilder builder = getMockMultipartHttpServletRequestBuilder(uri, pathParameters);
 
         if (reqClass != null) {
@@ -273,10 +272,14 @@ public abstract class RestDocsSupport {
             parts.forEach((key, value) -> builder.part(new MockPart(key, value.getBytes())));
         }
 
+        if (isLogin) {
+            builder
+                    .header(ACCESS_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getAccessToken())
+                    .header(REFRESH_TOKEN_HEADER, BEARER_PREFIX + tokenDto.getRefreshToken());
+        }
+
         builder
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .header(Constants.ACCESS_TOKEN_HEADER, Constants.BEARER_PREFIX + tokenDto.getAccessToken())
-                .header(Constants.REFRESH_TOKEN_HEADER, Constants.BEARER_PREFIX + tokenDto.getRefreshToken());
+                .contentType(MediaType.MULTIPART_FORM_DATA);
 
         return mockMvc.perform(builder);
     }

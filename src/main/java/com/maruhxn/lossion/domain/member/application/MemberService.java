@@ -53,6 +53,10 @@ public class MemberService {
     public void updatePassword(Long memberId, UpdatePasswordReq updatePasswordReq) {
         Member findMember = findMemberOrElseThrowById(memberId);
 
+        if (findMember.getPassword() == null) {
+            throw new BadRequestException(ErrorCode.NEED_PASSWORD);
+        }
+
         if (updatePasswordReq.getNewPassword().equals(updatePasswordReq.getCurrPassword()))
             throw new BadRequestException(ErrorCode.SAME_PASSWORD);
 
@@ -114,6 +118,7 @@ public class MemberService {
     }
 
     private void deleteProfileImageOfFindMember(Member findMember) {
+        if (findMember.getProfileImage().startsWith("http")) return;
         if (!Objects.equals(findMember.getProfileImage(), BASIC_PROFILE_IMAGE_NAME)) {
             fileService.deleteFile(findMember.getProfileImage());
         }
