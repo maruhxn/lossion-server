@@ -31,7 +31,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         OAuth2UserInfo oAuth2UserInfo = switch (valueOf(provider.toUpperCase())) {
             case GOOGLE -> new GoogleUserInfo(oAuth2User.getAttributes());
-            case KAKAO -> new KakaoUserInfo((Map<String, Object>) oAuth2User.getAttributes());
+            case KAKAO -> new KakaoUserInfo(oAuth2User.getAttributes());
             case NAVER -> new NaverUserInfo((Map<String, Object>) oAuth2User.getAttributes().get("response"));
             default -> throw new OAuth2AuthenticationException("일치하는 제공자가 없습니다.");
         };
@@ -47,22 +47,12 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         if (optionalMember.isEmpty()) { // 이메일 중복 체크
             Long memberCntByUsername = memberRepository.countByUsername(userInfo.getUsername()); // 해당 유저명과 일치하는 유저 수 체크
-
-            member = Member.builder()
-                    .accountId(userInfo.getAccountId())
-                    .username(memberCntByUsername.equals(0L) ? userInfo.getUsername() : userInfo.getUsername() + memberCntByUsername)
-                    .provider(provider)
-                    .snsId(userInfo.getSnsId())
-                    .email(userInfo.getEmail())
-                    .telNumber(userInfo.getTelNumber())
-                    .profileImage(userInfo.getProfileImage())
-                    .isVerified(userInfo.getIsVerified())
-                    .build();
-
+            member = Member.createOAuth2User(userInfo, provider, memberCntByUsername);
             memberRepository.save(member);
         } else {
             member = optionalMember.get();
         }
+
         return member;
     }
 }

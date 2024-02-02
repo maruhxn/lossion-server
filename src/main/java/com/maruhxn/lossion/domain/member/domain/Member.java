@@ -1,6 +1,7 @@
 package com.maruhxn.lossion.domain.member.domain;
 
 import com.maruhxn.lossion.domain.auth.dto.SignUpReq;
+import com.maruhxn.lossion.global.auth.dto.userinfo.OAuth2UserInfo;
 import com.maruhxn.lossion.global.common.BaseEntity;
 import com.maruhxn.lossion.global.common.Constants;
 import jakarta.persistence.Column;
@@ -83,6 +84,19 @@ public class Member extends BaseEntity {
                 .telNumber(req.getTelNumber())
                 .username(req.getUsername())
                 .password(req.getPassword())
+                .build();
+    }
+
+    public static Member createOAuth2User(OAuth2UserInfo userInfo, OAuthProvider provider, Long memberCntByUsername) {
+        return Member.builder()
+                .accountId(userInfo.getAccountId())
+                .username(memberCntByUsername.equals(0L) ? userInfo.getUsername() : userInfo.getUsername() + memberCntByUsername)
+                .provider(provider)
+                .snsId(userInfo.getSnsId())
+                .email(userInfo.getEmail())
+                .telNumber(userInfo.getTelNumber())
+                .profileImage(userInfo.getProfileImage())
+                .isVerified(userInfo.getIsVerified())
                 .build();
     }
 
