@@ -208,7 +208,6 @@ class JwtServiceTest extends IntegrationTestSupport {
                 .accountId("tester")
                 .username("tester")
                 .email("test@test.com")
-                .telNumber("01000000000")
                 .password("test")
                 .build();
         return memberRepository.save(member);

@@ -9,7 +9,6 @@ import com.maruhxn.lossion.global.error.ErrorCode;
 import com.maruhxn.lossion.global.util.AesUtil;
 import com.maruhxn.lossion.util.CustomWithUserDetails;
 import com.maruhxn.lossion.util.RestDocsSupport;
-import com.maruhxn.lossion.util.WithMockCustomOAuth2User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,6 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .accountId("tester2")
                 .username("tester2")
                 .email("test2@test.com")
-                .telNumber("01000000002")
                 .password("test")
                 .confirmPassword("test")
                 .build();
@@ -65,8 +63,6 @@ public class AuthApiDocsTest extends RestDocsSupport {
                                                 .attributes(withPath("email")),
                                         fieldWithPath("username").type(STRING).description("유저명")
                                                 .attributes(withPath("username")),
-                                        fieldWithPath("telNumber").type(STRING).description("전화번호")
-                                                .attributes(withPath("telNumber")),
                                         fieldWithPath("password").type(STRING).description("비밀번호")
                                                 .attributes(withPath("password")),
                                         fieldWithPath("confirmPassword").type(STRING).description("비밀번호 확인")
@@ -85,7 +81,6 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .accountId("google_11111111")
                 .username("oAuthUser")
                 .email("oAuth@test.com")
-                .telNumber("01012345678")
                 .provider(GOOGLE)
                 .snsId("11111111")
                 .isVerified(true)
@@ -97,7 +92,6 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .accountId("tester2")
                 .username("tester2")
                 .email("oAuth@test.com")
-                .telNumber("01012345678")
                 .password("test")
                 .confirmPassword("test")
                 .build();
@@ -110,8 +104,8 @@ public class AuthApiDocsTest extends RestDocsSupport {
 
         Member findMember = memberRepository.findById(oAuthMember.getId()).get();
         assertThat(findMember)
-                .extracting("accountId", "email", "telNumber", "username", "profileImage", "role", "isVerified")
-                .contains("tester2", "oAuth@test.com", "01012345678", "tester2", "http://my_profile_img.com", ROLE_USER, true);
+                .extracting("accountId", "email", "username", "profileImage", "role", "isVerified")
+                .contains("tester2", "oAuth@test.com", "tester2", "http://my_profile_img.com", ROLE_USER, true);
 
     }
 
@@ -123,7 +117,6 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .accountId("tester")
                 .username("tester")
                 .email("test@test.com")
-                .telNumber("01000000000")
                 .password("test")
                 .confirmPassword("test")
                 .build();
@@ -141,7 +134,6 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .accountId("test")
                 .username("t")
                 .email("test")
-                .telNumber("")
                 .password("t")
                 .confirmPassword("")
                 .build();
@@ -151,7 +143,7 @@ public class AuthApiDocsTest extends RestDocsSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
-                .andExpect(jsonPath("errors.size()").value(7));
+                .andExpect(jsonPath("errors.size()").value(5));
     }
 
     @DisplayName("비로그인 회원의 로그인 성공 시 200을 반환한다.")

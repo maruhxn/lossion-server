@@ -22,7 +22,6 @@ public class CustomUserDetailsSecurityContextFactory implements WithSecurityCont
                 .accountId(accountId)
                 .username("tester")
                 .password(password)
-                .telNumber("01000000000")
                 .email("test@test.com")
                 .build();
 

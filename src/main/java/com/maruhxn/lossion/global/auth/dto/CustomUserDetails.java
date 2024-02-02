@@ -52,10 +52,6 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return member.getEmail();
     }
 
-    public String getTelNumber() {
-        return member.getTelNumber();
-    }
-
     public String getProfileImage() {
         return member.getProfileImage();
     }

@@ -36,9 +36,6 @@ public class Member extends BaseEntity {
 
     private String password;
 
-    @Column(length = 15, nullable = false, unique = true)
-    private String telNumber;
-
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'LOCAL'")
     private OAuthProvider provider;
@@ -58,16 +55,14 @@ public class Member extends BaseEntity {
     private Role role;
 
     @Builder
-    public Member(Long id, String accountId, String email, String telNumber, String username, String password, String profileImage, Boolean isVerified, OAuthProvider provider, String snsId) {
+    public Member(Long id, String accountId, String email, String username, String password, String profileImage, Boolean isVerified, OAuthProvider provider, String snsId) {
         Assert.hasText(accountId, "아이디는 필수입니다.");
         Assert.hasText(email, "이메일은 필수입니다.");
-        Assert.hasText(telNumber, "전화번호는 필수입니다.");
         Assert.hasText(username, "유저명은 필수입니다.");
 
         this.id = id;
         this.accountId = accountId;
         this.email = email;
-        this.telNumber = telNumber;
         this.username = username;
         this.password = password;
         this.profileImage = StringUtils.hasText(profileImage) ? profileImage : Constants.BASIC_PROFILE_IMAGE_NAME;
@@ -81,7 +76,6 @@ public class Member extends BaseEntity {
         return Member.builder()
                 .accountId(req.getAccountId())
                 .email(req.getEmail())
-                .telNumber(req.getTelNumber())
                 .username(req.getUsername())
                 .password(req.getPassword())
                 .build();
@@ -94,7 +88,6 @@ public class Member extends BaseEntity {
                 .provider(provider)
                 .snsId(userInfo.getSnsId())
                 .email(userInfo.getEmail())
-                .telNumber(userInfo.getTelNumber())
                 .profileImage(userInfo.getProfileImage())
                 .isVerified(userInfo.getIsVerified())
                 .build();

@@ -42,7 +42,6 @@ public class WithMockCustomOAuth2UserSecurityContextFactory
                 .provider(OAuthProvider.valueOf(provider.toUpperCase()))
                 .snsId(userInfo.getSnsId())
                 .email(userInfo.getEmail())
-                .telNumber(userInfo.getTelNumber())
                 .profileImage(userInfo.getProfileImage())
                 .isVerified(userInfo.getIsVerified())
                 .build();

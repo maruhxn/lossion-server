@@ -33,7 +33,6 @@ class AuthControllerTest extends ControllerTestSupport {
                 .accountId("tester")
                 .username("tester")
                 .email("test@test.com")
-                .telNumber("01000000000")
                 .password("test")
                 .confirmPassword("test")
                 .build();
@@ -60,7 +59,6 @@ class AuthControllerTest extends ControllerTestSupport {
                 .accountId("test")
                 .username("t")
                 .email("test")
-                .telNumber("")
                 .password("t")
                 .confirmPassword("")
                 .build();
@@ -76,7 +74,7 @@ class AuthControllerTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(ErrorCode.VALIDATION_ERROR.name()))
                 .andExpect(jsonPath("message").value(ErrorCode.VALIDATION_ERROR.getMessage()))
-                .andExpect(jsonPath("errors.size()").value(7));
+                .andExpect(jsonPath("errors.size()").value(5));
     }
 
     @DisplayName("Access Token의 refresh 성공 시 200을 반환한다.")

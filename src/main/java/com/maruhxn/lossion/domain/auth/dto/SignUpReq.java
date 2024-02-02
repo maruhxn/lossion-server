@@ -2,7 +2,6 @@ package com.maruhxn.lossion.domain.auth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,10 +19,6 @@ public class SignUpReq {
     @Email(message = "이메일 형식에 맞추어 입력해주세요.")
     private String email;
 
-    @NotEmpty(message = "전화번호를 입력해주세요.")
-    @Pattern(regexp = "^[0-9]{11,13}$")
-    private String telNumber;
-
     @Size(min = 2, max = 10, message = "유저명은 2 ~ 15 글자입니다.")
     private String username;
 
@@ -34,10 +29,9 @@ public class SignUpReq {
     private String confirmPassword;
 
     @Builder
-    public SignUpReq(String accountId, String email, String telNumber, String username, String password, String confirmPassword) {
+    public SignUpReq(String accountId, String email, String username, String password, String confirmPassword) {
         this.accountId = accountId;
         this.email = email;
-        this.telNumber = telNumber;
         this.username = username;
         this.password = password;
         this.confirmPassword = confirmPassword;

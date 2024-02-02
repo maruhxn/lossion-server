@@ -38,11 +38,6 @@ public class KakaoUserInfo implements OAuth2UserInfo {
     }
 
     @Override
-    public String getTelNumber() {
-        return String.valueOf((Double) Math.floor(10000000000L + Math.random() * 90000000000L));
-    }
-
-    @Override
     public String getAccountId() {
         return "kakao_" + getSnsId();
     }
