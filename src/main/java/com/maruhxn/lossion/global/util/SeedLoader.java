@@ -45,7 +45,7 @@ public class SeedLoader {
     private void batchInsertMember() {
         String admin_sql = "INSERT INTO member" +
                 "(account_id, username, email, password, profile_image, created_at, updated_at, role)" +
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(admin_sql, ps -> {
             ps.setString(1, "admin");
@@ -60,7 +60,7 @@ public class SeedLoader {
 
         String member_sql = "INSERT INTO member" +
                 "(account_id, username, email, password, profile_image, created_at, updated_at)" +
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                " VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(member_sql, new BatchPreparedStatementSetter() {
             @Override
