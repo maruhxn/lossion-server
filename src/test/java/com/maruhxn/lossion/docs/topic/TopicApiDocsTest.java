@@ -467,7 +467,6 @@ public class TopicApiDocsTest extends RestDocsSupport {
                 .accountId("tester2")
                 .username("tester2")
                 .password(passwordEncoder.encode("test2"))
-                .telNumber("01000000002")
                 .email("test2@test.com")
                 .build();
         memberRepository.save(subMember);
@@ -618,7 +617,6 @@ public class TopicApiDocsTest extends RestDocsSupport {
                 .accountId("tester2")
                 .username("tester2")
                 .password(passwordEncoder.encode("test2"))
-                .telNumber("01000000002")
                 .email("test2@test.com")
                 .build();
         memberRepository.save(subMember);

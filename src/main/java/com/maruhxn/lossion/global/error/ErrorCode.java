@@ -45,7 +45,6 @@ public enum ErrorCode {
     EXISTING_ID(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 아이디입니다."),
     EXISTING_EMAIL(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 이메일입니다."),
     EXISTING_USERNAME(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 유저명입니다."),
-    EXISTING_TEL(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 전화번호입니다."),
     EXISTING_CATEGORY(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 카테고리입니다."),
     ALREADY_VERIFIED(HttpStatus.UNPROCESSABLE_ENTITY, "이미 인증된 이메일입니다."),
     TOKEN_EXPIRATION(HttpStatus.UNPROCESSABLE_ENTITY, "이미 만료된 토큰입니다"),

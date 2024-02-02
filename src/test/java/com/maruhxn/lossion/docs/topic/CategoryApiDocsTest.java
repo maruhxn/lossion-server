@@ -317,7 +317,6 @@ public class CategoryApiDocsTest extends RestDocsSupport {
                 .accountId("admin")
                 .username("admin")
                 .password(passwordEncoder.encode("test"))
-                .telNumber("01011111111")
                 .email("admin@test.com")
                 .build();
         admin.setRole(Role.ROLE_ADMIN);

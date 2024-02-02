@@ -13,8 +13,6 @@ public interface OAuth2UserInfo {
 
     String getProfileImage();
 
-    String getTelNumber();
-
     String getAccountId();
 
     Boolean getIsVerified();

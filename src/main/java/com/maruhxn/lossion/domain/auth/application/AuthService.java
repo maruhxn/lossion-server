@@ -70,11 +70,6 @@ public class AuthService {
         if (existedUsername) {
             throw new AlreadyExistsResourceException(ErrorCode.EXISTING_USERNAME);
         }
-
-        Boolean existedTelNumber = memberRepository.existsByTelNumber(req.getTelNumber());
-        if (existedTelNumber) {
-            throw new AlreadyExistsResourceException(ErrorCode.EXISTING_TEL);
-        }
     }
 
     public void sendVerifyEmailWithLogin(Member member, LocalDateTime now) {

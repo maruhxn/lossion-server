@@ -202,7 +202,6 @@ class CategoryServiceTest extends IntegrationTestSupport {
                 .username("tester1")
                 .email("test1@test.com")
                 .password("test1")
-                .telNumber("01012345678")
                 .build();
         return memberRepository.save(member);
     }

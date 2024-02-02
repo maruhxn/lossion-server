@@ -31,7 +31,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
 @DisplayName("[Service] - TopicService")
@@ -752,7 +751,6 @@ class TopicServiceTest extends IntegrationTestSupport {
                 .username("tester1")
                 .email("test1@test.com")
                 .password("test1")
-                .telNumber("01012345678")
                 .build();
         return memberRepository.save(member);
     }
@@ -763,7 +761,6 @@ class TopicServiceTest extends IntegrationTestSupport {
                 .username("tester2")
                 .email("test2@test.com")
                 .password("test")
-                .telNumber("01000000000")
                 .build();
         return memberRepository.save(member);
     }

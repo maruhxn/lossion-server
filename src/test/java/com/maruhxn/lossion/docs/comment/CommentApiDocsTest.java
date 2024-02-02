@@ -328,7 +328,6 @@ public class CommentApiDocsTest extends RestDocsSupport {
                 .accountId("tester2")
                 .username("tester2")
                 .password(passwordEncoder.encode("test"))
-                .telNumber("01000000002")
                 .email("test2@test.com")
                 .build();
         memberRepository.save(member2);
@@ -417,7 +416,6 @@ public class CommentApiDocsTest extends RestDocsSupport {
                 .accountId("tester2")
                 .username("tester2")
                 .password(passwordEncoder.encode("test"))
-                .telNumber("01000000002")
                 .email("test2@test.com")
                 .build();
         memberRepository.save(member2);

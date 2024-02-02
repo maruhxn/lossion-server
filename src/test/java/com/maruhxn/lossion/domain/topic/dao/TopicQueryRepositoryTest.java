@@ -205,7 +205,6 @@ class TopicQueryRepositoryTest extends IntegrationTestSupport {
                 .email("test@test.com")
                 .username("tester")
                 .password("test")
-                .telNumber("01000000000")
                 .build();
 
         return memberRepository.save(member);

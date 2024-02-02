@@ -59,15 +59,15 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void getProfile() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
+        Member member = createMember("tester", "tester", "test@test.com");
 
         // When
         ProfileItem profile = memberService.getProfile(member.getId());
 
         // Then
         assertThat(profile)
-                .extracting("accountId", "email", "username", "telNumber", "isVerified", "profileImage")
-                .contains("tester", "tester", "test@test.com", "01000000000", false, "defaultProfileImage.jfif");
+                .extracting("accountId", "email", "username", "isVerified", "profileImage")
+                .contains("tester", "tester", "test@test.com", false, "defaultProfileImage.jfif");
 
     }
 
@@ -85,7 +85,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updateProfileWithUsername() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
+        Member member = createMember("tester", "tester", "test@test.com");
         UpdateMemberProfileReq req = UpdateMemberProfileReq.builder()
                 .username("tester!")
                 .build();
@@ -102,8 +102,8 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updateProfileWithExistingUsername() {
         // Given
-        Member member1 = createMember("tester1", "tester1", "test1@test.com", "01000000000");
-        createMember("tester2", "tester2", "test2@test.com", "01000000001");
+        Member member1 = createMember("tester1", "tester1", "test1@test.com");
+        createMember("tester2", "tester2", "test2@test.com");
 
         UpdateMemberProfileReq req = UpdateMemberProfileReq.builder()
                 .username("tester2")
@@ -120,7 +120,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updateProfileWithEmail() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
+        Member member = createMember("tester", "tester", "test@test.com");
         UpdateMemberProfileReq req = UpdateMemberProfileReq.builder()
                 .username("tester!")
                 .build();
@@ -137,8 +137,8 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updateProfileWithExistingEmail() {
         // Given
-        Member member1 = createMember("tester1", "tester1", "test1@test.com", "01000000000");
-        createMember("tester2", "tester2", "test2@test.com", "01000000001");
+        Member member1 = createMember("tester1", "tester1", "test1@test.com");
+        createMember("tester2", "tester2", "test2@test.com");
 
         UpdateMemberProfileReq req = UpdateMemberProfileReq.builder()
                 .email("test2@test.com")
@@ -155,7 +155,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updateProfileWithProfileImage() throws IOException {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
+        Member member = createMember("tester", "tester", "test@test.com");
         MockMultipartFile newProfileImage = getMockMultipartFile();
         UpdateMemberProfileReq req = UpdateMemberProfileReq.builder()
                 .profileImage(newProfileImage)
@@ -199,7 +199,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updatePassword() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
+        Member member = createMember("tester", "tester", "test@test.com");
         UpdatePasswordReq req = UpdatePasswordReq.builder()
                 .currPassword("test")
                 .newPassword("test!!")
@@ -218,7 +218,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updatePasswordFailWhenNoPassword() {
         // Given
-        Member oAuthMember = createOAuthMember("tester", "test@test.com", "01000000000");
+        Member oAuthMember = createOAuthMember("tester", "test@test.com");
         UpdatePasswordReq req = UpdatePasswordReq.builder()
                 .currPassword("test")
                 .newPassword("test!!")
@@ -236,7 +236,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updatePasswordWithIncorrectPassword() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
+        Member member = createMember("tester", "tester", "test@test.com");
         UpdatePasswordReq req = UpdatePasswordReq.builder()
                 .currPassword("hack")
                 .newPassword("test!!")
@@ -254,7 +254,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updatePasswordWhenConfirmFail() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
+        Member member = createMember("tester", "tester", "test@test.com");
         UpdatePasswordReq req = UpdatePasswordReq.builder()
                 .currPassword("test")
                 .newPassword("test!")
@@ -272,7 +272,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void updatePasswordWithSamePassword() {
         // Given
-        Member member = createMember("tester", "tester", "test@test.com", "01000000000");
+        Member member = createMember("tester", "tester", "test@test.com");
         UpdatePasswordReq req = UpdatePasswordReq.builder()
                 .currPassword("test")
                 .newPassword("test")
@@ -306,7 +306,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Test
     void membershipWithdrawal() {
         // Given
-        Member member = createMember("tester", "tester", "test@test,com", "01000000000");
+        Member member = createMember("tester", "tester", "test@test,com");
         JwtMemberInfo jwtMemberInfo = JwtMemberInfo.from(member);
 
         String rawRefreshToken = jwtUtils.generateRefreshToken(jwtMemberInfo, new Date());
@@ -334,24 +334,22 @@ class MemberServiceTest extends IntegrationTestSupport {
                 .hasMessage(ErrorCode.NOT_FOUND_MEMBER.getMessage());
     }
 
-    private Member createMember(String accountId, String username, String email, String telNumber) {
+    private Member createMember(String accountId, String username, String email) {
         Member member = Member.builder()
                 .accountId(accountId)
                 .username(username)
                 .email(email)
                 .password(passwordEncoder.encode("test"))
-                .telNumber(telNumber)
                 .build();
 
         return memberRepository.save(member);
     }
 
-    private Member createOAuthMember(String username, String email, String telNumber) {
+    private Member createOAuthMember(String username, String email) {
         Member member = Member.builder()
                 .accountId("google_11111111")
                 .username(username)
                 .email(email)
-                .telNumber(telNumber)
                 .provider(GOOGLE)
                 .snsId("11111111")
                 .isVerified(true)

@@ -55,7 +55,6 @@ class AuthServiceTest extends IntegrationTestSupport {
                 .email("test@test.com")
                 .password("test")
                 .confirmPassword("test")
-                .telNumber("01000000000")
                 .build();
 
         // then
@@ -64,8 +63,8 @@ class AuthServiceTest extends IntegrationTestSupport {
         // when
         List<Member> members = memberRepository.findAll();
         assertThat(members.get(0))
-                .extracting("accountId", "email", "telNumber", "username", "profileImage", "role", "isVerified")
-                .contains("tester", "test@test.com", "01000000000", "tester", BASIC_PROFILE_IMAGE_NAME, ROLE_USER, false);
+                .extracting("accountId", "email", "username", "profileImage", "role", "isVerified")
+                .contains("tester", "test@test.com", "tester", BASIC_PROFILE_IMAGE_NAME, ROLE_USER, false);
     }
 
     @DisplayName("회원가입 시 이미 존재하는 아이디로 요청하는 경우 에러를 반환한다.")
@@ -80,7 +79,6 @@ class AuthServiceTest extends IntegrationTestSupport {
                 .email("test2@test.com")
                 .password("test")
                 .confirmPassword("test")
-                .telNumber("01000000001")
                 .build();
 
         // When / Then
@@ -101,7 +99,6 @@ class AuthServiceTest extends IntegrationTestSupport {
                 .email("test@test.com")
                 .password("test")
                 .confirmPassword("test")
-                .telNumber("01000000001")
                 .build();
 
         // When / Then
@@ -122,34 +119,12 @@ class AuthServiceTest extends IntegrationTestSupport {
                 .email("test2@test.com")
                 .password("test")
                 .confirmPassword("test")
-                .telNumber("01000000001")
                 .build();
 
         // When / Then
         assertThatThrownBy(() -> authService.signUp(req))
                 .isInstanceOf(AlreadyExistsResourceException.class)
                 .hasMessage(ErrorCode.EXISTING_USERNAME.getMessage());
-    }
-
-    @DisplayName("회원가입 시 이미 존재하는 전화번호로 요청하는 경우 에러를 반환한다.")
-    @Test
-    void signUpWithExistingTelNumber() {
-        // Given
-        Member member = createMember();
-
-        SignUpReq req = SignUpReq.builder()
-                .accountId("tester2")
-                .username("tester2")
-                .email("test2@test.com")
-                .password("test")
-                .confirmPassword("test")
-                .telNumber("01000000000")
-                .build();
-
-        // When / Then
-        assertThatThrownBy(() -> authService.signUp(req))
-                .isInstanceOf(AlreadyExistsResourceException.class)
-                .hasMessage(ErrorCode.EXISTING_TEL.getMessage());
     }
 
     @DisplayName("회원가입 시 비밀번호와 비밀번호 확인이 일치하지 않는 경우 에러를 반환한다.")
@@ -162,7 +137,6 @@ class AuthServiceTest extends IntegrationTestSupport {
                 .email("test@test.com")
                 .password("test")
                 .confirmPassword("testt")
-                .telNumber("01000000000")
                 .build();
 
         // When / Then
@@ -182,7 +156,6 @@ class AuthServiceTest extends IntegrationTestSupport {
                 .email("test@test.com")
                 .password("test")
                 .confirmPassword("test")
-                .telNumber("01000000000")
                 .build();
 
         // When
@@ -191,8 +164,8 @@ class AuthServiceTest extends IntegrationTestSupport {
         // Then
         Member findMember = memberRepository.findById(oAuthMember.getId()).get();
         assertThat(findMember)
-                .extracting("accountId", "email", "telNumber", "username", "profileImage", "role", "isVerified")
-                .contains("tester", "test@test.com", "01012345678", "tester!!", "http://my_profile_img.com", ROLE_USER, true);
+                .extracting("accountId", "email", "username", "profileImage", "role", "isVerified")
+                .contains("tester", "test@test.com", "tester!!", "http://my_profile_img.com", ROLE_USER, true);
 
     }
 
@@ -200,7 +173,6 @@ class AuthServiceTest extends IntegrationTestSupport {
         Member member = Member.builder()
                 .accountId("tester")
                 .email("test@test.com")
-                .telNumber("01000000000")
                 .username("tester")
                 .password(passwordEncoder.encode("test"))
                 .build();
@@ -213,7 +185,6 @@ class AuthServiceTest extends IntegrationTestSupport {
                 .accountId("google_11111111")
                 .username(username)
                 .email(email)
-                .telNumber("01012345678")
                 .provider(GOOGLE)
                 .snsId("11111111")
                 .isVerified(true)

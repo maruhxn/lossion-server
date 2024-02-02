@@ -45,7 +45,6 @@ public class MemberApiDocsTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.data.accountId").value("tester"))
                 .andExpect(jsonPath("$.data.email").value("test@test.com"))
                 .andExpect(jsonPath("$.data.username").value("tester"))
-                .andExpect(jsonPath("$.data.telNumber").value("01000000000"))
                 .andExpect(jsonPath("$.data.isVerified").value(true))
                 .andExpect(jsonPath("$.data.profileImage").value(Constants.BASIC_PROFILE_IMAGE_NAME))
                 .andDo(
@@ -62,7 +61,6 @@ public class MemberApiDocsTest extends RestDocsSupport {
                                                 fieldWithPath("accountId").type(STRING).description("사용자 계정 ID"),
                                                 fieldWithPath("email").type(STRING).description("이메일"),
                                                 fieldWithPath("username").type(STRING).description("유저명"),
-                                                fieldWithPath("telNumber").type(STRING).description("전화번호"),
                                                 fieldWithPath("isVerified").type(BOOLEAN).description("이메일 인증 여부"),
                                                 fieldWithPath("profileImage").type(STRING).description("프로필 이미지")
                                         )
@@ -83,7 +81,6 @@ public class MemberApiDocsTest extends RestDocsSupport {
                 .andExpect(jsonPath("$.data.accountId").value("google_111111111111111111111"))
                 .andExpect(jsonPath("$.data.email").value("oauth@test.com"))
                 .andExpect(jsonPath("$.data.username").value("oauth"))
-                .andExpect(jsonPath("$.data.telNumber").isNotEmpty())
                 .andExpect(jsonPath("$.data.isVerified").value(true))
                 .andExpect(jsonPath("$.data.profileImage").value("https://test_profile_image.com"));
     }

@@ -107,7 +107,6 @@ public abstract class RestDocsSupport {
                 .accountId("tester")
                 .username("tester")
                 .password(passwordEncoder.encode("test"))
-                .telNumber("01000000000")
                 .email("test@test.com")
                 .build();
 

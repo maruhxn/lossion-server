@@ -38,11 +38,6 @@ public class NaverUserInfo implements OAuth2UserInfo {
     }
 
     @Override
-    public String getTelNumber() {
-        return (String) attributes.get("mobile");
-    }
-
-    @Override
     public String getAccountId() {
         return "naver_" + getSnsId();
     }
