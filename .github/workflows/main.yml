@@ -50,10 +50,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  cd-pipelines:
-    needs: test-and-build
-    runs-on: ubuntu-latest
-    steps:
       - name: Deploy to Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
         with:
