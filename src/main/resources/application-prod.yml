@@ -2,6 +2,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+
 logging:
   level:
     com.maruhxn.lossion: info

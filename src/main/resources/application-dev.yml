@@ -2,6 +2,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ENC(C+Cm+4RiOl1tGLI7OSdN51cj2eHjlS7W1VeFKUkfx9ovGHVdvb5T+iAkDa/+7cMr6Fil7pWfvoLrfH4xSeVQs8czFZhhu0uJaKSvryRqyJE=)
+    username: ENC(ZXJFAhjUPyXAnZ18m6pDMw==)
+    password: ENC(/30qPmKElfOo+RGTNC0yvA==)
 logging:
   level:
     com.maruhxn.lossion: debug
