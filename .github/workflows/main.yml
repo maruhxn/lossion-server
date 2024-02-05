@@ -3,7 +3,8 @@ name: Build, Push, and Deploy Docker Image
 on:
   push:
     branches:
-      - '*'
+      - main
+      - dev
 
 permissions:
   contents: read
