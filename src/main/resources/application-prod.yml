@@ -1,0 +1,11 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+logging:
+  level:
+    com.maruhxn.lossion: info
+
+client:
+  url: http://localhost:3000

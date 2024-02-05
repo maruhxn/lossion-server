@@ -1,0 +1,11 @@
+cloud:
+  aws:
+    s3:
+      bucket: ENC(CqBvVeuf1ViKqrEhdDgz6g==)
+    credentials:
+      access-key: ENC(fFGOIs4ti2GRi9lf0oF1NB2p9SqVZjNrbzJ/kOQZV0U=)
+      secret-key: ENC(CWi2TTUVTgEtBSPBdRdPLPXCUs0VMw8Z0VTRNI2IVVJatfPxhvDZefWVilJ0VOcTqnjfimSl4Hg=)
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false

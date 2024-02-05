@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:test
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+  web:
+    resources:
+      add-mappings: false
+
+logging:
+  level:
+    com.maruhxn.lossion: debug
+    org.hibernate.SQL: debug
+
+cloud:
+  aws:
+    s3:
+      bucket: lossion-test
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false

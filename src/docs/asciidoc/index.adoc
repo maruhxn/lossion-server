@@ -1,0 +1,17 @@
+= LOSSION API
+MARUHXN_;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+include::common/overview.adoc[]
+include::api/auth-api.adoc[]
+include::api/member-api.adoc[]
+include::api/category-api.adoc[]
+include::api/topic-api.adoc[]
+include::api/comment-api.adoc[]
+include::api/favorite-api.adoc[]
+include::api/file-api.adoc[]

@@ -1,0 +1,5 @@
+jwt:
+  secret-key: ENC(uSJkMCJ0wgiLMlySm6QNktw4ucwhMEFeu+O4GaXHhLxWptRN6dOZerkrRMp4JlRxhaOemRs0//EQDP0IhmZ5vze+E+R8YwhqqvFghkPF5DE=)
+  expiration: ENC(o9yRQ7bQzvKbURlh0mWg0gR0OOUepuls)
+  refresh-token:
+    expiration: ENC(SHem3Vr277z8PVd/QQ1x/ysWI84obO0Y)

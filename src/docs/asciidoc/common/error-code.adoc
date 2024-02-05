@@ -1,0 +1,3 @@
+=== ErrorCode
+
+include::{snippets}/global_data_docs_test/error-code/errorcode-response-fields.adoc[]
