@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -158,6 +159,12 @@ public class AuthService {
         if (findAuthToken.invalidate(now)) {
             // TODO: 만료된 토큰이 쌓이는 것을 방지하기 위해 바로바로 삭제하고 싶지만, transaction으로 인해 현재 상태에서는 불가능하다. 트랜잭션을 분리할 방법을 생각해보자.
             throw new ExpirationException(ErrorCode.TOKEN_EXPIRATION);
+        }
+    }
+
+    public void checkHasPassword(Member member) {
+        if (!StringUtils.hasText(member.getPassword())) {
+            throw new BadRequestException(ErrorCode.NEED_PASSWORD);
         }
     }
 }

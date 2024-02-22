@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PageItem<T> {
     private List<T> results;
+    private int pageNumber;
     private Boolean isFirst;
     private Boolean isLast;
     private Boolean isEmpty;
@@ -19,8 +20,9 @@ public class PageItem<T> {
     private Long totalElements;
 
     @Builder
-    public PageItem(List<T> results, Boolean isFirst, Boolean isLast, Boolean isEmpty, int totalPage, Long totalElements) {
+    public PageItem(List<T> results, int pageNumber, Boolean isFirst, Boolean isLast, Boolean isEmpty, int totalPage, Long totalElements) {
         this.results = results;
+        this.pageNumber = pageNumber;
         this.isFirst = isFirst;
         this.isLast = isLast;
         this.isEmpty = isEmpty;
@@ -31,6 +33,7 @@ public class PageItem<T> {
     public static <T> PageItem from(Page<T> page) {
         return PageItem.builder()
                 .results((List<Object>) page.getContent())
+                .pageNumber(page.getPageable().getPageNumber())
                 .isFirst(page.isFirst())
                 .isLast(page.isLast())
                 .isEmpty(page.isEmpty())

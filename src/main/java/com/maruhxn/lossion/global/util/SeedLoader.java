@@ -126,7 +126,7 @@ public class SeedLoader {
 
             @Override
             public int getBatchSize() {
-                return TOTAL_SIZE;
+                return TOTAL_SIZE * 10;
             }
         });
     }

@@ -2,7 +2,7 @@
 == Topic API
 
 [[Topic-토론_주제_리스트_조회]]
-== 토론 주제 리스트 조회
+=== 토론 주제 리스트 조회
 operation::topic_api_docs_test/get-topics-by-query[snippets='curl-request,query-parameters,http-request,http-response,response-fields']
 
 [[Topic-토론_주제_생성]]
@@ -34,5 +34,5 @@ operation::topic_api_docs_test/delete-topic-image[snippets='curl-request,request
 operation::topic_api_docs_test/vote[snippets='curl-request,path-parameters,request-headers,http-request,request-fields,http-response']
 
 [[Topic-내가_작성한_토론_주제_리스트_조회]]
-== 내가 작성한 토론 주제 리스트 조회
+=== 내가 작성한 토론 주제 리스트 조회
 operation::topic_api_docs_test/get-my-topics[snippets='curl-request,query-parameters,http-request,http-response,response-fields']

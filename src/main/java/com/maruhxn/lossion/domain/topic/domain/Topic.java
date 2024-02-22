@@ -139,8 +139,8 @@ public class Topic extends BaseEntity {
         viewCount += 1;
     }
 
-    public void updateCloseStatus(LocalDateTime now) {
-        this.isClosed = now.isAfter(this.closedAt);
+    public void updateCloseStatus() {
+        this.isClosed = true;
     }
 
     public void updateTopic(UpdateTopicReq req, List<TopicImage> topicImages) {

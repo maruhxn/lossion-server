@@ -3,6 +3,9 @@ package com.maruhxn.lossion.domain.topic.dto.response;
 import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.domain.topic.domain.Category;
 import com.maruhxn.lossion.domain.topic.domain.Topic;
+import com.maruhxn.lossion.domain.topic.domain.TopicImage;
+import com.maruhxn.lossion.domain.topic.domain.Vote;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,30 +35,30 @@ public class TopicDetailItem {
     private List<TopicImageItem> images;
 
     @Builder
-    public TopicDetailItem(Long topicId, CategoryItem categoryItem, String title, String description, String firstChoice, String secondChoice, AuthorInfoItem author, Long viewCount, Long commentCount, Long favoriteCount, VoteCountInfo voteCountInfo, Boolean isClosed, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime closedAt, List<TopicImageItem> images) {
+    @QueryProjection
+    public TopicDetailItem(Long topicId, Category category, String title, String description, String firstChoice, String secondChoice, Member author, Long viewCount, Long commentCount, Long favoriteCount, List<Vote> votes, Boolean isClosed, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime closedAt, List<TopicImage> images) {
         this.topicId = topicId;
-        this.categoryItem = categoryItem;
+        this.categoryItem = CategoryItem.from(category);
         this.title = title;
         this.description = description;
         this.firstChoice = firstChoice;
         this.secondChoice = secondChoice;
-        this.author = author;
+        this.author = AuthorInfoItem.from(author);
         this.viewCount = viewCount;
         this.commentCount = commentCount;
         this.favoriteCount = favoriteCount;
-        this.voteCountInfo = voteCountInfo;
+        this.voteCountInfo = VoteCountInfo.from(votes);
         this.isClosed = isClosed;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.closedAt = closedAt;
-        this.images = images;
+        this.images = images.stream()
+                .map(TopicImageItem::from)
+                .toList();
     }
 
 
     public static TopicDetailItem from(Topic topic) {
-        Member author = topic.getAuthor();
-        Category category = topic.getCategory();
-
         return TopicDetailItem.builder()
                 .topicId(topic.getId())
                 .title(topic.getTitle())
@@ -65,16 +68,14 @@ public class TopicDetailItem {
                 .commentCount((long) topic.getComments().size())
                 .viewCount(topic.getViewCount())
                 .favoriteCount((long) topic.getFavorites().size())
-                .voteCountInfo(VoteCountInfo.from(topic.getVotes()))
-                .images(topic.getImages().stream()
-                        .map(TopicImageItem::from)
-                        .toList())
+                .votes(topic.getVotes())
+                .images(topic.getImages())
                 .isClosed(topic.getIsClosed())
                 .createdAt(topic.getCreatedAt())
                 .updatedAt(topic.getUpdatedAt())
                 .closedAt(topic.getClosedAt())
-                .author(AuthorInfoItem.from(author))
-                .categoryItem(CategoryItem.from(category))
+                .author(topic.getAuthor())
+                .category(topic.getCategory())
                 .build();
     }
 }
