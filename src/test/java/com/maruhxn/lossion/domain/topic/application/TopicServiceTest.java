@@ -571,7 +571,7 @@ class TopicServiceTest extends IntegrationTestSupport {
         topicRepository.save(topic);
 
         // When
-        topicService.updateCloseStatus(topic.getId(), LocalDateTime.of(2024, 1, 16, 11, 0));
+        topicService.updateCloseStatus(topic.getId());
 
         // Then
         Topic findTopic = topicRepository.findById(topic.getId()).get();
@@ -590,7 +590,7 @@ class TopicServiceTest extends IntegrationTestSupport {
         topicRepository.save(topic);
 
         // When
-        topicService.updateCloseStatus(topic.getId(), LocalDateTime.of(2024, 1, 16, 9, 0));
+        topicService.updateCloseStatus(topic.getId());
 
         // Then
         Topic findTopic = topicRepository.findById(topic.getId()).get();

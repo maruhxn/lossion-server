@@ -17,6 +17,7 @@ public class CommentItem {
     private String text;
     private AuthorInfoItem author;
     private Long replyToId;
+    private Integer repliesCount;
     private String groupId;
     private Long favoriteCount;
     private LocalDateTime createdAt;
@@ -24,13 +25,14 @@ public class CommentItem {
 
     @Builder
     @QueryProjection
-    public CommentItem(Long id, String text, Member author, String groupId, Long favoriteCount, Long replyToId, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public CommentItem(Long id, String text, Member author, String groupId, Long favoriteCount, Long replyToId, Integer repliesCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.text = text;
         this.author = AuthorInfoItem.from(author);
         this.replyToId = replyToId;
         this.groupId = groupId;
         this.favoriteCount = favoriteCount;
+        this.repliesCount = repliesCount;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

@@ -19,6 +19,7 @@ public enum ErrorCode {
     PATH_VAR_ERROR(HttpStatus.BAD_REQUEST, "올바르지 않은 URI입니다."),
     EMPTY_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "refresh token이 필요합니다."),
     NEED_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호 설정이 필요합니다."),
+    ALREADY_EXIST_PASSWORD(HttpStatus.BAD_REQUEST, "이미 비밀번호가 설정되어 있습니다."),
 
     /* UNAUTHORIZED 401 */
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스입니다."),
@@ -39,7 +40,7 @@ public enum ErrorCode {
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "댓글 정보가 존재하지 않습니다."),
     NOT_FOUND_FAVORITE(HttpStatus.NOT_FOUND, "좋아요 정보가 존재하지 않습니다."),
     NOT_FOUND_FILE(HttpStatus.NOT_FOUND, "파일이 존재하지 않습니다."),
-
+    NOT_FOUND_VOTE(HttpStatus.NOT_FOUND, "투표 정보가 존재하지 않습니다."),
     /* UNPROCESSABLE CONTENT 422 */
     EXISTING_RESOURCE(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 리소스입니다."),
     EXISTING_ID(HttpStatus.UNPROCESSABLE_ENTITY, "이미 존재하는 아이디입니다."),

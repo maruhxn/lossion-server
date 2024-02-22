@@ -3,6 +3,7 @@ package com.maruhxn.lossion.domain.auth.api;
 import com.maruhxn.lossion.domain.auth.application.AuthService;
 import com.maruhxn.lossion.domain.auth.dto.*;
 import com.maruhxn.lossion.domain.member.dto.request.UpdateAnonymousPasswordReq;
+import com.maruhxn.lossion.domain.member.dto.response.ProfileItem;
 import com.maruhxn.lossion.global.auth.application.JwtService;
 import com.maruhxn.lossion.global.auth.dto.CustomUserDetails;
 import com.maruhxn.lossion.global.auth.dto.TokenDto;
@@ -28,6 +29,14 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtService jwtService;
+
+    @GetMapping
+    public ResponseEntity<DataResponse<ProfileItem>> getAuth(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        ProfileItem profileItem = ProfileItem.from(userDetails.getMember());
+        return ResponseEntity.ok(DataResponse.of("유저 정보 반환", profileItem));
+    }
 
     @PostMapping("/sign-up")
     @PreAuthorize("isAnonymous()")
@@ -72,6 +81,14 @@ public class AuthController {
     ) {
         authService.verifyPassword(userDetails.getMember(), req);
         return ResponseEntity.ok(new BaseResponse("비밀번호 인증 성공"));
+    }
+
+    @GetMapping("/has-password")
+    public ResponseEntity<BaseResponse> checkHasPassword(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        authService.checkHasPassword(userDetails.getMember());
+        return ResponseEntity.ok(new BaseResponse("비밀번호가 존재합니다."));
     }
 
     @PostMapping("/anonymous/send-verify-email")

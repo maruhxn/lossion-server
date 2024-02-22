@@ -31,6 +31,7 @@ public class CommentQueryRepository {
                         comment.groupId,
                         commentFavorite.countDistinct(),
                         comment.replyTo.id,
+                        comment.replies.size(),
                         comment.createdAt,
                         comment.updatedAt
                 ))
@@ -63,6 +64,7 @@ public class CommentQueryRepository {
                         comment.groupId,
                         commentFavorite.countDistinct(),
                         comment.replyTo.id,
+                        comment.replies.size(),
                         comment.createdAt,
                         comment.updatedAt
                 ))
@@ -71,7 +73,6 @@ public class CommentQueryRepository {
                 .leftJoin(comment.favorites, commentFavorite)
                 .where(comment.topic.id.eq(topicId).and(comment.groupId.eq(groupId)).and(comment.replyTo.isNotNull()))
                 .groupBy(comment.id)
-                .orderBy(comment.createdAt.desc())
                 .fetch();
     }
 }
