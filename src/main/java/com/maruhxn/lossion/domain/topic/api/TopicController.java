@@ -1,6 +1,7 @@
 package com.maruhxn.lossion.domain.topic.api;
 
 import com.maruhxn.lossion.domain.topic.application.TopicService;
+import com.maruhxn.lossion.domain.topic.domain.VoteType;
 import com.maruhxn.lossion.domain.topic.dto.request.CreateTopicReq;
 import com.maruhxn.lossion.domain.topic.dto.request.TopicSearchCond;
 import com.maruhxn.lossion.domain.topic.dto.request.UpdateTopicReq;
@@ -74,7 +75,7 @@ public class TopicController {
     public void closeTopic(
             @PathVariable Long topicId
     ) {
-        topicService.updateCloseStatus(topicId, LocalDateTime.now());
+        topicService.updateCloseStatus(topicId);
     }
 
     @DeleteMapping("/{topicId}")
@@ -95,6 +96,17 @@ public class TopicController {
     ) {
         topicService.deleteOneTopicImage(imageId);
     }
+
+    @GetMapping("/{topicId}/vote")
+    @PreAuthorize("@authChecker.isVerified()")
+    public ResponseEntity<DataResponse<VoteType>> checkVote(
+            @PathVariable Long topicId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        VoteType voteType = topicService.checkVote(topicId, userDetails.getId());
+        return ResponseEntity.ok(DataResponse.of("투표 정보 조회 성공", voteType));
+    }
+
 
     @PatchMapping("/{topicId}/vote")
     @ResponseStatus(HttpStatus.NO_CONTENT)

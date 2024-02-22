@@ -33,7 +33,7 @@ public class VoteCountInfo {
 
     private static long countVoteType(List<Vote> votes, VoteType voteType) {
         return votes.stream()
-                .filter(vote -> vote.getVoteType().equals(voteType))
+                .filter(vote -> vote.getVoteType() != null && vote.getVoteType().equals(voteType))
                 .count();
     }
 }

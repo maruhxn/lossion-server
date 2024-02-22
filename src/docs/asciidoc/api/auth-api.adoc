@@ -4,7 +4,7 @@
 [[Auth-회원가입]]
 === 회원가입
 
-operation::auth_api_docs_test/sign-up[snippets='curl-request,http-request,http-response,response-fields']
+operation::auth_api_docs_test/sign-up[snippets='curl-request,http-request,request-fields,http-response,response-fields']
 
 [[Auth-로그인]]
 === 로그인

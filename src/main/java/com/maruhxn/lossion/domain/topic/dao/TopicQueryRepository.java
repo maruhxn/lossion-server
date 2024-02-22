@@ -1,5 +1,6 @@
 package com.maruhxn.lossion.domain.topic.dao;
 
+import com.maruhxn.lossion.domain.topic.domain.Topic;
 import com.maruhxn.lossion.domain.topic.dto.request.TopicSearchCond;
 import com.maruhxn.lossion.domain.topic.dto.response.MyTopicItem;
 import com.maruhxn.lossion.domain.topic.dto.response.QMyTopicItem;
@@ -15,6 +16,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.maruhxn.lossion.domain.comment.domain.QComment.comment;
 import static com.maruhxn.lossion.domain.favorite.domain.QTopicFavorite.topicFavorite;
@@ -28,6 +30,20 @@ import static org.springframework.util.StringUtils.hasText;
 @RequiredArgsConstructor
 public class TopicQueryRepository {
     private final JPAQueryFactory query;
+
+    public Optional<Topic> findTopicDetail(Long topicId) {
+        return Optional.ofNullable(query
+                .select(topic)
+                .from(topic)
+                .leftJoin(topic.author, member)
+                .leftJoin(topic.category, category)
+                .leftJoin(topic.comments, comment)
+                .leftJoin(topic.votes, vote).on(vote.voteType.isNotNull())
+                .leftJoin(topic.favorites, topicFavorite)
+                .where(topic.id.eq(topicId))
+                .groupBy(topic.id)
+                .fetchOne());
+    }
 
     public Page<TopicItem> findAllByConditions(TopicSearchCond cond, Pageable pageable) {
         List<TopicItem> topicItems = query
@@ -46,7 +62,7 @@ public class TopicQueryRepository {
                 ))
                 .from(topic)
                 .leftJoin(topic.category, category)
-                .leftJoin(topic.votes, vote)
+                .leftJoin(topic.votes, vote).on(vote.voteType.isNotNull())
                 .leftJoin(topic.author, member)
                 .leftJoin(topic.comments, comment)
                 .leftJoin(topic.favorites, topicFavorite)
@@ -89,7 +105,7 @@ public class TopicQueryRepository {
                 ))
                 .from(topic)
                 .leftJoin(topic.category, category)
-                .leftJoin(topic.votes, vote)
+                .leftJoin(topic.votes, vote).on(vote.voteType.isNotNull())
                 .leftJoin(topic.comments, comment)
                 .leftJoin(topic.favorites, topicFavorite)
                 .where(topic.author.id.eq(memberId))

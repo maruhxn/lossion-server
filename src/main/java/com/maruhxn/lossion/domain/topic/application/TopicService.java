@@ -3,10 +3,7 @@ package com.maruhxn.lossion.domain.topic.application;
 import com.maruhxn.lossion.domain.member.dao.MemberRepository;
 import com.maruhxn.lossion.domain.member.domain.Member;
 import com.maruhxn.lossion.domain.topic.dao.*;
-import com.maruhxn.lossion.domain.topic.domain.Category;
-import com.maruhxn.lossion.domain.topic.domain.Topic;
-import com.maruhxn.lossion.domain.topic.domain.TopicImage;
-import com.maruhxn.lossion.domain.topic.domain.Vote;
+import com.maruhxn.lossion.domain.topic.domain.*;
 import com.maruhxn.lossion.domain.topic.dto.request.CreateTopicReq;
 import com.maruhxn.lossion.domain.topic.dto.request.TopicSearchCond;
 import com.maruhxn.lossion.domain.topic.dto.request.UpdateTopicReq;
@@ -84,7 +81,7 @@ public class TopicService {
 
     @Transactional
     public TopicDetailItem getTopicDetail(Long topicId) {
-        Topic findTopic = topicRepository.findTopicWithMemberAndCategoryAndVotesById(topicId)
+        Topic findTopic = topicQueryRepository.findTopicDetail(topicId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_TOPIC));
         findTopic.addViewCount();
         return TopicDetailItem.from(findTopic);
@@ -111,8 +108,7 @@ public class TopicService {
 
     @Transactional
     public void deleteTopic(Long topicId) {
-        Topic findTopic = topicRepository.findById(topicId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_TOPIC));
+        Topic findTopic = findTopicByIdOrThrow(topicId);
         topicRepository.delete(findTopic);
         findTopic.getImages()
                 .forEach(topicImage -> fileService.deleteFile(topicImage.getStoredName()));
@@ -129,9 +125,9 @@ public class TopicService {
     }
 
     @Transactional
-    public void updateCloseStatus(Long topicId, LocalDateTime now) {
+    public void updateCloseStatus(Long topicId) {
         Topic findTopic = findTopicByIdOrThrow(topicId);
-        findTopic.updateCloseStatus(now);
+        findTopic.updateCloseStatus();
     }
 
     @Transactional
@@ -165,5 +161,11 @@ public class TopicService {
     public PageItem getMyTopics(Long memberId, Pageable pageable) {
         Page<MyTopicItem> result = topicQueryRepository.findMyTopics(memberId, pageable);
         return PageItem.from(result);
+    }
+
+    public VoteType checkVote(Long topicId, Long memberId) {
+        Vote findVote = voteRepository.findByTopicIdAndVoter_Id(topicId, memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.NOT_FOUND_VOTE));
+        return findVote.getVoteType();
     }
 }
